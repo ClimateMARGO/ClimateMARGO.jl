@@ -4,3 +4,4 @@ test.ipynb
 notes/
 figures/*
 !figures/README.md
+!figures/MARGO_schematic.png
