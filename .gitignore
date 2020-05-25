@@ -2,4 +2,5 @@
 references/
 test.ipynb
 notes/
-figures/
+figures/*
+!figures/README.md
