@@ -1,0 +1,5 @@
+name: MARGO
+channels:
+  - conda-forge
+dependencies:
+  - matplotlib
