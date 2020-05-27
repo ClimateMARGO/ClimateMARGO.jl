@@ -96,15 +96,7 @@ Economics(t) = Economics(
     baseline_emissions(t)
 )
 
-Economics0(t) = Economics(
-    GWP(t), β, utility_discount_rate,
-    mitigate_cost, remove_cost, geoeng_cost, adapt_cost,
-    0., 0., 0., nothing, # Initial condition on control deployments at t[1]
-    baseline_emissions(t)
-)
-
 Economics() = Economics(t)
-Economics0() = Economics0(t)
 
 Physics() = Physics(CO₂_init, δT_init, a, B, Cd, κ, r)
 

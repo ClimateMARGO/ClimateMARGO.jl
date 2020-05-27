@@ -5,3 +5,4 @@ notes/
 figures/*
 !figures/README.md
 !figures/MARGO_schematic.png
+T_*.ipynb

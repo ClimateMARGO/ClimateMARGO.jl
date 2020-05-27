@@ -1,8 +1,10 @@
+
 function optimize_controls!(
         model::ClimateModel;
         obj_option = "temp", temp_goal = 2.0, budget=10., expenditure = 0.5,
         max_deployment = Dict("mitigate"=>1., "remove"=>1., "geoeng"=>1., "adapt"=>0.4),
-        maxslope = Dict("mitigate"=>1. /40., "remove"=>1. /40., "geoeng"=>1. /30., "adapt"=>0.),
+        max_slope = Dict("mitigate"=>1. /40., "remove"=>1. /40., "geoeng"=>1. /20., "adapt"=>0.),
+        max_update = Dict("mitigate"=>nothing, "remove"=>nothing, "geoeng"=>nothing, "adapt"=>0.1),
         temp_final = nothing,
         start_deployment = Dict(
             "mitigate"=>model.domain[1],
@@ -39,6 +41,16 @@ function optimize_controls!(
         end
     end
     
+    max_slope_update = Dict()
+    for (key, item) in max_update
+        if isnothing(item)
+            max_slope_update[key] = 0
+            max_update[key] = Inf
+        else
+            max_slope_update[key] = 1
+        end
+    end
+    
     if typeof(cost_exponent) in [Int64, Float64]
         cost_exponent = Dict(
             "mitigate"=>cost_exponent, "remove"=>cost_exponent, "geoeng"=>cost_exponent, "adapt"=>cost_exponent
@@ -46,7 +58,7 @@ function optimize_controls!(
     end
     
     model_optimizer = Model(optimizer_with_attributes(Ipopt.Optimizer,
-        "acceptable_tol" => 1.e-10, "max_iter" => Int64(1e7),
+        "acceptable_tol" => 1.e-8, "max_iter" => Int64(1e8),
         "acceptable_constr_viol_tol" => 1.e-3, "constr_viol_tol" => 1.e-4,
         "print_frequency_iter" => 50,  "print_timing_statistics" => bool_str,
         "print_level" => print_int,
@@ -215,31 +227,37 @@ function optimize_controls!(
 
     # Add constraint of rate of changes
     present_idx = findmin(abs.(model.domain .- model.present_year))[2]
-    if present_idx == 1
-        present_idx = 0
-    end
-    if typeof(maxslope) == Float64
-        @variables(model_optimizer, begin
-                -maxslope <= dMdt[present_idx+1:N-1] <= maxslope
-                -maxslope <= dRdt[present_idx+1:N-1] <= maxslope
-                -maxslope <= dGdt[present_idx+1:N-1] <= maxslope
-                -maxslope <= dAdt[present_idx+1:N-1] <= maxslope
-        end);
 
-    elseif typeof(maxslope) == Dict{String,Float64}
-        @variables(model_optimizer, begin
-                -maxslope["mitigate"] <= dMdt[present_idx+1:N-1] <= maxslope["mitigate"]
-                -maxslope["remove"] <= dRdt[present_idx+1:N-1] <= maxslope["remove"]
-                -maxslope["geoeng"] <= dGdt[present_idx+1:N-1] <= maxslope["geoeng"]
-                -maxslope["adapt"] <= dAdt[present_idx+1:N-1] <= maxslope["adapt"]
-        end);
-    end
-
-    for i in present_idx+1:N-1
+    @variables(model_optimizer, begin
+            -max_slope["mitigate"] <= dMdt[present_idx+max_slope_update["mitigate"]:N-1] <= max_slope["mitigate"]
+            -max_slope["remove"] <= dRdt[present_idx+max_slope_update["remove"]:N-1] <= max_slope["remove"]
+            -max_slope["geoeng"] <= dGdt[present_idx+max_slope_update["geoeng"]:N-1] <= max_slope["geoeng"]
+            -max_slope["adapt"] <= dAdt[present_idx+max_slope_update["adapt"]:N-1] <= max_slope["adapt"]
+    end);
+    for i in present_idx+max_slope_update["mitigate"]:N-1
         @constraint(model_optimizer, dMdt[i] == (M[i+1] - M[i]) / model.dt)
+    end
+    for i in present_idx+max_slope_update["remove"]:N-1
         @constraint(model_optimizer, dRdt[i] == (R[i+1] - R[i]) / model.dt)
+    end
+    for i in present_idx+max_slope_update["geoeng"]:N-1
         @constraint(model_optimizer, dGdt[i] == (G[i+1] - G[i]) / model.dt)
+    end
+    for i in present_idx+max_slope_update["adapt"]:N-1
         @constraint(model_optimizer, dAdt[i] == (A[i+1] - A[i]) / model.dt)
+    end
+    
+    if present_idx > 1
+        @variables(model_optimizer, begin
+            -max_update["mitigate"] <= dM <= max_update["mitigate"]
+            -max_update["remove"] <= dR <= max_update["remove"]
+            -max_update["geoeng"] <= dG <= max_update["geoeng"]
+            -max_update["adapt"] <= dA <= max_update["adapt"]
+        end);
+        @constraint(model_optimizer, dM == (M[present_idx+1] - M[present_idx]))
+        @constraint(model_optimizer, dR == (R[present_idx+1] - R[present_idx]))
+        @constraint(model_optimizer, dG == (G[present_idx+1] - G[present_idx]))
+        @constraint(model_optimizer, dA == (A[present_idx+1] - A[present_idx]))
     end
     
     if obj_option == "net_benefit"
