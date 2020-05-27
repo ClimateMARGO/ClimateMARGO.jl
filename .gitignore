@@ -1,8 +1,11 @@
 .ipynb_checkpoints
-references/
 testing
 test.ipynb
-notes/
+
+docs/build
+
 figures/*
 !figures/README.md
 !figures/MARGO_schematic.png
+
+
