@@ -1,2 +1,2 @@
-# Installation guide
+# MARGO.jl
 
