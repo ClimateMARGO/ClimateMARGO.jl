@@ -12,6 +12,12 @@ PyPlot = "d330b81b-6aea-500a-939a-2ce795aea3ee"
 
 [compat]
 julia = "1.3"
+Formatting = "0.4.1"
+IJulia = "1.21.2"
+Ipopt = "0.6.2"
+JuMP = "0.21.2"
+PyCall = "1.91.4"
+PyPlot = "2.9.0"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
