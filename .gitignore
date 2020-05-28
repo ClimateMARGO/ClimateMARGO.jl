@@ -3,10 +3,6 @@ work-in-progress
 
 docs/build
 docs/Manifest.toml
+
 test_docs.sh
-
-figures/*
-!figures/README.md
-!figures/MARGO_schematic.png
-
 
