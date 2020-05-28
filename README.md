@@ -1,4 +1,4 @@
-# MARGO.jl: an idealized framework for optimal deployments of climate control strategies
+# ClimateMARGO.jl: an idealized framework for optimal deployments of climate control strategies
 
 The MARGO model is described in an accompanying (not yet peer-reviewed) manuscript, available to all at [EarthArXiv.org/5bgyc](https://eartharxiv.org/5bgyc/).
 
