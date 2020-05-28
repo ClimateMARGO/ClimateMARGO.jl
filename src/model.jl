@@ -1,3 +1,10 @@
+"""
+    Physics(CO₂_init, δT_init, a, B, Cd, κ, r, ECS, τd)
+
+Create data structure for model physics.
+
+See also: [`ClimateModel`](@ref)
+"""
 mutable struct Physics
     CO₂_init::Float64
     δT_init::Float64
@@ -22,8 +29,21 @@ end
 """
     Controls(mitigate, remove, geoeng, adapt)
 
-Create data structure for climate control arrays Arrays along time axis,
-with bounded values ∈ [0,1].
+Create data structure for climate controls.
+
+# Examples
+```jldoctest
+a = zeros(4);
+C = Controls(a, a, a, a);
+C.geoeng
+
+# output
+4-element Array{Float64,1}:
+ 0.0
+ 0.0
+ 0.0
+ 0.0
+```
 
 See also: [`ClimateModel`](@ref)
 """
@@ -36,23 +56,26 @@ end
 
 """
     Economics(
-        β, utility_discount_rate,
+        GWP, β, utility_discount_rate,
         mitigate_cost, remove_cost, geoeng_cost, adapt_cost,
         mitigate_init, remove_init, geoeng_init, adapt_init,
-        baseline_emissions
+        baseline_emissions,
+        extra_CO₂
     )
 
 Create data structure for economic input parameters for `ClimateModel` struct,
 including a baseline emissions scenario.
 
 ### Arguments
-- `β::Float64`: climate damage parameter [10^12 USD / (°C)^2].
-- `utility_discount_rate::Float64`: typically denoted ρ in economic references.
-- `[control]_cost::Float64`: scaling cost of full control deployment [10^12 USD].
-- `[control]_init::Float64`: fixed initial condition for control deployment [10^12 USD].
+- `GWP::Array{Float64,1}`: Gross World Product timeseries [10^12 USD / year]
+- `β::Float64`: climate damage parameter [% GWP / (°C)^2].
+- `utility_discount_rate::Float64`: typically denoted ρ in economic references [fraction].
+- `[control]_cost::Float64`: scaling cost of full control deployment [10^12 USD / year OR % of GWP].
+- `[control]_init::Float64`: fixed initial condition for control deployment [10^12 USD / year].
 - `baseline_emissions::Array{Float64,1}`: prescribed baseline CO₂ equivalent emissions [ppm / yr].
+- `extra_CO₂::Array{Float64,1}`: optional additional CO₂ input that is used only for Social Cost of Carbon calculations [ppm].
 
-See also: [`ClimateModel`](@ref), [`baseline_emissions`](@ref).
+See also: [`ClimateModel`](@ref), [`baseline_emissions`](@ref), [`GWP`](@ref).
 
 """
 mutable struct Economics
@@ -92,40 +115,19 @@ function Economics(GWP, β, utility_discount_rate, mitigate_cost, remove_cost, g
     )
 end
 
-"Return a non-dimensional Array of size(t) which represents a linear increase from 0. to 1."
-nondim_linear(t::Array) = (t .- t[1])/(t[end] - t[1]);
-
-"""
-    init_linear_controls(t)
-
-Create physical (but arbitrary) initial guess of climate controls in which all controls increase
-linearly with time.
-
-See also: [`Controls`](@ref)
-"""
-function init_linear_controls(t::Array{Float64,1})
-    c = Controls(
-        nondim_linear(t)/3.,
-        nondim_linear(t)/2.,
-        nondim_linear(t)/8.,
-        nondim_linear(t)/10.
-    )
-    return c
-end
-
 """
     init_zero_controls(t)
 
-Create initial guess of zero climate controls.
+Return initial state of uniformly-zero climate controls.
 
 See also: [`Controls`](@ref)
 """
 function init_zero_controls(t::Array{Float64,1})
     c = Controls(
-        nondim_linear(t)*0.,
-        nondim_linear(t)*0.,
-        nondim_linear(t)*0.,
-        nondim_linear(t)*0.
+        zeros(size(t)),
+        zeros(size(t)),
+        zeros(size(t)),
+        zeros(size(t))
     )
     return c
 end
@@ -134,9 +136,8 @@ end
 """
     ClimateModel(name, domain, dt, present_year, economics, physics, controls)
 
-Create instance of an extremely idealized integrated-assessment
-climate model, starting from a given year (`present_year`), economic input parameters
-(`economics`), physical climate parameters (`physics`), and climate control policies (`controls`) over some time frame (`domain`) with a given timestep (`dt`).
+Create instance of an extremely idealized multi-control climate model, starting from a given year (`present_year`), economic input parameters
+(`economics`), physical climate parameters (`physics`), and climate control policies (`controls`) over some time frame (`domain`), with a given timestep (`dt`).
 
 See also: [`Controls`](@ref), [`Economics`](@ref), [`CO₂`](@ref), [`δT`](@ref),
 [`optimize!`](@ref)

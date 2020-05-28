@@ -70,22 +70,9 @@ mitigate_cost = 0.02; # [% GWP]
 geoeng_cost = β * ((8.5*sec_per_year)/(B+κ))^2; # [% of global world product]
 
 """
-    Economics()
+    Economics(t)
 
-Create data structure for economic input parameters for `ClimateModel` struct with default values.
-
-Default parameters are:
-- `β`= 0.222 × 10^12 USD / (°C)^2
-- `utility_discount_rate` = 0.0 (compare with Stern review median value of 1.4% and ~3% Nordhaus values)
-- `mitigate_cost` = 1. × 10^12 USD
-- `remove_cost` = 2. × 10^12 USD
-- `geoeng_cost` = 5. × 10^12 USD
-- `adapt_cost` = 3. × 10^12 USD
-- `[control]_init` = 0.
-- `baseline_emissions` = baseline_emissions(t::Array{Float64,1}, 10., 2080., 40.)
-
-The default baseline emissions scenario corresponds to flat emissions of 10 ppm / year
-from 2020 to 2080 and linearly decreasing from 10 ppm / year in 2080 to 0 ppm / year in 2120.
+Create data structure for economic input parameters for `ClimateModel` struct with default values over timeseries `t`.
 
 See also: [`ClimateModel`](@ref), [`baseline_emissions`](@ref)
 """
@@ -96,8 +83,22 @@ Economics(t) = Economics(
     baseline_emissions(t)
 )
 
+"""
+    Economics()
+
+Create data structure for economic input parameters for `ClimateModel` struct with default values.
+
+See also: [`ClimateModel`](@ref), [`baseline_emissions`](@ref)
+"""
 Economics() = Economics(t)
 
+"""
+    Physics()
+
+Create data structure for physical climate parameters for `ClimateModel` struct with default values.
+
+See also: [`ClimateModel`](@ref)
+"""
 Physics() = Physics(CO₂_init, δT_init, a, B, Cd, κ, r)
 
 ClimateModel(name::String) = ClimateModel(
@@ -119,5 +120,3 @@ ClimateModel(;t::Array{Float64,1}, dt::Float64) = ClimateModel(
     Physics(),
     init_zero_controls(t)
 )
-
-ClimateModel() = ClimateModel("default")

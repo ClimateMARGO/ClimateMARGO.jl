@@ -1,2 +1,2 @@
-## MARGO Docs
+# Installation guide
 
