@@ -34,7 +34,7 @@ Create data structure for climate controls.
 # Examples
 ```jldoctest
 a = zeros(4);
-C = MARGO.Controls(a, a, a, a);
+C = ClimateMARGO.Controls(a, a, a, a);
 C.geoeng
 
 # output
