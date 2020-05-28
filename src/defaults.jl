@@ -101,18 +101,8 @@ See also: [`ClimateModel`](@ref)
 """
 Physics() = Physics(CO₂_init, δT_init, a, B, Cd, κ, r)
 
-ClimateModel(name::String) = ClimateModel(
+ClimateModel(;name::String = "default", t::Array{Float64,1}=t, dt::Float64=dt) = ClimateModel(
     name,
-    t,
-    dt,
-    present_year,
-    Economics(),
-    Physics(),
-    init_zero_controls(t)
-)
-
-ClimateModel(;t::Array{Float64,1}, dt::Float64) = ClimateModel(
-    "default",
     t,
     dt,
     present_year,

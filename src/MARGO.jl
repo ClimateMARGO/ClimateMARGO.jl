@@ -7,6 +7,18 @@ end
 using PyPlot
 using JuMP, Ipopt
 
+export
+    ClimateModel,
+    Controls,
+    Economics,
+    Physics,
+    optimize_controls!,
+    step_forward!,
+    add_emissions_bump!,
+    plot_state,
+    deep_copy
+
+
 ### Load code
 include("model.jl")
 include("diagnostics.jl")
