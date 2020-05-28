@@ -1,9 +1,9 @@
 push!(LOAD_PATH,"../src/")
 
-using Documenter, MARGO
+using Documenter, ClimateMARGO
 
 makedocs(
-    sitename="MARGO.jl",
+    sitename="ClimateMARGO.jl",
     doctest = true,
     authors = "Henri F. Drake",
     format = Documenter.HTML(
@@ -16,4 +16,4 @@ makedocs(
     ]
 )
 
-deploydocs(repo = "github.com/hdrake/MARGO.jl.git")
+deploydocs(repo = "github.com/hdrake/ClimateMARGO.jl.git")

@@ -1,4 +1,4 @@
-name: MARGO
+name: ClimateMARGO
 channels:
   - conda-forge
 dependencies:

@@ -1,2 +1,2 @@
-# MARGO.jl
+# ClimateMARGO.jl
 
