@@ -1,5 +1,5 @@
 name = "ClimateMARGO"
-uuid = "39978bfe-ac6a-4fbe-9981-75100ee30276"
+uuid = "d3f62095-a717-45bf-aadc-ac9dfc258fa6"
 version = "0.0.1"
 
 [deps]
