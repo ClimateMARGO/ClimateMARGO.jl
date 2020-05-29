@@ -8,7 +8,6 @@ makedocs(
     authors = "Henri F. Drake",
     format = Documenter.HTML(
         prettyurls = get(ENV, "CI", nothing) == "true",
-        canonical = "https://hdrake.github.io/ClimateMargo.jl/latest/"
     ),
     pages = [
       "Home" => "index.md",
