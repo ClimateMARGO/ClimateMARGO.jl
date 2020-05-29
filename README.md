@@ -19,7 +19,7 @@
   <a href="https://hdrake.github.io/ClimateMARGO.jl/dev/">
     <img alt="Documentation in development" src="https://img.shields.io/badge/docs-latest-blue.svg?style=flat-square">
   </a>
-  <a href="https://travis-ci.com/hdrake/ClimateMARGO.jl">
+  <a href="https://travis-ci.org/hdrake/ClimateMARGO.jl">
     <img alt="Build status" src="https://travis-ci.org/hdrake/ClimateMARGO.jl.svg?branch=master">
   </a>
 </p>
