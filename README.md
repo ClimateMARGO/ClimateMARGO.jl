@@ -5,7 +5,7 @@
 
 <!-- description -->
 <p align="center">
-  <strong> An fast and idealized framework for optimal deployments of climate control strategies in Julia.</strong>
+  <strong> A fast and idealized framework for optimal deployments of climate control strategies in Julia.</strong>
 </p>
 
 <!-- Information badges -->
