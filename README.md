@@ -22,6 +22,10 @@
   <a href="https://travis-ci.org/hdrake/ClimateMARGO.jl">
     <img alt="Build status" src="https://travis-ci.org/hdrake/ClimateMARGO.jl.svg?branch=master">
   </a>
+  <a href="https://mybinder.org/v2/gh/hdrake/ClimateMARGO.jl/master?filepath=examples%2Ftutorials%2Fbasic_tutorial.ipynb">
+    <img alt="Binder logo" src="https://mybinder.org/badge_logo.svg">
+  </a>
+  
 </p>
 
 <!-- CI/CD badges -->
