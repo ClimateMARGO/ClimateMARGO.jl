@@ -6,6 +6,7 @@ makedocs(
     sitename="ClimateMARGO.jl",
     doctest = true,
     authors = "Henri F. Drake",
+    push_preview = false,
     format = Documenter.HTML(
         prettyurls = get(ENV, "CI", nothing) == "true",
     ),
@@ -16,4 +17,4 @@ makedocs(
     ]
 )
 
-deploydocs(repo = "github.com/hdrake/ClimateMARGO.jl.git")
+deploydocs(repo = "github.com/hdrake/ClimateMARGO.jl.git",)
