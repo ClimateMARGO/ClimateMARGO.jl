@@ -6,7 +6,6 @@ makedocs(
     sitename="ClimateMARGO.jl",
     doctest = true,
     authors = "Henri F. Drake",
-    push_preview = false,
     format = Documenter.HTML(
         prettyurls = get(ENV, "CI", nothing) == "true",
     ),
