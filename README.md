@@ -1,4 +1,30 @@
-# ClimateMARGO.jl: an idealized framework for optimal deployments of climate control strategies
+<!-- Title -->
+<h1 align="center">
+  ClimateMARGO.jl
+</h1>
+
+<!-- description -->
+<p align="center">
+  <strong> An fast and idealized framework for optimal deployments of climate control strategies in Julia.</strong>
+</p>
+
+<!-- Information badges -->
+<p align="center">
+  <a href="https://mit-license.org">
+    <img alt="MIT license" src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square">
+  </a>
+  <a href="https://github.com/hdrake/ClimateMARGO.jl/issues/new">
+    <img alt="Ask us anything" src="https://img.shields.io/badge/Ask%20us-anything-1abc9c.svg?style=flat-square">
+  </a>
+  <a href="https://hdrake.github.io/ClimateMARGO.jl/dev/">
+    <img alt="Documentation in development" src="https://img.shields.io/badge/docs-latest-blue.svg?style=flat-square">
+  </a>
+  <a href="https://travis-ci.com/hdrake/ClimateMARGO.jl">
+    <img alt="Build status" src="https://travis-ci.org/hdrake/ClimateMARGO.jl.svg?branch=master">
+  </a>
+</p>
+
+<!-- CI/CD badges -->
 
 The MARGO model is described in an accompanying (not yet peer-reviewed) manuscript, available to all at [EarthArXiv.org/5bgyc](https://eartharxiv.org/5bgyc/).
 
