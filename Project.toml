@@ -1,6 +1,6 @@
 name = "ClimateMARGO"
 uuid = "d3f62095-a717-45bf-aadc-ac9dfc258fa6"
-version = "0.0.2"
+version = "0.0.3"
 
 [deps]
 Formatting = "59287772-0a20-5a39-b81b-1366585eb4c0"
