@@ -97,7 +97,7 @@ function plot_benefits(model::ClimateModel; discounted=true)
     plot(model.domain[domain_idx], (benefits .* discount)[domain_idx], color="C1", label="benefits (of avoided damages)")
     plot(model.domain[domain_idx], (- control_cost(model) .* discount)[domain_idx], color="C3", label=L"$-$ costs (of climate controls)")
     plot(model.domain[domain_idx], ((benefits - control_cost(model)) .* discount)[domain_idx], color="k", label="net benefits (benefits - costs)")
-    ylabel(L"costs and benefits [10$^{12}$ \$ / year]")
+    ylabel(L"discounted costs and benefits [10$^{12}$ \$ / year]")
     xlabel("year")
     xlim(model.domain[1],2200.)
     xticks(model.domain[1]:40.:2200.)
@@ -166,7 +166,7 @@ function plot_state(model::ClimateModel; new_figure=true, plot_legends=true)
     if plot_legends;
         for ii in 1:6
             subplot(2,3,ii);
-            if ii <= 3;
+            if ii <= 2;
                 legend(loc="lower left");
             else
                 legend(loc="upper left");
