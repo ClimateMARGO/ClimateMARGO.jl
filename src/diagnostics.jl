@@ -156,8 +156,8 @@ FCO₂_no_geoeng(model::ClimateModel; a=a) = (
 
 
 function discounting(model::ClimateModel)
-    discount = (1. .+ model.economics.utility_discount_rate) .^ (-(t .- model.present_year))
-    discount[t .< model.present_year] .= 0.
+    discount = (1. .+ model.economics.utility_discount_rate) .^ (-(model.domain .- model.present_year))
+    discount[model.domain .< model.present_year] .= 0.
     
     return discount
 end
