@@ -6,25 +6,31 @@ Create data structure for model physics.
 See also: [`ClimateModel`](@ref)
 """
 mutable struct Physics
-    CO₂_init::Float64
-    δT_init::Float64
-    a::Float64
-    B::Float64
-    Cd::Float64
-    κ::Float64
-    r::Float64
+    CO₂_init::Float64 # initial CO2e concentration, relative to PI
+    δT_init::Float64  # initial temperature, relative to PI
     
-    ECS::Float64
-    τd::Float64
-    function Physics(CO₂_init, δT_init, a, B, Cd, κ, r)
-        FCO₂_2x = a*log(2) # Forcing due to doubling CO2 (Geoffrey 2013)
-        sec_per_year = 60. * 60. * 24. * 365.25
-        
-        ECS = (FCO₂_2x*sec_per_year)/B # [degC]
-        τd = (Cd/B) * (B+κ)/κ # [yr]
-        return new(CO₂_init, δT_init, a, B, Cd, κ, r, ECS, τd)
-    end
+    a::Float64        # logarithmic CO2 forcing coefficient
+    B::Float64        # feedback parameter
+    
+    Cd::Float64       # deep ocean heat capacity
+    κ::Float64        # deep ocean heat uptake rate
+    
+    r::Float64        # long-term airborne fraction of CO2e
 end
+
+FCO₂_2x(a::Float64) = a * log(2.)
+FCO₂_2x(phys::Physics) = FCO₂_2x(phys.a)
+FCO₂_2x(model::ClimateModel) = FCO₂_2x(model.phys)
+
+ECS(B::Float64, a::Float64) = FCO₂_2x(a) / B
+ECS(phys) = ECS(phys.B, phys.a)
+ECS(model) = ECS(model.Physics)
+
+B_from_ECS(ECS::Float64, phys) = (FCO₂_2x(phys) * sec_per_year) / ECS
+
+τd(Physics) = (Physics.Cd/Physics.B) * (Physics.B+Physics.κ)/Physics.κ
+
+
 
 """
     Controls(mitigate, remove, geoeng, adapt)
