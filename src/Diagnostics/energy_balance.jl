@@ -10,6 +10,19 @@ function F(model; M=false, R=false, G=false)
     )
 end
 
+F2x(a::Float64) = a*log(2)
+F2x(model::ClimateModel) = F2x(model.physics.a)
+
+ECS(a, B) = F2x(a)/B
+ECS(model) = ECS(model.physics.a, model.physics.B)
+
+B(a::Float64, ECS::Float64) = F2x(a)/ECS
+B(model::ClimateModel; ECS=ECS(model)) = B(model.physics.a, ECS)
+
+τd(Cd, B, κ) = (Cd/B) * (B+κ)/κ
+τd(phys::Physics) = τd(phys.Cd, phys.B, phys.κ)
+τd(model::ClimateModel) = τd(model.physics)
+
 
 # δT_baseline(model::ClimateModel) = (
 #     model.physics.δT_init .+
