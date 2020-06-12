@@ -23,80 +23,44 @@ B(model::ClimateModel; ECS=ECS(model)) = B(model.physics.a, ECS)
 τd(phys::Physics) = τd(phys.Cd, phys.B, phys.κ)
 τd(model::ClimateModel) = τd(model.physics)
 
+T_fast(F, κ, B; A=0.) = sqrt.(1. .- A) .* F/(κ + B)
+T_fast(model::ClimateModel; M=false, R=false, G=false, A=false) = T_fast(
+    F(model, M=M, R=R, G=G),
+    model.physics.κ,
+    model.physics.B,
+    A=model.controls.adapt .* (1. .- .~future_mask(model) * ~A)
+)
 
-# δT_baseline(model::ClimateModel) = (
-#     model.physics.δT_init .+
-#     (FCO₂_baseline(model) .+ model.physics.κ / (model.physics.τd * model.physics.B) *  
-#         (
-#             exp.( -(model.domain .- (model.domain[1] - model.dt)) / model.physics.τd ) .*
-#             cumsum(
-#                 exp.( (model.domain .- (model.domain[1] - model.dt)) / model.physics.τd ) .*
-#                 FCO₂_baseline(model)
-#                 .* model.dt
-#             )
-#         )
-#     ) ./ (model.physics.B + model.physics.κ)
-# )
+function T_slow(F, Cd, κ, B, t, dt; A=0.)
+    τ = τd(Cd, κ, B)
+    return sqrt.(1. .- A) .* (
+        (κ/B) / (κ + B) *
+        exp.( - (t .- (t[1] - dt)) / τ) .*
+        cumsum( (exp.( (t .- (t[1] - dt)) / τ) / τ) .* F * dt)
+    )
+end
+T_slow(model::ClimateModel; M=false, R=false, G=false, A=false) = T_slow(
+    F(model, M=M, R=R, G=G),
+    model.physics.Cd,
+    model.physics.κ,
+    model.physics.B,
+    t(model),
+    model.domain.dt,
+    A=model.controls.adapt .* (1. .- .~future_mask(model) * ~A)
+)
 
-# δT_no_geoeng(model::ClimateModel) = (
-#     model.physics.δT_init .+
-#     (FCO₂_no_geoeng(model) .+ model.physics.κ / (model.physics.τd * model.physics.B) *  
-#         (
-#             exp.( - (model.domain .- (model.domain[1] - model.dt)) / model.physics.τd ) .*
-#             cumsum(
-#                 exp.( (model.domain .- (model.domain[1] - model.dt)) / model.physics.τd ) .*
-#                 FCO₂_no_geoeng(model)
-#                 .* model.dt
-#             )
-#         )
-#     ) ./ (model.physics.B + model.physics.κ)
-# )
-
-# δT(model::ClimateModel) = ((
-#         model.physics.δT_init .+
-#         (FCO₂(model) .+ model.physics.κ / (model.physics.τd * model.physics.B) * 
-#             (
-#                 exp.( - (model.domain .- (model.domain[1] - model.dt)) / model.physics.τd ) .*
-#                 cumsum(
-#                     exp.( (model.domain .- (model.domain[1] - model.dt)) / model.physics.τd ) .*
-#                     FCO₂(model)
-#                     .* model.dt
-#                 )
-#             )
-#         ) ./ (model.physics.B + model.physics.κ)
-#     )
-# )
-
-# δT_adapt(model::ClimateModel) = ((
-#         model.physics.δT_init .+
-#         (FCO₂(model) .+ model.physics.κ / (model.physics.τd * model.physics.B) * 
-#             (
-#                 exp.( - (model.domain .- (model.domain[1] - model.dt)) / model.physics.τd ) .*
-#                 cumsum(
-#                     exp.( (model.domain .- (model.domain[1] - model.dt)) / model.physics.τd ) .*
-#                     FCO₂(model)
-#                     .* model.dt
-#                 )
-#             )
-#         ) ./ (model.physics.B + model.physics.κ)
-#     ) .* sqrt.(1. .- model.controls.adapt)
-# )
-
-# δT_fast(model::ClimateModel) = ((
-#         FCO₂(model) ./ (model.physics.B + model.physics.κ)
-#     )
-# )
-
-# δT_slow(model::ClimateModel) = (
-#     (
-#         model.physics.κ / (model.physics.τd * model.physics.B) * 
-#             (
-#                 exp.( - (model.domain .- (model.domain[1] - model.dt)) / model.physics.τd ) .*
-#                 cumsum(
-#                     exp.( (model.domain .- (model.domain[1] - model.dt)) / model.physics.τd ) .*
-#                     FCO₂(model)
-#                     .* model.dt
-#                 )
-#             )
-#         ) ./ (model.physics.B + model.physics.κ)
-# )
+T(T0, F, Cd, κ, B, t, dt; A=0.) = sqrt.(1. .- A) .* (
+    T0 .+
+    T_fast(F, κ, B) .+
+    T_slow(F, Cd, κ, B, t, dt)
+)
+T(model::ClimateModel; M=false, R=false, G=false, A=false) = T(
+    model.physics.T0,
+    F(model, M=M, R=R, G=G),
+    model.physics.Cd,
+    model.physics.κ,
+    model.physics.B,
+    t(model),
+    model.domain.dt,
+    A=model.controls.adapt .* (1. .- .~future_mask(model) * ~A)
+)
