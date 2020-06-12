@@ -167,6 +167,12 @@ git-tree-sha1 = "b34d7cef7b337321e97d22242c3c2b91f476748e"
 uuid = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 version = "0.21.0"
 
+[[JSON2]]
+deps = ["Dates", "Parsers", "Test"]
+git-tree-sha1 = "66397cc6c08922f98a28ab05a8d3002f9853b129"
+uuid = "2535ab7d-5cd8-5a07-80ac-9b1792aadce3"
+version = "0.3.2"
+
 [[JSONSchema]]
 deps = ["BinaryProvider", "HTTP", "JSON"]
 git-tree-sha1 = "b0a7f9328967df5213691d318a03cf70ea8c76b1"
