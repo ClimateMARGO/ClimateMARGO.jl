@@ -6,7 +6,8 @@ export
     t, future_mask,
     ramp_emissions, emissions, effective_emissions,
     c, F, Tslow, Tfast, T,
-    τd, B, F2x, ECS
+    τd, B, F2x, ECS,
+    discount, f, E, D, C, B, NB, NPC, NPB
 
 include("carbon.jl")
 include("energy_balance.jl")

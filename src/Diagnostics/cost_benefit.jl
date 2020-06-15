@@ -1,85 +1,68 @@
 f(α::Array; p=2.) = α.^p # shape of individual cost functions
 
-# Following RCP8.5 CO2e concentrations 
-# Raw data at https://www.iiasa.ac.at/web-apps/tnt/RcpDb/dsd?Action=htmlpage&page=compare
-#
-# See below link for 2020 initial condition:
-# https://www.eea.europa.eu/data-and-maps/indicators/atmospheric-greenhouse-gas-concentrations-6/assessment-1
-function ramp_emissions(t, q0::Float64, n::Float64, t1::Float64, t2::Float64)
-    t0 = t[1]
-    Δt0 = t1 - t0
-    Δt1 = t2 - t1
-    q = zeros(size(t))
-    increase_idx = (t .<= t1)
-    decrease_idx = ((t .> t1) .& (t .<= t2))
-    q[increase_idx] .= q0 * (1. .+ (n-1) .*(t[increase_idx] .- t0)/Δt0)
-    q[decrease_idx] .= n * q0 * (t2 .- t[decrease_idx])/Δt1
-    q[t .> t2] .= 0.
-    return q
+E(t, E0, γ) = E0 * (1. .+ γ).^(t .- t[1])
+E(m) = E(t(m), m.economics.E0, m.economics.γ)
+
+discount(t, ρ, tp) = .~future_mask(t, tp) .* (1. .+ ρ) .^ (- (t .- tp))
+discount(m::ClimateModel) = discount(t(m), m.economics.ρ, m.domain.present_year)
+
+D(β, E, T, A; discount=1.) = ((1. .- A) .* β .* E .* T.^2) .* discount
+
+D(m; discounting=false, M=false, R=false, G=false, A=false) = D(
+    m.economics.β,
+    E(m),
+    T(m, M=M, R=R, G=G, A=A),
+    0.,
+    discount=1. .+ discounting * (discount(m) .- 1.)
+)
+
+C(CM, CR, CG, CA, E, M, R, G, A; discount=1., p=2.) = (
+    ( E.*(CM*f(M, p=p) + CG*f(G, p=p)) + CR*f(R, p=p) + + CA*f(A, p=p) ) .* discount
+)
+
+C(m::ClimateModel; discounting=false, p=2., M=false, R=false, G=false, A=false) = C(
+    m.economics.mitigate_cost,
+    m.economics.remove_cost,
+    m.economics.geoeng_cost, 
+    m.economics.adapt_cost,
+    E(m),
+    m.controls.mitigate .* M,
+    m.controls.remove .* R,
+    m.controls.geoeng .* G,
+    m.controls.adapt .* A,
+    discount=1. .+ discounting * (discount(m) .- 1.),
+    p=p
+)
+
+function C(m::ClimateModel, controls::String; discounting=false)
+    vars = Dict("M"=>false, "R"=>false, "G"=>false, "A"=>false)
+    for (key, value) in vars
+        if occursin(key, controls)
+            vars[key] = true
+        end
+    end
+    return C(m, discounting=discounting; M=vars["M"], R=vars["R"], G=vars["G"], A=vars["A"])
 end
-function ramp_emissions(dom::Domain)
-    return ramp_emissions(t(dom), 7.5, 3., 2100., 2150.)
-end
 
+B(D_baseline, D) = D_baseline .- D
+B(m::ClimateModel; discounting=false, M=false, R=false, G=false, A=false) = B(
+    D(m, discounting=discounting),
+    D(m, discounting=discounting, M=M, R=R, G=G, A=A)
+)
 
+NB(B, C) = B .- C
+NB(m::ClimateModel; discounting=false, M=false, R=false, G=false, A=false) = NB(
+    B(m, discounting=discounting, M=M, R=R, G=G, A=A),
+    C(m, discounting=discounting, M=M, R=R, G=G, A=A)
+)
 
-# function discounting(model::ClimateModel)
-#     discount = (1. .+ model.economics.utility_discount_rate) .^ (-(model.domain .- model.present_year))
-#     discount[model.domain .< model.present_year] .= 0.
-    
-#     return discount
-# end
-    
-# damage_cost_baseline(model::ClimateModel) = (
-#     model.economics.β .* model.economics.GWP .* δT_baseline(model).^2
-# )
-
-# discounted_damage_cost_baseline(model::ClimateModel) = (
-#     damage_cost_baseline(model) .* discounting(model)
-# )
-
-# damage_cost(model::ClimateModel) = (
-#     (1. .- model.controls.adapt) .*
-#     model.economics.β .* model.economics.GWP .* δT(model).^2
-# )
-
-# discounted_damage_cost(model::ClimateModel) = (
-#     damage_cost(model) .* discounting(model)
-# )
-
-# control_cost(model::ClimateModel) = (
-#     model.economics.mitigate_cost .* model.economics.GWP .*
-#     f(model.controls.mitigate) .+
-#     model.economics.geoeng_cost .* model.economics.GWP .*
-#     f(model.controls.geoeng) .+
-#     model.economics.adapt_cost .* f(model.controls.adapt) .+
-#     model.economics.remove_cost .* f(model.controls.remove)
-# )
-
-# discounted_control_cost(model::ClimateModel) = (
-#     control_cost(model) .* discounting(model)
-# )
-
-# discounted_total_control_cost(model::ClimateModel) = (
-#     sum(discounted_control_cost(model) .* model.dt)
-# )
-
-# discounted_total_damage_cost(model::ClimateModel) = (
-#     sum(discounted_damage_cost(model) .* model.dt)
-# )
-
-# net_cost(model::ClimateModel) = (
-#     damage_cost(model) .+ control_cost(model)
-# )
-
-# discounted_net_cost(model::ClimateModel) = (
-#     (damage_cost(model) .+ control_cost(model)) .* discounting(model)
-# )
-
-# total_cost(model::ClimateModel) = (
-#     sum(net_cost(model) .* model.dt)
-# )
-
-# discounted_total_cost(model::ClimateModel) = (
-#     sum(net_cost(model) .* discounting(model)  .* model.dt)
-# )
+NPC(C, dt) = sum(C*dt)
+NPC(m::ClimateModel; discounting=false, M=false, R=false, G=false, A=false) = NPC(
+    C(m, discounting=discounting, M=M, R=R, G=G, A=A),
+    m.domain.dt
+)
+NPB(NB, dt) = sum(NB*dt)
+NPB(m::ClimateModel; discounting=false, M=false, R=false, G=false, A=false) = NPB(
+    NB(m, discounting=discounting, M=M, R=R, G=G, A=A),
+    m.domain.dt
+)

@@ -1,6 +1,6 @@
 """
     Economics(
-        GWP, β, utility_discount_rate, Finf,
+        E0, γ, β, ρ, Finf,
         mitigate_cost, remove_cost, geoeng_cost, adapt_cost,
         mitigate_init, remove_init, geoeng_init, adapt_init,
         baseline_emissions,
@@ -11,9 +11,10 @@ Create data structure for economic input parameters for `ClimateModel` struct,
 including a baseline emissions scenario.
 
 ### Arguments
-- `GWP::Array{Float64,1}`: Gross World Product timeseries [10^12 USD / year]
+- `E0::Array{Float64,1}`: Gross World Product timeseries [10^12 USD / year]
+- `γ::Float64`: economic growth rate [fraction]
 - `β::Float64`: climate damage parameter [% GWP / (°C)^2].
-- `utility_discount_rate::Float64`: typically denoted ρ in economic references [fraction].
+- `ρ::Float64`: typically denoted ρ in economic references [fraction].
 - `Finf::Float64`: maximum SRM forcing
 - `[control]_cost::Float64`: scaling cost of full control deployment [10^12 USD / year OR % of GWP].
 - `[control]_init::Float64`: fixed initial condition for control deployment [10^12 USD / year].
@@ -24,9 +25,10 @@ See also: [`ClimateModel`](@ref), [`baseline_emissions`](@ref), [`GWP`](@ref).
 
 """
 mutable struct Economics
-    GWP::Array{Float64,1}
+    E0::Float64
+    γ::Float64
     β::Float64
-    utility_discount_rate::Float64
+    ρ::Float64
     Finf::Float64
     
     mitigate_cost::Float64
@@ -43,11 +45,12 @@ mutable struct Economics
     extra_CO₂::Array{Float64,1}
 end
 
-function Economics(GWP, β, utility_discount_rate, Finf, mitigate_cost, remove_cost, geoeng_cost, adapt_cost, mitigate_init, remove_init, geoeng_init, adapt_init, baseline_emissions)
+function Economics(E0, γ, β, ρ, Finf, mitigate_cost, remove_cost, geoeng_cost, adapt_cost, mitigate_init, remove_init, geoeng_init, adapt_init, baseline_emissions)
     return Economics(
-        GWP::Array{Float64,1},
+        E0::Float64,
+        γ::Float64,
         β::Float64,
-        utility_discount_rate::Float64,
+        ρ::Float64,
         Finf::Float64,
         mitigate_cost::Float64,
         remove_cost::Float64,
