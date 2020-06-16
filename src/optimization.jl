@@ -190,11 +190,11 @@ function optimize_controls!(
     for i in 1:N-1
         @constraint(
             model_optimizer, cumsum_qMR[i+1] - cumsum_qMR[i] ==
-            (model.dt * (model.physics.r * q[i+1] * (1. - M[i+1]) - q[1] * R[i+1]))
+            (model.dt * (model.physics.r * (q[i+1] * (1. - M[i+1]) - q[1] * R[i+1])))
         )
     end
     @constraint(
-        model_optimizer, cumsum_qMR[1] == (model.dt * (model.physics.r * q[1] * (1. - M[1]) - q[1] * R[1]))
+        model_optimizer, cumsum_qMR[1] == (model.dt * (model.physics.r * (q[1] * (1. - M[1]) - q[1] * R[1])))
     );
     
     # add temperature kernel as new variable defined by first order finite difference

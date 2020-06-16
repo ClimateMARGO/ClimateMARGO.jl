@@ -33,7 +33,7 @@ controlled_emissions(model::ClimateModel) = (
 
 effective_emissions(model::ClimateModel) = (
     model.physics.r * model.economics.baseline_emissions .* (1. .- model.controls.mitigate) .-
-    model.economics.baseline_emissions[1] .* model.controls.remove
+    model.physics.r * model.economics.baseline_emissions[1] .* model.controls.remove
 )
 
 function CO₂_baseline(model::ClimateModel)
@@ -55,8 +55,9 @@ CO₂(model::ClimateModel) = (
     model.physics.CO₂_init .+ (
         model.physics.r * cumsum(model.economics.baseline_emissions .* (1. .- model.controls.mitigate) .*
             model.dt) .-
-        cumsum(model.economics.baseline_emissions[1] .* model.controls.remove .*
-            model.dt)
+        model.physics.r * model.economics.baseline_emissions[1] * cumsum(
+            model.controls.remove .* model.dt
+        )
     )
 );
 
