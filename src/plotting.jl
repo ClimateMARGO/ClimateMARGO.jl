@@ -22,7 +22,7 @@ function plot_emissions(model::ClimateModel)
     title("effective emissions")
     plot(model.domain, zeros(size(model.domain)), "k--", alpha=0.5)
     plot(model.domain, effective_baseline_emissions(model), color="C0", label=L"$rq$ (no-policy baseline)")
-    plot(model.domain, effective_emissions(model), color="C1", label=L"$rq(1-M) - q_{0}R$ (controlled)")
+    plot(model.domain, effective_emissions(model), color="C1", label=L"$rq(1-M) - rq_{0}R$ (controlled)")
     ylimit = maximum(effective_baseline_emissions(model)) * 1.1
     ylims = [-ylimit, ylimit]
     ylabel(L"effective CO$_{2e}$ emissions [ppm / yr]")
