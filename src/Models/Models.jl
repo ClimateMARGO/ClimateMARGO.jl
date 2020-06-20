@@ -10,11 +10,11 @@ include("economics.jl")
 """
     ClimateModel(name, domain, economics, physics, controls)
 
-Create instance of an extremely idealized multi-control climate model, with
+Create a named instance of an extremely idealized multi-control climate model, with
 economic input parameters (`economics`), physical climate parameters (`physics`),
 and climate control policies (`controls`) on some spatial-temporal grid (`domain`).
 
-See also: [`Controls`](@ref), [`Economics`](@ref), [`CO₂`](@ref), [`δT`](@ref),
+See also: [`domain`](@ref), [`Economics`](@ref), [`Physics`](@ref), [`Controls`](@ref),
 [`optimize!`](@ref)
 """
 mutable struct ClimateModel

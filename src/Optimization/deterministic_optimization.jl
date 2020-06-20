@@ -53,7 +53,10 @@ function optimize_controls!(
     
     if typeof(cost_exponent) in [Int64, Float64]
         cost_exponent = Dict(
-            "mitigate"=>cost_exponent, "remove"=>cost_exponent, "geoeng"=>cost_exponent, "adapt"=>cost_exponent
+            "mitigate"=>cost_exponent,
+            "remove"=>cost_exponent,
+            "geoeng"=>cost_exponent,
+            "adapt"=>cost_exponent
         )
     end
     
@@ -118,7 +121,7 @@ function optimize_controls!(
             return 0.
         else
             return (
-                (1. + model.economics.utility_discount_rate) ^
+                (1. + model.economics.ρ) ^
                 (-(t - model.present_year))
             )
         end
@@ -190,11 +193,11 @@ function optimize_controls!(
     for i in 1:N-1
         @constraint(
             model_optimizer, cumsum_qMR[i+1] - cumsum_qMR[i] ==
-            (model.dt * (model.physics.r * q[i+1] * (1. - M[i+1]) - q[1] * R[i+1]))
+            (model.dt * (model.physics.r * (q[i+1] * (1. - M[i+1]) - q[1] * R[i+1])))
         )
     end
     @constraint(
-        model_optimizer, cumsum_qMR[1] == (model.dt * (model.physics.r * q[1] * (1. - M[1]) - q[1] * R[1]))
+        model_optimizer, cumsum_qMR[1] == (model.dt * (model.physics.r * (q[1] * (1. - M[1]) - q[1] * R[1])))
     );
     
     # add temperature kernel as new variable defined by first order finite difference
@@ -204,24 +207,25 @@ function optimize_controls!(
             model_optimizer, cumsum_KFdt[i+1] - cumsum_KFdt[i] ==
             (
                 model.dt *
-                exp( (model.domain[i+1] - (model.domain[1] - model.dt)) / model.physics.τd ) * (
-                    a * log_JuMP(
-                        (model.physics.CO₂_init + cumsum_qMR[i+1]) /
-                        (model.physics.CO₂_init)
-                    ) - 8.5*G[i+1] )
+                exp( (model.domain[i+1] - (model.domain[1] - model.dt)) / τd(model) ) * (
+                    model.physics.a * log_JuMP(
+                        (model.physics.c0 + cumsum_qMR[i+1]) /
+                        (model.physics.c0)
+                    ) - model.economics.Finf*G[i+1] )
                 * (60. * 60. * 24. * 365.25)
             )
         )
     end
     @NLconstraint(
-        model_optimizer, cumsum_KFdt[1] == (
+        model_optimizer, cumsum_KFdt[1] == 
+        (
             model.dt *
-                exp( (model.dt) / model.physics.τd ) * (
-                    a * log_JuMP(
-                        (model.physics.CO₂_init + cumsum_qMR[1]) /
-                        (model.physics.CO₂_init)
-                    ) - 8.5*G[1] )
-                * (60. * 60. * 24. * 365.25)
+            exp( (model.dt) / τd(model) ) * (
+                model.physics.a * log_JuMP(
+                    (model.physics.c0 + cumsum_qMR[i+1]) /
+                    (model.physics.c0)
+                ) - model.economics.Finf*G[1] )
+            * (60. * 60. * 24. * 365.25)
          )
     );
 

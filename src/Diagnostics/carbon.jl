@@ -22,7 +22,7 @@ end
 emissions(q, M) = q .* (1. .- M)
 
 function effective_emissions(r, q, M, R)
-    return r*emissions(q, M) .- q[1]*R
+    return r*(emissions(q, M) .- q[1]*R)
 end
 
 function effective_emissions(model; M=false, R=false)
