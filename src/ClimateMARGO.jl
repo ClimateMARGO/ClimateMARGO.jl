@@ -4,11 +4,9 @@ if VERSION < v"1.3"
     @error "ClimateMARGO requires Julia v1.3 or newer."
 end
 
-using PyPlot
 using JuMP, Ipopt
 
-export
-    ClimateModel,
+export ClimateModel,
     Controls,
     Economics,
     Physics,
@@ -16,13 +14,6 @@ export
     step_forward!,
     add_emissions_bump!,
     GWP,
-    plot_state,
-    plot_emissions,
-    plot_concentrations,
-    plot_controls,
-    plot_temperatures,
-    plot_benefits,
-    plot_damages,
     deep_copy,
     deepcopy,
     init_zero_controls,
@@ -58,15 +49,13 @@ export
     GtCO2_to_ppm,
     tCO2_to_ppm,
     ppm_to_GtCO2,
-    ppm_to_tCO2,
-    add_label
+    ppm_to_tCO2
 
 ### Load code
 include("model.jl")
 include("diagnostics.jl")
 include("defaults.jl")
 include("optimization.jl")
-include("plotting.jl")
 include("steppingforward.jl")
 
 end
