@@ -20,6 +20,7 @@ function ramp_emissions(dom::Domain)
 end
 
 emissions(q, M) = q .* (1. .- M)
+emissions(m::ClimateModel) = emissions(m.economics.baseline_emissions, m.controls.mitigate)
 
 function effective_emissions(r, q, M, R)
     return r*(emissions(q, M) .- q[1]*R)
