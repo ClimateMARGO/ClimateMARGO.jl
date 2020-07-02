@@ -1,6 +1,5 @@
 .ipynb_checkpoints
 work-in-progress/*
-!work-in-progress/Test_structs.ipynb
 
 docs/build
 docs/Manifest.toml
