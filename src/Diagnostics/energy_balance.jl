@@ -1,12 +1,13 @@
-function F(a, c0, Finf, c, G)
-    a .* log.( c/c0 ) .- G*Finf
+function F(a, c0, Finf, c, G; F0=0.)
+    F0 .+ a .* log.( c/c0 ) .- G*Finf
 end
 
-function F(model; M=false, R=false, G=false)
+function F(model; M=false, R=false, G=false, F0=0.)
     return F(
         model.physics.a, model.physics.c0, model.economics.Finf,
         c(model, M=M, R=R),
         model.controls.geoeng .* (1. .- .~future_mask(model) * ~G),
+        F0=F0
     )
 end
 
@@ -14,9 +15,11 @@ F2x(a::Float64) = a*log(2)
 F2x(model::ClimateModel) = F2x(model.physics.a)
 
 ECS(a, B) = F2x(a)/B
-ECS(model) = ECS(model.physics.a, model.physics.B)
+ECS(params::ClimateModelParameters) = ECS(params.physics.a, model.physics.B)
+ECS(model::ClimateModel) = ECS(model.physics.a, model.physics.B)
 
 B(a::Float64, ECS::Float64) = F2x(a)/ECS
+B(params::ClimateModelParameters; ECS=ECS(params)) = B(params.physics.a, ECS)
 B(model::ClimateModel; ECS=ECS(model)) = B(model.physics.a, ECS)
 
 τd(Cd, B, κ) = (Cd/B) * (B+κ)/κ

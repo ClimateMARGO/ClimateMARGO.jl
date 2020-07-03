@@ -24,7 +24,7 @@ function plot_emissions(m::ClimateModel)
     plot(t(m), zeros(size(t(m))), "k-", alpha=0.9)
     plot(t(m), effective_emissions(m), linestyle = "--", color="grey", label=L"$rq$ (no-policy baseline)")
     plot(t(m), effective_emissions(m, M=true), color="C0", label=L"$rq(1-M)$ (controlled)")
-    plot(t(m), effective_emissions(m, M=true, R=true), color="C1", label=L"$rq(1-M) - q_{0}R$ (controlled)")
+    plot(t(m), effective_emissions(m, M=true, R=true), color="C1", label=L"$rq(1-M) - rq_{0}R$ (controlled)")
     ylimit = maximum(effective_emissions(m)) * 1.1
     ylims = [-ylimit, ylimit]
     ylabel(L"effective CO$_{2e}$ emissions [ppm / yr]")

@@ -39,5 +39,18 @@ ClimateModel(params::ClimateModelParameters, controls::Controls) = ClimateModel(
     params.physics,
     controls
 )
-
+function ClimateModel(params::ClimateModelParameters)
+    dom = params.domain
+    t = collect(dom.initial_year:dom.dt:dom.final_year)
+    return ClimateModel(
+        params,
+        Controls(
+            zeros(size(t)),
+            zeros(size(t)),
+            zeros(size(t)),
+            zeros(size(t))
+            )
+        )
+end
+    
 end
