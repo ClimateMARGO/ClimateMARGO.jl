@@ -50,7 +50,7 @@ function optimize_controls!(
     # Set defaults for start_deployment
     start_deployment = Dict()
     for (key, item) in delay_deployment
-        start_deployment[key] = tp + delay_deployment[key]
+        start_deployment[key] = t0 + delay_deployment[key]
     end
     
     max_slope_update = Dict()

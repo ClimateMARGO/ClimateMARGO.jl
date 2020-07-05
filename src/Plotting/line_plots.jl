@@ -1,11 +1,6 @@
 rcParams = PyPlot.PyDict(PyPlot.matplotlib."rcParams")
 rcParams["lines.linewidth"] = 3 # Change linewidth
 
-function add_label(s; xy=(0, 1.03), fontsize=12)
-    annotate(s=s,xy=xy,xycoords="axes fraction",fontsize=fontsize)
-    return
-end
-
 function fill_past(m, ylims)
     domain_idx = (t(m) .> m.present_year)
     fill_between(
@@ -97,7 +92,7 @@ function plot_benefits(m::ClimateModel; discounting=true)
     )
     plot(t(m)[domain_idx], 0 .*ones(size(t(m)))[domain_idx], "--", color="gray", alpha=0.9, label="no-policy baseline")
     plot(t(m)[domain_idx], benefit(m, discounting=discounting, M=true, R=true, G=true, A=true)[domain_idx], color="C1", label="benefits (of avoided damages)")
-    plot(t(m)[domain_idx], cost(m, discounting=discounting, M=true, R=true, G=true, A=true)[domain_idx], color="C3", label=L"$-$ costs (of climate controls)")
+    plot(t(m)[domain_idx], cost(m, discounting=discounting, M=true, R=true, G=true, A=true)[domain_idx], color="C3", label="costs (of climate controls)")
     plot(t(m)[domain_idx], net_benefit(m, discounting=discounting, M=true, R=true, G=true, A=true)[domain_idx], color="k", label="net benefits (benefits - costs)")
     ylabel(L"discounted costs and benefits [10$^{12}$ \$ / year]")
     xlabel("year")
@@ -128,10 +123,10 @@ function plot_damages(m::ClimateModel; discounting=true, percent_GWP=false)
     damages = damage(m, discounting=discounting, M=true, R=true, G=true, A=true)
     costs = cost(m, discounting=discounting, M=true, R=true, G=true, A=true)
     plot(t(m)[domain_idx], (damage(m, discounting=discounting) ./ Enorm)[domain_idx], color="C0", label="uncontrolled damages")
-    plot(t(m)[domain_idx], ((damages - costs)./ Enorm)[domain_idx], color="k", label="net costs (controlled damages + controls)")
+    plot(t(m)[domain_idx], ((damages .+ costs)./ Enorm)[domain_idx], color="k", label="net costs (controlled damages + controls)")
     plot(t(m)[domain_idx], (damages ./ Enorm)[domain_idx], color="C1", label="controlled damages")
     plot(t(m)[domain_idx], (costs ./ Enorm)[domain_idx], color="C3", label="cost of controls")
-    ylim([minimum(((damages - costs)./ Enorm)[domain_idx]) * 2, maximum((damage(m, discounting=discounting) ./ Enorm)[domain_idx]) * 0.75])
+    ylim([0, maximum((damage(m, discounting=discounting) ./ Enorm)[domain_idx]) * 0.75])
 
     if ~percent_GWP;
         if ~discounting;
@@ -164,23 +159,23 @@ function plot_state(m::ClimateModel; new_figure=true, plot_legends=true)
     
     subplot(2,3,1)
     plot_emissions(m)
-    add_label("a)")
+    title("a)", loc="left")
     subplot(2,3,2)
     plot_concentrations(m)
-    add_label("b)")
+    title("b)", loc="left")
     subplot(2,3,3)
     plot_temperatures(m)
-    add_label("c)")
+    title("c)", loc="left")
     
     subplot(2,3,4)
     plot_controls(m)
-    add_label("d)")
+    title("d)", loc="left")
     subplot(2,3,5)
     plot_benefits(m)
-    add_label("e)")
+    title("e)", loc="left")
     subplot(2,3,6)
     plot_damages(m)
-    add_label("f)")
+    title("f)", loc="left")
     
     if plot_legends;
         for ii in 1:6

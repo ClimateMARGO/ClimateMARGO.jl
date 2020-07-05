@@ -50,7 +50,7 @@ benefit(m::ClimateModel; discounting=false, M=false, R=false, G=false, A=false) 
 )
 
 net_benefit(benefit, cost) = benefit .- cost
-net_benefit(m::ClimateModel; discounting=false, M=false, R=false, G=false, A=false) = net_benefit(
+net_benefit(m::ClimateModel; discounting=true, M=false, R=false, G=false, A=false) = net_benefit(
     benefit(m, discounting=discounting, M=M, R=R, G=G, A=A),
     cost(m, discounting=discounting, M=M, R=R, G=G, A=A)
 )
@@ -58,7 +58,7 @@ net_benefit(m::ClimateModel; discounting=false, M=false, R=false, G=false, A=fal
 net_present_cost(cost, dt) = sum(cost*dt)
 function net_present_cost(
         m::ClimateModel;
-        discounting=false, M=false, R=false, G=false, A=false
+        discounting=true, M=false, R=false, G=false, A=false
     )
     return net_present_cost(
         cost(m, discounting=discounting, M=M, R=R, G=G, A=A),
@@ -67,7 +67,7 @@ function net_present_cost(
 end
 
 net_present_benefit(net_benefit, dt) = sum(net_benefit*dt)
-net_present_benefit(m::ClimateModel; discounting=false, M=false, R=false, G=false, A=false) = net_present_benefit(
+net_present_benefit(m::ClimateModel; discounting=true, M=false, R=false, G=false, A=false) = net_present_benefit(
     net_benefit(m, discounting=discounting, M=M, R=R, G=G, A=A),
     m.domain.dt
 )
