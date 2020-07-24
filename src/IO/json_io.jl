@@ -31,6 +31,6 @@ Currently `included_configurations["default"]` is the only included set."""
 const included_configurations = let
     # find the config dir relative to this .jl file
     config_dir = joinpath(@__DIR__, "..", "..", "configurations")
-    loaded = import_parameters.(readdir(config_dir, join=true))
+    loaded = import_parameters.(readdir(config_dir))
     Dict(p.name => p for p in loaded)
 end
