@@ -5,7 +5,7 @@ using Test
 
 function temperature_optimization_works(name::String, temp_goal::Float64)
     config_path = "../configurations"
-    model = ClimateModel(ClimateMARGO.IO.load_params(name, config_path=config_path))
+    model = ClimateModel(ClimateMARGO.IO.included_configurations[name])
     status = optimize_controls!(model, temp_goal=temp_goal)
     return (
         (raw_status(status) == "Solve_Succeeded") & 

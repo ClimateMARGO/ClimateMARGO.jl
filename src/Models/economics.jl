@@ -45,22 +45,36 @@ mutable struct Economics
     extra_CO₂::Array{Float64,1}
 end
 
-function Economics(E0, γ, β, ρ, Finf, mitigate_cost, remove_cost, geoeng_cost, adapt_cost, mitigate_init, remove_init, geoeng_init, adapt_init, baseline_emissions)
+# constructor without `extra_CO₂`, setting it to zero
+function Economics(E0::Float64,
+    γ::Float64,
+    β::Float64,
+    ρ::Float64,
+    Finf::Float64,
+    mitigate_cost::Float64,
+    remove_cost::Float64,
+    geoeng_cost::Float64,
+    adapt_cost::Float64,
+    mitigate_init,
+    remove_init,
+    geoeng_init,
+    adapt_init,
+    baseline_emissions::Array{Float64,1})
     return Economics(
-        E0::Float64,
-        γ::Float64,
-        β::Float64,
-        ρ::Float64,
-        Finf::Float64,
-        mitigate_cost::Float64,
-        remove_cost::Float64,
-        geoeng_cost::Float64,
-        adapt_cost::Float64,
+        E0,
+        γ,
+        β,
+        ρ,
+        Finf,
+        mitigate_cost,
+        remove_cost,
+        geoeng_cost,
+        adapt_cost,
         mitigate_init,
         remove_init,
         geoeng_init,
         adapt_init,
-        baseline_emissions::Array{Float64,1},
+        baseline_emissions,
         zeros(size(baseline_emissions))
     )
 end
