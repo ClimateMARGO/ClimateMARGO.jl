@@ -1,26 +1,26 @@
 "Export a [`ClimateModel`](@ref) instance to a `.json` file.
 
 This `.json` file can be shared with others, you can import it using "
-function export_state(m::ClimateModel, path::AbstractString)
-    open(path, "w") do io
+function export_state(filename::AbstractString, m::ClimateModel)
+    open(filename, "w") do io
         JSON2.write(io, m)
     end
 end
 
-function import_state(name::String)::ClimateModel
-    open(path, "r") do io
+function import_state(filename::String)::ClimateModel
+    open(filename, "r") do io
         return JSON2.read(io, ClimateModel)
     end
 end
 
-function export_parameters(params::ClimateModelParameters, path::AbstractString)
-    open(path, "w") do io
+function export_parameters(filename::AbstractString, params::ClimateModelParameters)
+    open(filename, "w") do io
         JSON2.write(io, params)
     end
 end
 
-function import_parameters(path::AbstractString)::ClimateModelParameters
-    open(path, "r") do io
+function import_parameters(filename::AbstractString)::ClimateModelParameters
+    open(filename, "r") do io
         return JSON2.read(io, ClimateModelParameters)
     end
 end
