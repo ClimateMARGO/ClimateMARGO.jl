@@ -18,9 +18,9 @@ ECS(a, B) = F2x(a)/B
 ECS(params::ClimateModelParameters) = ECS(params.physics.a, model.physics.B)
 ECS(model::ClimateModel) = ECS(model.physics.a, model.physics.B)
 
-B(a::Float64, ECS::Float64) = F2x(a)/ECS
-B(params::ClimateModelParameters; ECS=ECS(params)) = B(params.physics.a, ECS)
-B(model::ClimateModel; ECS=ECS(model)) = B(model.physics.a, ECS)
+calc_B(a::Float64, ECS::Float64) = F2x(a)/ECS
+calc_B(params::ClimateModelParameters; ECS=ECS(params)) = calc_B(params.physics.a, ECS)
+calc_B(model::ClimateModel; ECS=ECS(model)) = calc_B(model.physics.a, ECS)
 
 τd(Cd, B, κ) = (Cd/B) * (B+κ)/κ
 τd(phys::Physics) = τd(phys.Cd, phys.B, phys.κ)
