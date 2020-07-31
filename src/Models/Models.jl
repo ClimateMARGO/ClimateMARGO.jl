@@ -7,6 +7,16 @@ include("physics.jl")
 include("controls.jl")
 include("economics.jl")
 
+"""
+    ClimateModelParameters(name, domain::Domain, economics::Economics, physics::Physics)
+
+Create a named instance of the MARGO climate model parameters, which include
+economic input parameters (`economics`), physical climate parameters (`physics`),
+and climate control policies (`controls`) on some spatial-temporal grid (`domain`).
+
+Use these to construct a [`ClimateModel`](@ref), which also contains the optimized 
+controls.
+"""
 mutable struct ClimateModelParameters
     name::String
     domain::Domain
@@ -14,16 +24,6 @@ mutable struct ClimateModelParameters
     physics::Physics
 end
 
-"""
-    ClimateModel(name, ClimateModelParameters})
-
-Create a named instance of an extremely idealized multi-control climate model, with
-economic input parameters (`economics`), physical climate parameters (`physics`),
-and climate control policies (`controls`) on some spatial-temporal grid (`domain`).
-
-See also: [`ClimateModelParameters`](@ref), [`Controls`](@ref),
-[`optimize_controls!`](@ref)
-"""
 mutable struct ClimateModel
     name::String
     domain::Domain
@@ -32,6 +32,14 @@ mutable struct ClimateModel
     controls::Controls
 end
 
+"""
+    ClimateModel(params::ClimateModelParameters[, controls::Controls])
+
+Create an instance of an extremely idealized multi-control climate model. The 
+returned object contains the [`ClimateModelParameters`](@ref), and will contain
+the optimized [`Controls`](@ref). These can be computed using 
+[`optimize_controls!`](@ref).
+"""
 ClimateModel(params::ClimateModelParameters, controls::Controls) = ClimateModel(
     params.name,
     params.domain,
