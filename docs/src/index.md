@@ -17,7 +17,8 @@ Compared to more conventional *Integrated Assessment Models (IAMs)*, MARGO is:
 * **More explicitly value-dependent**: Rather than burying important value-dependent choices in various obscure economic and social parameters, we abstract away many of the complexities to yield a small number of intuitive parameters, which can be easily modified by users.
 * **More extendable**: The modular and interpretable nature of the Julia source implementation means that existing features can be easily modified and new features are easily added.
 
-:warning: The extreme simplicity of the MARGO model also means its *quantitative* results should be taken with a large pinch of salt. MARGO should instead be used to explore underlying *patterns* and *relative* climate outcomes.
+!!! warning "Don't take MARGO's results too seriously"
+    The extreme simplicity of the MARGO model also means its *quantitative* results should be taken with a large pinch of salt. MARGO should instead be used to explore underlying *patterns* and *relative* climate outcomes.
 
 ## Getting help
 
