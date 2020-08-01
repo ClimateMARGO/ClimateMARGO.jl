@@ -1,6 +1,6 @@
 # ClimateMARGO.jl
 
-A Julia implementation of ***MARGO***, an idealized framework for the **O**ptimization of four climate change control strategies: **M**itigation, **A**daptation, **R**emoval of carbon dioxide, and **G**eoengineering by solar radiation management.
+A Julia implementation of **MARGO**, an idealized framework for the **O**ptimization of four climate change control strategies: **M**itigation, **A**daptation, **R**emoval of carbon dioxide, and **G**eoengineering by solar radiation management.
 
 ClimateMARGO.jl couples together a very simple model of Earth's physical climate with a very simple economic model of climate damages (and the costs of controls that reduce those damages). Our design philosophy is for the MARGO model to be *as simple as possible* while still producing quasi-realistic climate trajectories over the next few hundred years.
 
