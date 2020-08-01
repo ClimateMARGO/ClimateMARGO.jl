@@ -24,6 +24,7 @@ function plot_emissions(m::ClimateModel)
     ylims = [-ylimit, ylimit]
     ylabel(L"effective CO$_{2e}$ emissions [ppm / yr]")
     xlim(t(m)[1],2200.)
+    ylim(minimum(effective_emissions(m, M=true, R=true))-5.,1.1*maximum(effective_emissions(m)))
     xticks(t(m)[1]:40.:2200.)
     xlabel("year")
     grid(true)
@@ -40,6 +41,7 @@ function plot_concentrations(m::ClimateModel)
     ylabel(L"CO$_{2e}$ concentration [ppm]")
     xlabel("year")
     xlim(t(m)[1],2200.)
+    ylim(100., 1.05*maximum(c(m)))
     xticks(t(m)[1]:40.:2200.)
     grid(true)
     return
@@ -66,7 +68,6 @@ end
     
 function plot_controls(m::ClimateModel)
     title("optimized control deployments")
-    #fill_past(m, ylims)
     plot(t(m), m.controls.mitigate, color="C0", label=L"$M$ (emissions mitigation)")
     plot(t(m), m.controls.remove, color="C1", label=L"$R$ (carbon dioxide removal)")
     plot(t(m), m.controls.adapt, color="C2", label=L"$A$ (adaptation)")

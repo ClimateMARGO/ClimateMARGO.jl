@@ -38,6 +38,7 @@ function optimize_controls!(
     t0 = tarr[1]
     tp = m.domain.present_year
     q = m.economics.baseline_emissions
+    qGtCO2 = ppm_to_GtCO2(q)
     N = length(tarr)
     
     # Set default temperature goal for end year
@@ -296,7 +297,7 @@ function optimize_controls!(
                         ) / (m.physics.B + m.physics.κ)
                     )
                     )^2 +
-                    m.economics.mitigate_cost * Earr[i] *
+                    m.economics.mitigate_cost * qGtCO2[i] *
                     fM_JuMP(M[i]) +
                     m.economics.adapt_cost * fA_JuMP(A[i]) +
                     m.economics.remove_cost * fR_JuMP(R[i]) +
@@ -312,7 +313,7 @@ function optimize_controls!(
         @NLobjective(model_optimizer, Min,
             sum(
                 (
-                    m.economics.mitigate_cost * Earr[i] *
+                    m.economics.mitigate_cost * qGtCO2[i] *
                     fM_JuMP(M[i]) +
                     m.economics.adapt_cost * fA_JuMP(A[i]) +
                     m.economics.remove_cost * fR_JuMP(R[i]) +
@@ -399,7 +400,7 @@ function optimize_controls!(
         @NLconstraint(model_optimizer,
             sum(
                 (
-                    m.economics.mitigate_cost * Earr[i] *
+                    m.economics.mitigate_cost * qGtCO2[i] *
                     fM_JuMP(M[i]) +
                     m.economics.adapt_cost * fA_JuMP(A[i]) +
                     m.economics.remove_cost * fR_JuMP(R[i]) +
@@ -438,7 +439,7 @@ function optimize_controls!(
         for i in 1:N
             @NLconstraint(model_optimizer,
                 (
-                    m.economics.mitigate_cost * Earr[i] *
+                    m.economics.mitigate_cost * qGtCO2[i] *
                     fM_JuMP(M[i]) +
                     m.economics.adapt_cost * fA_JuMP(A[i]) +
                     m.economics.remove_cost * fR_JuMP(R[i]) +
@@ -455,7 +456,9 @@ function optimize_controls!(
         print(raw_status(model_optimizer), "\n")
     end
     
-    getfield(m.controls, :mitigate)[domain_idx] = value.(M)[domain_idx]
+    mitigate_values = value.(M)[domain_idx]
+    mitigate_values[q.==0.] .= 0.
+    getfield(m.controls, :mitigate)[domain_idx] = mitigate_values
     getfield(m.controls, :remove)[domain_idx] = value.(R)[domain_idx]
     getfield(m.controls, :geoeng)[domain_idx] = value.(G)[domain_idx]
     getfield(m.controls, :adapt)[domain_idx] = value.(A)[domain_idx]

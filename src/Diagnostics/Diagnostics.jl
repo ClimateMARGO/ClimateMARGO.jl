@@ -1,6 +1,7 @@
 module Diagnostics
 
 using ClimateMARGO.Models
+using ClimateMARGO.Utils
 
 export
     t, future_mask,
