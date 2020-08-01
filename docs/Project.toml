@@ -1,3 +1,4 @@
 [deps]
 ClimateMARGO = "d3f62095-a717-45bf-aadc-ac9dfc258fa6"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+Markdown = "d6f4376e-aef5-505a-96c1-9c027394607a"
