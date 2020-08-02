@@ -196,7 +196,11 @@ function optimize_controls!(
                 fix(control_vars[key][idx], controls[key][idx]; force = true)
             else
                 if tarr[idx] < start_deployment[key]
-                    fix(control_vars[key][idx], control_inits[key]; force = true)
+                    if control_inits[key] != nothing
+                        fix(control_vars[key][idx], control_inits[key]; force = true)
+                    else
+                        fix(control_vars[key][idx], 0.; force = true)
+                    end
                 end
             end
         end
