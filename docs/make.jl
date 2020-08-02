@@ -5,6 +5,7 @@ using Documenter, ClimateMARGO
 pages = [
     "Home" => "index.md",
     "Installation instructions" => "installation_instructions.md",
+    "Theory" => "theory.md",
     "Submodules" => [
         "Domain" => "Submodules/Domain.md",
         "Physics" => "Submodules/Physics.md",
