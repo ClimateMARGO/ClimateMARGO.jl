@@ -14,7 +14,6 @@ It is helpful to conceptualize climate change as a four step process that connec
 \text{Warming}
 \xrightarrow{\text{\textbf{A}}}
 \text{Damages}.
-\label{eq:causal-chain}
 ```
 
 Letting climate change run rampant would cause a lot of damage; however, climate interventions that keep climate change under control are not free either. With MARGO, we allow users to explore the trade-offs between climate interventions and climate suffering by employing an optimization framework commonly used in the climate-economics community. In this section, we develop a simple theory– a set of mathematical equations– which capture the key aspects of the entire causal chain of climate damages.
