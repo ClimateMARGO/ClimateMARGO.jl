@@ -1,7 +1,6 @@
 .ipynb_checkpoints
 work-in-progress
 figures/
-examples/**/*.ipynb
 generated/
 
 docs/build
