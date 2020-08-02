@@ -1,6 +1,7 @@
 .ipynb_checkpoints
 work-in-progress
 figures/
+examples/**/*.ipynb
 
 docs/build
 Manifest.toml
