@@ -40,3 +40,5 @@ CO``_{2e}`` accumulates in the atmosphere and concentrations ``c(t)`` increase a
 !!! tip "Climate intervention: Adaptation"
 
 ## The costs of climate intervention
+
+## Optimization: what makes a climate "optimal"?
