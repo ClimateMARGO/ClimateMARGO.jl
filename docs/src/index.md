@@ -13,7 +13,7 @@ Compared to more conventional *Integrated Assessment Models (IAMs)*, MARGO is:
   * *Forking ClimateMARGO.jl* – For users wanting to extend or fundamentally modify the MARGO model for scientific research
 * **More interpretable**: The entire model algorithm is simple enough to be expressed in a single closed-form math equation and is determined by only a handful of intuitive free parameters (see also the MARGO flowchart below).
 * **More transparent**: The MARGO model is developed as an entirely open-source Julia package, *ClimateMARGO.jl*, complete with documentation, in-depth tutorials, and publication-quality example simulations.
-* **More general**: By including all four of the primary climate controls in the default configuration, more common configurations like "Mitigation-only" experiments are straight-forward to implement by simply turning unwanted features off. 
+* **More general**: By including all four of the primary climate controls in the default configuration, more common configurations like "Mitigation-only" experiments are straight-forward to implement by simply turning unwanted features off.
 * **More explicitly value-dependent**: Rather than burying important value-dependent choices in various obscure economic and social parameters, we abstract away many of the complexities to yield a small number of intuitive parameters, which can be easily modified by users.
 * **More extendable**: The modular and interpretable nature of the Julia source implementation means that existing features can be easily modified and new features are easily added.
 

@@ -2,6 +2,7 @@
 work-in-progress
 figures/
 examples/**/*.ipynb
+generated/
 
 docs/build
 Manifest.toml
@@ -9,4 +10,3 @@ Manifest.toml
 cmip5_rcp85_gmst.csv*
 
 test_docs.sh
-
