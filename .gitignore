@@ -1,6 +1,7 @@
 .ipynb_checkpoints
 work-in-progress
 figures/
+generated/
 
 docs/build
 Manifest.toml
@@ -8,4 +9,3 @@ Manifest.toml
 cmip5_rcp85_gmst.csv*
 
 test_docs.sh
-

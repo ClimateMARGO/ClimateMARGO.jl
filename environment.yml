@@ -2,4 +2,5 @@ name: ClimateMARGO
 channels:
   - conda-forge
 dependencies:
+  - nbconvert
   - matplotlib

@@ -65,7 +65,7 @@ function plot_temperatures(m::ClimateModel)
     legend()
     return
 end
-    
+
 function plot_controls(m::ClimateModel)
     title("optimized control deployments")
     plot(t(m), m.controls.mitigate, color="C0", label=L"$M$ (emissions mitigation)")
@@ -103,7 +103,7 @@ function plot_benefits(m::ClimateModel; discounting=true)
     title("cost-benefit analysis")
     return
 end
-        
+
 function plot_damages(m::ClimateModel; discounting=true, percent_GWP=false)
     Enorm = deepcopy(E(m))/100.
     if ~percent_GWP; Enorm=1.; end;
@@ -115,7 +115,7 @@ function plot_damages(m::ClimateModel; discounting=true, percent_GWP=false)
         (cost(m, discounting=discounting, M=true, R=true, G=true, A=true) ./ Enorm)[domain_idx],
         facecolor="C3", alpha=0.2
     )
-    Tgoal = 2. 
+    Tgoal = 2.
     plot(
         t(m)[domain_idx],
         (damage(m.economics.β, E(m), Tgoal, 0., discount=discount(m)) ./ Enorm)[domain_idx],
@@ -155,32 +155,33 @@ end
 
 function plot_state(m::ClimateModel; new_figure=true, plot_legends=true)
     if new_figure
-        figure(figsize=(14,8))
+        fig, axs = subplots(2, 3, figsize=(14,8))
+        axs = vcat(axs...)
     end
-    
-    subplot(2,3,1)
+
+    sca(axs[1])
     plot_emissions(m)
     title("a)", loc="left")
-    subplot(2,3,2)
+    sca(axs[2])
     plot_concentrations(m)
     title("b)", loc="left")
-    subplot(2,3,3)
+    sca(axs[3])
     plot_temperatures(m)
     title("c)", loc="left")
-    
-    subplot(2,3,4)
+
+    sca(axs[4])
     plot_controls(m)
     title("d)", loc="left")
-    subplot(2,3,5)
+    sca(axs[5])
     plot_benefits(m)
     title("e)", loc="left")
-    subplot(2,3,6)
+    sca(axs[6])
     plot_damages(m)
     title("f)", loc="left")
-    
+
     if plot_legends;
         for ii in 1:6
-            subplot(2,3,ii);
+            sca(axs[ii])
             if ii <= 2;
                 legend(loc="lower left");
             else
