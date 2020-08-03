@@ -8,7 +8,7 @@ The following optimization problems are currently supported in MARGO:
 
 All of these constraints rely on the concept of discounting to convert a time-series of costs and benefits into a single scalar-valued objective function.
 
-!!! ukw Time discounting
+!!! ukw "Time discounting"
     Mathematically, a time-series ``g(t)`` is converted into a single scalar-valued function ``G`` by multiplying the time-series by a discount factor ``(1 - \rho)^{t-t_{0}}`` and integrating in time,
     ```math
         G = \int_{t_{0}}^{\infty}\, g(t) (1 - \rho)^{t-t_{0}}\, \text{d}t
