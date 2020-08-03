@@ -20,7 +20,7 @@ end
 #### Organize page structure
 
 example_pages = [
-    "Optimization with default parameter" => "generated/default_optimization.md"
+    "Optimization with default parameters" => "generated/default_optimization.md"
 ]
 
 pages = [
