@@ -46,7 +46,7 @@ CO``_{2e}`` continues to accumulate in the atmosphere and its concentrations ``c
         c_{M,R}(t) = c_{0} + \int_{t_{0}}^{t} rq(t')(1-M(t')) \text{ d}t' - rq_{0} \int_{t_{0}}^{t} R(t')\text{ d}t'.
     ```
 
-## Radiative forcing from the greenhouse effect
+## Radiative forcing
 
 Increasing CO``_{2e}`` concentrations strengthen the greenhouse effect, reducing outgoing longwave radiation and causing an increased radiative forcing of ``F(t) = a \ln(c(t)/c_{0})``, which exerts a warming effect on Earth's surface.
 
