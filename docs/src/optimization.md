@@ -9,22 +9,24 @@ The following optimization problems are currently supported in MARGO:
 All of these constraints rely on the concept of discounting to convert a time-series of costs and benefits into a single scalar-valued objective function.
 
 !!! ukw Time discounting
- Mathematically, a time-series ``g(t)`` is converted into a single scalar-valued function ``G`` by multiplying the time-series by a discount factor ``(1 - \rho)^{t-t_{0}}`` and integrating in time,
-  ```math
-  G = \int_{t_{0}}^{\infty}\, g(t) (1 - \rho)^{t-t_{0}}\, \text{d}t
-  ```
+    Mathematically, a time-series ``g(t)`` is converted into a single scalar-valued function ``G`` by multiplying the time-series by a discount factor ``(1 - \rho)^{t-t_{0}}`` and integrating in time,
+    ```math
+        G = \int_{t_{0}}^{\infty}\, g(t) (1 - \rho)^{t-t_{0}}\, \text{d}t
+    ```
 
-  A great deal of the climate economic literature concerns methods (or philosophies) for determining the discount rate, with commonly cited values ranging all the way from 0% to 5%. Values larger than the growth rate of the economy result in de-valuing of future generations, which some argue is unethical.
+    A great deal of the climate economic literature concerns methods (or philosophies) for determining the discount rate, with commonly cited values ranging all the way from 0% to 5%. Values larger than the growth rate of the economy result in de-valuing of future generations, which some argue is unethical.
 
-  Discounting is also mathematically convenient because it generally guarantees the objective function is bounded, which makes interpreting (and numerically solving) the optimization problem a lot easier.
+    Discounting is also mathematically convenient because it generally guarantees the objective function is bounded, which makes interpreting (and numerically solving) the optimization problem a lot easier.
 
 ### Cost-benefit analysis
 
 A natural and widely-used approach is cost-benefit analysis, in which the cost ``\mathcal{C}_{M, R, G, A}`` of deploying climate controls is balanced against the benefits ``\mathcal{B}_{M, R, G, A}`` of the avoided climate damages. Formally, we aim to maximize the net present benefits:
+
 ```math
     \max \left\{ \int_{t_{0}}^{t_{f}}
     \left(\mathcal{B}_{M, R, G, A} - \mathcal{C}_{M, R, G, A} \right) (1 + \rho)^{-(t-t_{0})} \, \text{d}t \right\},
 ```
+
 where ``\rho`` is a social discount rate that determines the annual depreciation of future costs and benefits of climate control to society. There are different views about the appropriate non-zero discount rate to apply to multi-generational social utility. Here, we choose a discount rate of ``\rho = 1\%``, on the low end of values used in the literature, motivated by our preference towards inter-generational equity.
 
 ### Cost-effectiveness of keeping below a warming threshold

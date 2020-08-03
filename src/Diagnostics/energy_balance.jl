@@ -1,3 +1,6 @@
+"""
+    F(a, c0, Finf, c, G; F0=0.)
+"""
 function F(a, c0, Finf, c, G; F0=0.)
     F0 .+ a .* log.( c/c0 ) .- G*Finf
 end
@@ -29,6 +32,9 @@ calc_B(m::ClimateModel; ECS=ECS(m)) = calc_B(m.physics.a, ECS)
 τd(phys::Physics) = τd(phys.Cd, phys.B, phys.κ)
 τd(m::ClimateModel) = τd(m.physics)
 
+"""
+    T_fast(F, κ, B; A=0.)
+"""
 T_fast(F, κ, B; A=0.) = sqrt.(1. .- A) .* F/(κ + B)
 
 """
@@ -41,6 +47,9 @@ T_fast(m::ClimateModel; M=false, R=false, G=false, A=false) = T_fast(
     A=m.controls.adapt .* (1. .- .~future_mask(m) * ~A)
 )
 
+"""
+    T_slow(F, Cd, κ, B, t, dt; A=0.)
+"""
 function T_slow(F, Cd, κ, B, t, dt; A=0.)
     τ = τd(Cd, κ, B)
     return sqrt.(1. .- A) .* (
@@ -68,7 +77,16 @@ T_slow(m::ClimateModel; M=false, R=false, G=false, A=false) = T_slow(
 
 Returns the sum of the initial, fast mode, and slow mode temperature change.
 
-See also: [`T_fast`](@ref), [`T_slow`](@ref)
+# Arguments
+- `T0::Float64`: warming relative to pre-industrial [°C]
+- `F::Array{Float64}`: change in radiative forcing since the initial time ``t_{0}`` [W/m``{2}``]
+- `Cd::Float64`: deep ocean heat capacity [W yr m``^{2}`` K``^{-1}``]
+- `κ::Float64`: ocean heat uptake rate [W m``^{2}`` K``^{-1}``]
+- `B::Float64`: feedback parameter [W m``^{2}`` K``^{-1}``]
+- `t::Array{Float64}`: year [years]
+- `dt::Float64`: timestep [years]
+- `A::Float64`: Adaptation control [fraction]
+
 """
 T(T0, F, Cd, κ, B, t, dt; A=0.) = sqrt.(1. .- A) .* (
     T0 .+
@@ -82,8 +100,6 @@ T(T0, F, Cd, κ, B, t, dt; A=0.) = sqrt.(1. .- A) .* (
 Returns the sum of the initial, fast mode, and slow mode temperature change,
 as diagnosed from `m` and modified by the climate controls activated by the
 Boolean kwargs.
-
-See also: [`T`](@ref), [`F`](@ref)
 """
 T(m::ClimateModel; M=false, R=false, G=false, A=false) = T(
     m.physics.T0,

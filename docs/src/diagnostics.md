@@ -4,7 +4,7 @@ We refer to key model variables which depend only on 1) the values of the contro
 
 In ClimateMARGO.jl, diagnostic variables are represented as julia *functions*, which are implemented using two separate *methods*, based on the type of the function arguments: the first method requires an explicit list of all the input parameters and control variables that determine the diagnostic variables; the second method leverages the `ClimateModel` struct to read in the required variables.
 
-For example, here are the two methods that define the diagnostic function `T` for temperature:
+For example, here are the two methods that define the diagnostic function `T` for the temperature change:
 
 ```@meta
 CurrentModule = ClimateMARGO.Diagnostics
