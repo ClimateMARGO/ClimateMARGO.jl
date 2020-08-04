@@ -9,7 +9,8 @@ const OUTPUT_DIR   = joinpath(@__DIR__, "src/generated")
 print(@__DIR__)
 
 examples = [
-    "default_optimization.jl"
+    "default_optimization.jl",
+    "two_dimensional_optimization.jl"
 ]
 
 for example in examples
@@ -18,9 +19,9 @@ for example in examples
 end
 
 #### Organize page structure
-
 example_pages = [
-    "Optimization with default parameters" => "generated/default_optimization.md"
+    "Optimization with default parameters" => "generated/default_optimization.md",
+    "Two-dimensional optimization" => "generated/two_dimensional_optimization.md"
 ]
 
 pages = [
