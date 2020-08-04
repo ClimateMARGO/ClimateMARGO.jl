@@ -30,7 +30,7 @@
 
 <!-- CI/CD badges -->
 
-The MARGO model is described in an accompanying (not yet peer-reviewed) manuscript, available to all at [EarthArXiv.org/5bgyc](https://eartharxiv.org/5bgyc/).
+The MARGO model is described in full in an accompanying (not yet peer-reviewed, and currently being revised) manuscript, available to all at [EarthArXiv.org/5bgyc](https://eartharxiv.org/5bgyc/).
 
 Try out the MARGO model by working through the Binder tutorial right in your browser (you don't need to download anything – just click the [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/hdrake/ClimateMARGO.jl/master?filepath=examples%2Ftutorial.ipynb) button and, once the tutorial loads, click on the code cells and press ``Enter`` to run them).
 
