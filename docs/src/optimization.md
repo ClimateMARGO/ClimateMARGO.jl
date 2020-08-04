@@ -48,7 +48,7 @@ where ``T_{M,R,G,A}`` is the "adapted temperature".
 
 For each control ``\alpha \in \mathcal{A} = \{ M, R, G, A\}``, we assert a maximum deployment rate
 ```math
-    \abs{\frac{\text{d}\alpha}{\text{d}t}} \le \dot{\alpha},
+    \|\frac{\text{d}\alpha}{\text{d}t}\| \le \dot{\alpha},
 ```
 as a crude parameterization of social, technological, and economic inertia, which acts to forbid implausibly aggressive deployment and phase-out scenarios (see Appendix A2 for more discussion). We set ``\dot{M} \equiv \dot{R} \equiv 1/40``years``^{-1}`` in line with the most ambitious climate goals and ``\dot{G} = 1/20``years``^{-1}`` to reflect the technological simplicity of attaining a large SRM forcing relative to mitigation and carbon dioxide removal. We interpret adaptation deployment costs as buying insurance against future damages at a fixed annual rate ``\mathcal{C}_{A} A^{2}``, with ``\dot{A} = 0``, which can be increased or decreased upon re-evaluation at a later date.
 
