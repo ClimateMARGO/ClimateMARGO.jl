@@ -10,18 +10,18 @@ using ClimateMARGO.Utils
 using ClimateMARGO.Diagnostics
 using ClimateMARGO.Optimization
 
-## Loading the default MARGO configuration
+# ## Loading the default MARGO configuration
 params = deepcopy(ClimateMARGO.IO.included_configurations["default"])
 
 # Slightly increasing the discount rate to 1.5% to be more comparable with other models
 params.economics.ρ = 0.015
 
-## Reducing the default problem's dimensionality from ``4N`` to ``2``.
+# ## Reducing the default problem's dimensionality from ``4N`` to ``2``.
 
 # The default optimization problem consists of optimizing the values of each of the 4 controls for N timesteps, given a total problem size of:
 4*length(t(params))
 
-### Modifying `ClimateModelParameters`
+# ### Modifying `ClimateModelParameters`
 # Thanks to MARGO's flexibility, we can get rid of two of the controls and set the other two to have constant values, effectively reducing the problem size to 2.
 
 # First, we have to remove initial conditions on the control variables, which would conflict with the constant-value constraint
@@ -30,34 +30,34 @@ params.economics.remove_init = nothing
 params.economics.geoeng_init = nothing
 params.economics.adapt_init = nothing
 
-### Instanciating the `ClimateModel`
+# ### Instanciating the `ClimateModel`
 # Now that we've finished changing parameter values, we can create our MARGO model instance:
 m = ClimateModel(params)
 
-### Modifying keyword arguments for `optimize_controls!`
+# ### Modifying keyword arguments for `optimize_controls!`
 # We can make the controls constant in time by asserting a maximum deployment rate of zero
-max_slope = Dict("mitigate"=>0., "remove"=>0., "geoeng"=>0., "adapt"=>0.)
+max_slope = Dict("mitigate"=>0., "remove"=>0., "geoeng"=>0., "adapt"=>0.);
 
 # Since we make the controls constant in time, we have to let them turn on immediately by removing any deployment delays
-delay_deployment = Dict("mitigate"=>0., "remove"=>0., "geoeng"=>0., "adapt"=>0.)
+delay_deployment = Dict("mitigate"=>0., "remove"=>0., "geoeng"=>0., "adapt"=>0.);
 
 # Now we get rid of geoengineering and adaptation options by setting their maximum deployment fraction to zero
-max_deployment = Dict("mitigate"=>1.0, "remove"=>1.0, "geoeng"=>0., "adapt"=>0.)
+max_deployment = Dict("mitigate"=>1.0, "remove"=>1.0, "geoeng"=>0., "adapt"=>0.);
 
-### Run the optimization problem once to test
+# ### Run the optimization problem once to test
 @time optimize_controls!(m, obj_option = "temp", max_slope=max_slope, max_deployment=max_deployment, delay_deployment=delay_deployment);
 
-### Visualizing the results
+# ### Visualizing the results
 ClimateMARGO.Plotting.plot_state(m);
 gcf()
 
-## Comparing the two-dimensional optimization with the brute-force parameter sweep method
+# ## Comparing the two-dimensional optimization with the brute-force parameter sweep method
 
-### Parameter sweep
+# ### Parameter sweep
 
-# In the brute-force approach, we sweep through all possible values of *M*itigation and *R*emoval to map out the objective functions and constraints and visually identify the "optimal" solution in this 2-D space.
-Ms = 0.:0.005:1.0
-Rs = 0.:0.005:1.0
+# In the brute-force approach, we sweep through all possible values of **M**itigation and **R**emoval to map out the objective functions and constraints and visually identify the "optimal" solution in this 2-D space.
+Ms = 0.:0.005:1.0;
+Rs = 0.:0.005:1.0;
 
 # We will also consider four different temperature thresholds and visualize these constraints in the 2-D space
 temp_goals = [1.5, 2.0, 3., 4.0]
@@ -89,7 +89,7 @@ for (o, option) = enumerate(["temp", "net_benefit"])
 end
 
 
-### Visualizing the two-dimensional optimization problem
+# ### Visualizing the two-dimensional optimization problem
 col = ((1., 0.8, 0.), (0.8, 0.5, 0.), (0.7, 0.2, 0.), (0.6, 0., 0.),)
 
 figure(figsize=(14, 5))
@@ -109,7 +109,7 @@ contourf(Ms, Rs, temp_mask, cmap="Reds", alpha=1.0, vmin=0., vmax=2.)
 temp_mask = ones(size(min_temp))
 temp_mask[min_temp .> 0.] .= NaN
 contourf(Ms, Rs, temp_mask, cmap="Blues", alpha=1.0, vmin=0., vmax=2.5)
-contour(Ms, Rs, min_temp, colors="darkblue", levels=[0.], linewidths=2.5, label=latexstring("\$\\min(T)=\$", 0))
+contour(Ms, Rs, min_temp, colors="darkblue", levels=[0.], linewidths=2.5)
 plot([], [], "o", color="grey", label="lowest cost", markersize=10.)
 plot([], [], "-", color="darkblue", label=latexstring("\$\\min(T)=\$", 0), lw=2.5)
 
@@ -124,16 +124,15 @@ xlabel("Emissions mitigation level [% reduction]")
 xticks(0.:0.2:1.0, ["0%", "20%", "40%", "60%", "80%", "100%"])
 ylabel(L"CO$_{2e}$ removal rate [% of present-day emissions]")
 yticks(0.:0.2:1.0, ["0%", "20%", "40%", "60%", "80%", "100%"])
-savefig("test.png", dpi=150.)
 annotate(L"$T > 4\degree$C", (0.02, 0.04), xycoords="axes fraction", color="darkred", fontsize=13)
 annotate(L"$T < 0\degree$C", (0.74, 0.66), xycoords="axes fraction", color="darkblue", fontsize=13)
 title("Cost-effectiveness analysis")
 
 o = 2
 subplot(1,2,o)
-q = pcolor(Ms, Rs, net_benefit, cmap="Greys_r", norm=matplotlib.colors.SymLogNorm(linthresh=50, linscale=0.01, vmin=-10, vmax=1000))
-ticks = [0, 100, 200, 500, 1000]
-cbar = colorbar(label="Net present benefits, relative to baseline [trillion USD]", ticks=ticks)
+q = pcolor(Ms, Rs, net_benefit, cmap="Greys_r", norm=matplotlib.colors.SymLogNorm(linthresh=100, linscale=0.01, vmin=-10, vmax=800))
+ticks = [0, 200, 400, 800]
+cbar = colorbar(label="Net present benefits, relative to baseline [trillion USD]", ticks=ticks, extend="both")
 cbar.ax.set_yticklabels(ticks)
 
 grid(true, color="k", alpha=0.25)
@@ -156,3 +155,5 @@ yticks(0.:0.2:1.0, ["0%", "20%", "40%", "60%", "80%", "100%"])
 annotate(L"$T < 0\degree$C", (0.74, 0.66), xycoords="axes fraction", color="darkblue", fontsize=13)
 title("Cost-benefit analysis")
 gcf()
+
+# Note: for some reason the figures generated by Literate.jl are bugged...
