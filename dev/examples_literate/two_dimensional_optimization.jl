@@ -18,7 +18,7 @@ params.economics.ρ = 0.015
 
 # ## Reducing the default problem's dimensionality from ``4N`` to ``2``.
 
-# The default optimization problem consists of optimizing the values of each of the 4 controls for N timesteps, given a total problem size of:
+# The default optimization problem consists of optimizing the values of each of the 4 controls for N timesteps, giving a total problem size of:
 4*length(t(params))
 
 # ### Modifying `ClimateModelParameters`
