@@ -5,14 +5,14 @@
 It is helpful to conceptualize climate change as a four step process that connects the human-caused emissions of greenhouse gases (GHGs) to the eventual climate suffering (or damages) that they cause. This four-step framing reflects the four major human controls (or controls) which can sever these links to reduce climate suffering: **M**itigation of GHG emissions (e.g. switching away from fossil fuels), **R**emoval of carbon dioxide from the atmosphere (e.g. by planting trees or storing biofuel emissions underground), **G**eoengineering by solar radiation management (e.g. injecting sulfate aerosols into the stratosphere to reduce incoming sunlight), or **A**dapting to the changed climate (e.g. relocating coastal communities displaced by rising seas or expanding indoor air condititiong to fight off intensifying heat waves).
 
 ```math
-\text{Emissions}
-\xrightarrow{\text{\textbf{Mitigation}}}
-\text{GHGs}
-\xrightarrow{\text{\textbf{Removal}}}
-\text{Forcing}
-\xrightarrow{\text{\textbf{Geoengineering}}}
-\text{Warming}
-\xrightarrow{\text{\textbf{Adaptation}}}
+\text{Emissions}\,
+\overset{\text{Mitigation}}{\nRightarrow}\,
+\text{GHGs}\,
+\overset{\text{Removal}}{\nRightarrow}\,
+\text{Forcing}\,
+\overset{\text{Geoengineering}}{\nRightarrow}\,
+\text{Warming}\,
+\overset{\text{Adaptation}}{\nRightarrow}\,
 \text{Suffering}.
 ```
 
