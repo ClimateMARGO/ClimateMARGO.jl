@@ -7,12 +7,18 @@ export
     CostBenefit, CostEffective,
     NetBudgetAllocation, AnnualBudgetAllocation,
 
-    RampingEmissions, ramp_emissions,
+    EmissionsParams, GrowthParams, DiscountingParams,
+    ControlCostParams, DamageParams,
+
+    RampingEmissions,
+    exp_ramp_emissions, linear_ramp_emissions,
     ExponentialGrowth, ExponentialDiscounting,
     PowerLawControls, PowerLawDamages,
-    InitialConditions,
+
     FractionalEmissions,
+
     LogarithmicCO2Forcing,
+
     UpperLayerEBM, DeepLayerEBM, TwoLayerEBM
 
 include("grid.jl")

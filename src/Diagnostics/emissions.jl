@@ -1,8 +1,12 @@
-
-emissions(q, M) = q .* (1. .- M)
+emissions(q; M=0.) = q .* (1. .- M)
+emissions(tgrid::TemporalGrid, econ::Economics; M=0.) = emissions(
+    econ.emissions.func(t(tgrid)),
+    M=M
+)
 function emissions(m::ClimateModel; M=false)
     return emissions(
-        m.economics.emissions.func(t(m)),
-        m.controls.deployed["M"] .* (1. .- .~future_mask(m) * ~M)
+        m.grid,
+        m.economics,
+        M=m.controls.deployed["M"] .* allow_control(m, M)
     )
 end

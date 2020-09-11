@@ -5,7 +5,7 @@ abstract type EmissionsParams end
 #
 # See below link for 2020 initial condition:
 # https://www.eea.europa.eu/data-and-maps/indicators/atmospheric-greenhouse-gas-concentrations-6/assessment-1
-function ramp_emissions(t, q0::Float64, n::Float64, t1::Float64, t2::Float64)
+function linear_ramp_emissions(t, q0::Float64, n::Float64, t1::Float64, t2::Float64)
     t0 = t[1]
     Δt0 = t1 - t0
     Δt1 = t2 - t1
@@ -17,9 +17,22 @@ function ramp_emissions(t, q0::Float64, n::Float64, t1::Float64, t2::Float64)
     q[t .> t2] .= 0.
     return q
 end
-function ramp_emissions(t)
-    return ramp_emissions(t, 7.5, 3., 2100., 2150.)
+function linear_ramp_emissions(t)
+    return linear_ramp_emissions(t, 7.5, 3., 2100., 2150.)
 end
+
+function exp_ramp_emissions(t, q_max::Float64, Δt::Float64, t_max::Float64, t_decrease::Float64, t_netzero::Float64)
+    q = q_max*ones(size(t));
+    increase_idx = (t .<= t_max)
+    decrease_idx = (t .>= t_decrease) .& (t .<= t_netzero)
+    q[increase_idx] .= q_max*(exp.((t[increase_idx] .- t_max)/Δt))
+    q[decrease_idx] .= q_max*(t_netzero .- t[decrease_idx]) / (t_netzero - t_decrease)
+    q[t .> t_netzero] .= 0.
+    return q
+end
+# Default follows RCP8.5 until 2100 and then is extending according to ECP85 scenario
+# https://www.iiasa.ac.at/web-apps/tnt/RcpDb/dsd?Action=htmlpage&page=compare
+exp_ramp_emissions(t) = exp_ramp_emissions(t, 33., 52., 2100., 2120., 2200.)
 
 struct RampingEmissions <: EmissionsParams
     func::Function
