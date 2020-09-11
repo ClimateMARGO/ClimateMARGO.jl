@@ -32,7 +32,7 @@ mutable struct TwoLayerEBM <: EBMParams
     ϵ::Real   # heat uptake efficacy
 end
 TwoLayerEBM(T0, λ, κ, Cu, Cd) = TwoLayerEBM(T0, λ, κ, Cu, Cd, 1.)
-UpperLayerEBM(T0, λ, Cu) = TwoLayerEBM(T0, λ, 0., Cu, Cu)
+UpperLayerEBM(T0, λ, Cu) = TwoLayerEBM(T0, λ, 1.e-8, Cu, Cu)
 
 """
     Physics(Initial, Carbon, Forcing, EBM)
