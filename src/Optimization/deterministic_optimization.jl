@@ -461,7 +461,6 @@ function optimize_controls!(
     end
     
     mitigate_values = value.(M)[domain_idx]
-    print("Check version", size(mitigate_values), size(q[domain_idx]))
     mitigate_values[q[domain_idx].==0.] .= 0.
     getfield(m.controls, :mitigate)[domain_idx] = mitigate_values
     getfield(m.controls, :remove)[domain_idx] = value.(R)[domain_idx]
