@@ -184,7 +184,7 @@ function optimize_controls!(
     )
     
     for (key, control) in control_vars
-        if control_inits[key] != nothing
+        if control_inits[key] !== nothing
             fix(control_vars[key][1], control_inits[key]; force = true)
             Nstart = 2
         else
@@ -196,7 +196,7 @@ function optimize_controls!(
                 fix(control_vars[key][idx], controls[key][idx]; force = true)
             else
                 if tarr[idx] < start_deployment[key]
-                    if control_inits[key] != nothing
+                    if control_inits[key] !== nothing
                         fix(control_vars[key][idx], control_inits[key]; force = true)
                     else
                         fix(control_vars[key][idx], 0.; force = true)
