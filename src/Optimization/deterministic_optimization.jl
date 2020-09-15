@@ -461,7 +461,7 @@ function optimize_controls!(
     end
     
     mitigate_values = value.(M)[domain_idx]
-    mitigate_values[q.==0.] .= 0.
+    mitigate_values[q[domain_idx].==0.] .= 0.
     getfield(m.controls, :mitigate)[domain_idx] = mitigate_values
     getfield(m.controls, :remove)[domain_idx] = value.(R)[domain_idx]
     getfield(m.controls, :geoeng)[domain_idx] = value.(G)[domain_idx]
