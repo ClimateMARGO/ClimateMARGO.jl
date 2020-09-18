@@ -36,7 +36,5 @@ Try out the MARGO model by working through the Binder tutorial right in your bro
 
 ClimateMARGO.jl is currently in alpha testing and basic model documentation is slowly being added. Anyone interested in helping develop the model post an Issue here or contact Henri F. Drake directly (henrifdrake `at` gmail.com), until explicit guidelines for contributing to the model are posted at a later date.
 
-![Interactive ClimateMARGO.jl demo](https://i.imgur.com/4uyFQWD.mp4)
-
 ----
 <small>README.md formatting inspired by [Oceananigans.jl](https://github.com/CliMA/Oceananigans.jl)</small>
