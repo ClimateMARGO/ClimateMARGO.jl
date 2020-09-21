@@ -191,5 +191,5 @@ function plot_state(m::ClimateModel; new_figure=true, plot_legends=true)
     end
     tight_layout()
 
-    return
+    return fig, axs
 end
