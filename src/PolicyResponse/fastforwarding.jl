@@ -1,9 +1,9 @@
-function step_forward!(m::ClimateModel, Δt::Float64)
-    m.domain.present_year = m.domain.present_year + Δt
-    m.name = string(Int64(round(m.domain.present_year)))
+function fastforward!(m::ClimateModel, Δt::Real)
+    m.grid.present_year = m.grid.present_year + Δt
+    m.name = string(Int64(round(m.grid.present_year)))
 end
 
-function add_emissions_bump!(m::ClimateModel, Δt::Float64, Δq::Float64; present_year = m.domain.present_year)
+function add_emissions_bump!(m::ClimateModel, Δt::Real, Δq::Real; present_year = m.grid.present_year)
     
     present_idx = argmin(abs.(t(m) .- (present_year .+ Δt)))
     

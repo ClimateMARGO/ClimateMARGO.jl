@@ -4,10 +4,10 @@ using ClimateMARGO.Models
 using ClimateMARGO.Utils
 
 export
-    t, future_mask,
+    t, future_mask, allow_control, deferred,
     ramp_emissions, emissions, effective_emissions,
-    c, F, Tslow, Tfast, T,
-    τd, B, F2x, ECS,
+    c, F, T_mode, T,
+    af, τf, as, τs, calc_λ, F2x, ECS,
     discount, f, E,
     damage, cost, benefit,
     net_benefit, net_present_cost, net_present_benefit

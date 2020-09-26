@@ -11,7 +11,7 @@ Create data structure for economic input parameters for `ClimateModel` struct,
 including a baseline emissions scenario.
 
 ### Arguments
-- `E0::Array{Float64,1}`: Gross World Product timeseries [10^12 USD / year]
+- `E0::Float64`: Gross World Product timeseries [10^12 USD / year]
 - `γ::Float64`: economic growth rate [fraction]
 - `β::Float64`: climate damage parameter [% GWP / (°C)^2].
 - `ρ::Float64`: typically denoted ρ in economic references [fraction].
@@ -25,41 +25,42 @@ See also: [`ClimateModel`](@ref), [`baseline_emissions`](@ref), [`GWP`](@ref).
 
 """
 mutable struct Economics
-    E0::Float64
-    γ::Float64
-    β::Float64
-    ρ::Float64
-    Finf::Float64
+    E0 :: Float64
+    γ :: Float64
+    β :: Float64
+    ρ :: Float64
+    Finf :: Float64
     
-    mitigate_cost::Float64
-    remove_cost::Float64
-    geoeng_cost::Float64
-    adapt_cost::Float64
+    mitigate_cost :: Float64
+    remove_cost :: Float64
+    geoeng_cost :: Float64
+    adapt_cost :: Float64
     
     mitigate_init
     remove_init
     geoeng_init
     adapt_init
     
-    baseline_emissions::Array{Float64,1}
-    extra_CO₂::Array{Float64,1}
+    baseline_emissions :: Array{Float64,1}
+    extra_CO₂ :: Array{Float64,1}
 end
 
 # constructor without `extra_CO₂`, setting it to zero
-function Economics(E0::Float64,
-    γ::Float64,
-    β::Float64,
-    ρ::Float64,
-    Finf::Float64,
-    mitigate_cost::Float64,
-    remove_cost::Float64,
-    geoeng_cost::Float64,
-    adapt_cost::Float64,
+function Economics(
+    E0 :: Float64,
+    γ :: Float64,
+    β :: Float64,
+    ρ :: Float64,
+    Finf :: Float64,
+    mitigate_cost :: Float64,
+    remove_cost :: Float64,
+    geoeng_cost :: Float64,
+    adapt_cost :: Float64,
     mitigate_init,
     remove_init,
     geoeng_init,
     adapt_init,
-    baseline_emissions::Array{Float64,1})
+    baseline_emissions :: Array{Float64,1})
     return Economics(
         E0,
         γ,

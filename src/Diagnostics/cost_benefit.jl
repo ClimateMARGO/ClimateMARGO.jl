@@ -4,7 +4,7 @@ E(t, E0, γ) = E0 * (1. .+ γ).^(t .- t[1])
 E(m) = E(t(m), m.economics.E0, m.economics.γ)
 
 discount(t, ρ, tp) = .~future_mask(t, tp) .* (1. .+ ρ) .^ (- (t .- tp))
-discount(m::ClimateModel) = discount(t(m), m.economics.ρ, m.domain.present_year)
+discount(m::ClimateModel) = discount(t(m), m.economics.ρ, m.grid.present_year)
 
 damage(β, E, T, A; discount=1.) = ((1. .- A) .* β .* E .* T.^2) .* discount
 
@@ -63,12 +63,12 @@ function net_present_cost(
     )
     return net_present_cost(
         cost(m, discounting=discounting, M=M, R=R, G=G, A=A),
-        m.domain.dt
+        m.grid.dt
     )
 end
 
 net_present_benefit(net_benefit, dt) = sum(net_benefit*dt)
 net_present_benefit(m::ClimateModel; discounting=true, M=false, R=false, G=false, A=false) = net_present_benefit(
     net_benefit(m, discounting=discounting, M=M, R=R, G=G, A=A),
-    m.domain.dt
+    m.grid.dt
 )

@@ -12,7 +12,7 @@ function F(m; M=false, R=false, G=false, F0=0.)
     return F(
         m.physics.a, m.physics.c0, m.economics.Finf,
         c(m, M=M, R=R),
-        m.controls.geoeng .* (1. .- .~future_mask(m) * ~G),
+        m.controls.geoeng .* allow_control(m, G),
         F0=F0
     )
 end
@@ -20,94 +20,93 @@ end
 F2x(a::Float64) = a*log(2)
 F2x(m::ClimateModel) = F2x(m.physics.a)
 
-ECS(a, B) = F2x(a)/B
-ECS(params::ClimateModelParameters) = ECS(params.physics.a, m.physics.B)
-ECS(m::ClimateModel) = ECS(m.physics.a, m.physics.B)
+ECS(a, λ) = F2x(a)/λ
+ECS(params::ClimateModelParameters) = ECS(params.physics.a, m.physics.λ)
+ECS(m::ClimateModel) = ECS(m.physics.a, m.physics.λ)
 
-calc_B(a::Float64, ECS::Float64) = F2x(a)/ECS
-calc_B(params::ClimateModelParameters; ECS=ECS(params)) = calc_B(params.physics.a, ECS)
-calc_B(m::ClimateModel; ECS=ECS(m)) = calc_B(m.physics.a, ECS)
+calc_λ(a::Float64, ECS::Float64) = F2x(a)/ECS
+calc_λ(params::ClimateModelParameters; ECS=ECS(params)) = calc_λ(params.physics.a, ECS)
+calc_λ(m::ClimateModel; ECS=ECS(m)) = calc_λ(m.physics.a, ECS)
 
-τd(Cd, B, κ) = (Cd/B) * (B+κ)/κ
-τd(phys::Physics) = τd(phys.Cd, phys.B, phys.κ)
-τd(m::ClimateModel) = τd(m.physics)
+## Two-layer model
+# Diagnostic constants
+b(λ, κ, ϵ, Cu, Cd) = (λ+ϵ*κ)/Cu + κ/Cd
+b(phys::Physics) = b(phys.λ, phys.κ, phys.ϵ, phys.Cu, phys.Cd)
 
-"""
-    T_fast(F, κ, B; A=0.)
-"""
-T_fast(F, κ, B; A=0.) = sqrt.(1. .- A) .* F/(κ + B)
+δ(b_, λ, κ, Cu, Cd) = b_^2 - 4(λ*κ)/(Cu*Cd)
+δ(phys::Physics) = δ(b(phys), phys.λ, phys.κ, phys.Cu, phys.Cd)
 
-"""
-    T_fast(m::ClimateModel; M=false, R=false, G=false, A=false)
-"""
-T_fast(m::ClimateModel; M=false, R=false, G=false, A=false) = T_fast(
-    F(m, M=M, R=R, G=G),
-    m.physics.κ,
-    m.physics.B,
-    A=m.controls.adapt .* (1. .- .~future_mask(m) * ~A)
-)
+τf(b_, δ_, λ, κ, Cu, Cd) = Cu*Cd/(2*λ*κ)*(b_ - √δ_)
+τf(phys::Physics) = τf(b(phys), δ(phys), phys.λ, phys.κ, phys.Cu, phys.Cd)
 
+τs(b_, δ_, λ, κ, Cu, Cd) = Cu*Cd/(2*λ*κ)*(b_ + √δ_)
+τs(phys::Physics) = τs(b(phys), δ(phys), phys.λ, phys.κ, phys.Cu, phys.Cd)
+
+bϕ(λ, κ, ϵ, Cu, Cd) = (λ+ϵ*κ)/Cu - κ/Cd
+bϕ(phys::Physics) = bϕ(phys.λ, phys.κ, phys.ϵ, phys.Cu, phys.Cd)
+
+ϕf(bϕ_, δ_, κ, ϵ, Cu) = Cu/(2*ϵ*κ)*(bϕ_ - √δ_)
+ϕf(phys::Physics) = ϕf(bϕ(phys), δ(phys), phys.κ, phys.ϵ, phys.Cu)
+
+ϕs(bϕ_, δ_, κ, ϵ, Cu) = Cu/(2*ϵ*κ)*(bϕ_ + √δ_)
+ϕs(phys::Physics) = ϕs(bϕ(phys), δ(phys), phys.κ, phys.ϵ, phys.Cu)
+
+af(ϕs_, ϕf_, τf_, λ, Cu) = ϕs_*τf_ /(Cu*(ϕs_ - ϕf_))*λ
+af(phys::Physics) = af(ϕs(phys), ϕf(phys), τf(phys), phys.λ, phys.Cu)
+
+as(ϕs_, ϕf_, τs_, λ, Cu) = -ϕf_*τs_ /(Cu*(ϕs_ - ϕf_))*λ
+as(phys::Physics) = as(ϕs(phys), ϕf(phys), τs(phys), phys.λ, phys.Cu)
+
+# Diagnostic variables
 """
-    T_slow(F, Cd, κ, B, t, dt; A=0.)
+    T_mode(F, λ, am, τm, t, dt)
 """
-function T_slow(F, Cd, κ, B, t, dt; A=0.)
-    τ = τd(Cd, κ, B)
-    return sqrt.(1. .- A) .* (
-        (κ/B) / (κ + B) *
-        exp.( - (t .- (t[1] - dt)) / τ) .*
-        cumsum( (exp.( (t .- (t[1] - dt)) / τ) / τ) .* F * dt)
+function T_mode(F, λ, am, τm, t, dt)
+    return (am/λ) .* (
+        exp.( - (t .- t[1]) / τm) .*
+        cumsum( exp.( (t .- t[1] ) / τm) .* F * dt ) / τm 
     )
 end
 
 """
-    T_slow(m::ClimateModel; M=false, R=false, G=false, A=false)
-"""
-T_slow(m::ClimateModel; M=false, R=false, G=false, A=false) = T_slow(
-    F(m, M=M, R=R, G=G),
-    m.physics.Cd,
-    m.physics.κ,
-    m.physics.B,
-    t(m),
-    m.domain.dt,
-    A=m.controls.adapt .* (1. .- .~future_mask(m) * ~A)
-)
-
-"""
-    T(T0, F, Cd, κ, B, t, dt; A=0.)
+    T(T0, F, λ, af_, τf_, as_, τs_, t, dt; A=0.)
 
 Returns the sum of the initial, fast mode, and slow mode temperature change.
 
 # Arguments
 - `T0::Float64`: warming relative to pre-industrial [°C]
 - `F::Array{Float64}`: change in radiative forcing since the initial time ``t_{0}`` [W/m``{2}``]
-- `Cd::Float64`: deep ocean heat capacity [W yr m``^{2}`` K``^{-1}``]
-- `κ::Float64`: ocean heat uptake rate [W m``^{2}`` K``^{-1}``]
-- `B::Float64`: feedback parameter [W m``^{2}`` K``^{-1}``]
+- `λ::Float64`: feedback parameter [W m``^{2}`` K``^{-1}``]
+- `af_::Float64`: fast mode fraction [1]
+- `τf_::Float64`: fast mode timescale [years]
+- `as_::Float64`: slow mode fraction [1]
+- `τs_::Float64`: slow mode timescale [years]
 - `t::Array{Float64}`: year [years]
 - `dt::Float64`: timestep [years]
-- `A::Float64`: Adaptation control [fraction]
+- `A::Float64`: adaptation control [fraction]
 
 """
-T(T0, F, Cd, κ, B, t, dt; A=0.) = sqrt.(1. .- A) .* (
-    T0 .+
-    T_fast(F, κ, B) .+
-    T_slow(F, Cd, κ, B, t, dt)
+function T(T0, F, λ, af_, τf_, as_, τs_, t, dt; A=0.)
+    T_fast_mode = T_mode(F, λ, af_, τf_, t, dt)
+    T_slow_mode = T_mode(F, λ, as_, τs_, t, dt)
+    return (T0 .+ T_slow_mode .+ T_fast_mode) .* sqrt.(1. .- A)
+end
+
+T(grid::Grid, phys::Physics, F; A=0.) = T(
+    phys.T0, F, phys.λ, af(phys), τf(phys), as(phys), τs(phys),
+    t(grid), grid.dt,
+    A=A
 )
 
 """
     T(m::ClimateModel; M=false, R=false, G=false, A=false)
-
 Returns the sum of the initial, fast mode, and slow mode temperature change,
 as diagnosed from `m` and modified by the climate controls activated by the
 Boolean kwargs.
 """
 T(m::ClimateModel; M=false, R=false, G=false, A=false) = T(
-    m.physics.T0,
+    m.grid,
+    m.physics,
     F(m, M=M, R=R, G=G),
-    m.physics.Cd,
-    m.physics.κ,
-    m.physics.B,
-    t(m),
-    m.domain.dt,
-    A=m.controls.adapt .* (1. .- .~future_mask(m) * ~A)
+    A=m.controls.adapt .* allow_control(m, A)
 )
