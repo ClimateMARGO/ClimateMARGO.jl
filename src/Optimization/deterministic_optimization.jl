@@ -33,10 +33,14 @@ function optimize_controls!(
     # Shorthands
     tarr = t(m)
     Earr = E(m)
-    τ = τd(m)
-    dt = m.domain.dt
+    af_ = af(m.physics)
+    as_ = as(m.physics)
+    τf_ = τf(m.physics)
+    τs_ = τs(m.physics)
+
+    dt = m.grid.dt
     t0 = tarr[1]
-    tp = m.domain.present_year
+    tp = m.grid.present_year
     q = m.economics.baseline_emissions
     qGtCO2 = ppm_to_GtCO2(q)
     N = length(tarr)
@@ -77,7 +81,7 @@ function optimize_controls!(
         "acceptable_tol" => 1.e-8, "max_iter" => Int64(1e8),
         "acceptable_constr_viol_tol" => 1.e-3, "constr_viol_tol" => 1.e-4,
         "print_frequency_iter" => 50,  "print_timing_statistics" => bool_str,
-        "print_level" => print_int,
+        "print_level" => print_int, "diverging_iterates_tol" => 1.e40,
     ))
 
     function fM_JuMP(α)
@@ -205,7 +209,19 @@ function optimize_controls!(
             end
         end
     end
-
+    # No mitigation after baseline emissions go to zero.
+    for i=1:N
+        if q[i]==0.
+            fix(M[i], 0.; force = true)
+        end
+    end
+    end_buffer = tarr .>= (tarr[end] - 20.);
+    for i=1:N
+        if end_buffer[i]
+            fix(R[i], 0.; force = true)
+            fix(G[i], 0.; force = true)
+        end
+    end
     # add integral function as a new variable defined by first order finite differences
     @variable(model_optimizer, cumsum_qMR[1:N]);
     for i in 1:N-1
@@ -218,14 +234,14 @@ function optimize_controls!(
         model_optimizer, cumsum_qMR[1] == (dt * (m.physics.r * (q[1] * (1. - M[1]) - q[1] * R[1])))
     );
     
-    # add temperature kernel as new variable defined by first order finite difference
-    @variable(model_optimizer, cumsum_KFdt[1:N]);
+    # add fast temperature kernel as new variable defined by first order finite difference
+    @variable(model_optimizer, cumsum_fKFdt[1:N]);
     for i in 1:N-1
         @NLconstraint(
-            model_optimizer, cumsum_KFdt[i+1] - cumsum_KFdt[i] ==
+            model_optimizer, cumsum_fKFdt[i+1] - cumsum_fKFdt[i] ==
             (
                 dt *
-                exp( (tarr[i+1] - (t0 - dt)) / τ ) * (
+                exp( (tarr[i+1] - t0) / τf_ ) * (
                     m.physics.a * log_JuMP(
                         (m.physics.c0 + cumsum_qMR[i+1]) /
                         (m.physics.c0)
@@ -233,16 +249,39 @@ function optimize_controls!(
             )
         )
     end
+    i=1
     @NLconstraint(
-        model_optimizer, cumsum_KFdt[1] == 
-        (
-            dt *
-            exp( dt / τ ) * (
+        model_optimizer, cumsum_fKFdt[i] == dt*(
                 m.physics.a * log_JuMP(
-                    (m.physics.c0 + cumsum_qMR[1]) /
+                    (m.physics.c0 + cumsum_qMR[i]) /
                     (m.physics.c0)
-                ) - m.economics.Finf*G[1] )
-         )
+                ) - m.economics.Finf*G[i]
+        )
+    );
+
+    # add slow temperature kernel as new variable defined by first order finite difference
+    @variable(model_optimizer, cumsum_sKFdt[1:N]);
+    for i in 1:N-1
+        @NLconstraint(
+            model_optimizer, cumsum_sKFdt[i+1] - cumsum_sKFdt[i] ==
+            (
+                dt *
+                exp( (tarr[i+1] - t0) / τs_ ) * (
+                    m.physics.a * log_JuMP(
+                        (m.physics.c0 + cumsum_qMR[i+1]) /
+                        (m.physics.c0)
+                    ) - m.economics.Finf*G[i+1] )
+            )
+        )
+    end
+    i=1
+    @NLconstraint(
+        model_optimizer, cumsum_sKFdt[i] == dt*(
+                m.physics.a * log_JuMP(
+                    (m.physics.c0 + cumsum_qMR[i]) /
+                    (m.physics.c0)
+                ) - m.economics.Finf*G[i]
+        )
     );
 
     # Add constraint of rate of changes
@@ -287,19 +326,18 @@ function optimize_controls!(
                 (
                     (1 - A[i]) * m.economics.β *
                     Earr[i] *
-                    ((m.physics.T0 + 
+                    (
+                        m.physics.T0 + 
                         (
-                             (m.physics.a * log_JuMP(
-                                        (m.physics.c0 + cumsum_qMR[i]) /
-                                        (m.physics.c0)
-                                    ) - m.economics.Finf*G[i] 
-                            ) +
-                            m.physics.κ /
-                            (τ * m.physics.B) *
-                            exp( - (tarr[i] - (t0 - dt)) / τ ) *
-                            cumsum_KFdt[i]
-                        ) / (m.physics.B + m.physics.κ)
-                    )
+                            (af_ / (m.physics.λ * τf_)) *
+                            exp( - (tarr[i] - t0) / τf_ ) *
+                            cumsum_fKFdt[i]
+                        ) +
+                        (
+                            (as_ / (m.physics.λ * τs_)) *
+                            exp( - (tarr[i] - t0) / τs_ ) *
+                            cumsum_sKFdt[i]
+                        )
                     )^2 +
                     m.economics.mitigate_cost * qGtCO2[i] *
                     fM_JuMP(M[i]) +
@@ -333,19 +371,18 @@ function optimize_controls!(
             @NLconstraint(model_optimizer,
                 (1 - A[i]) * m.economics.β *
                 Earr[i] *
-                ((m.physics.T0 + 
+                (
+                    m.physics.T0 + 
                     (
-                        (m.physics.a * log_JuMP(
-                                    (m.physics.c0 + cumsum_qMR[i]) /
-                                    (m.physics.c0)
-                                ) - 8.5*G[i]
-                        ) +
-                        m.physics.κ /
-                        (τ * m.physics.B) *
-                        exp( - (tarr[i] - (t0 - dt)) / τ ) *
-                        cumsum_KFdt[i]
-                    ) / (m.physics.B + m.physics.κ)
-                )
+                        (af_ / (m.physics.λ * τf_)) *
+                        exp( - (tarr[i] - t0) / τf_ ) *
+                        cumsum_fKFdt[i]
+                    ) +
+                    (
+                        (as_ / (m.physics.λ * τs_)) *
+                        exp( - (tarr[i] - t0) / τs_ ) *
+                        cumsum_sKFdt[i]
+                    )
                 )^2 <= (
                     m.economics.β *
                     Earr[i] *
@@ -357,19 +394,18 @@ function optimize_controls!(
         @NLconstraint(model_optimizer,
             (1 - A[i]) * m.economics.β *
             Earr[i] *
-            ((m.physics.T0 + 
+            (
+                m.physics.T0 + 
                 (
-                    (m.physics.a * log_JuMP(
-                                (m.physics.c0 + cumsum_qMR[i]) /
-                                (m.physics.c0)
-                            ) - 8.5*G[i]
-                    ) +
-                    m.physics.κ /
-                    (τ * m.physics.B) *
-                    exp( - (tarr[i] - (t0 - dt)) / τ ) *
-                    cumsum_KFdt[i]
-                ) / (m.physics.B + m.physics.κ)
-            )
+                    (af_ / (m.physics.λ * τf_)) *
+                    exp( - (tarr[i] - t0) / τf_ ) *
+                    cumsum_fKFdt[i]
+                ) +
+                (
+                    (as_ / (m.physics.λ * τs_)) *
+                    exp( - (tarr[i] - t0) / τs_ ) *
+                    cumsum_sKFdt[i]
+                )
             )^2 <= (
                 m.economics.β *
                 Earr[i] *
@@ -382,19 +418,18 @@ function optimize_controls!(
             sum(
                 (1 - A[i]) * m.economics.β *
                 Earr[i] *
-                ((m.physics.T0 + 
+                (
+                    m.physics.T0 + 
                     (
-                        (m.physics.a * log_JuMP(
-                                    (m.physics.c0 + cumsum_qMR[i]) /
-                                    (m.physics.c0)
-                                ) - 8.5*G[i]
-                        ) +
-                        m.physics.κ /
-                        (τ * m.physics.B) *
-                        exp( - (tarr[i] - (t0 - dt)) / τ ) *
-                        cumsum_KFdt[i]
-                    ) / (m.physics.B + m.physics.κ)
-                )
+                        (af_ / (m.physics.λ * τf_)) *
+                        exp( - (tarr[i] - t0) / τf_ ) *
+                        cumsum_fKFdt[i]
+                    ) +
+                    (
+                        (as_ / (m.physics.λ * τs_)) *
+                        exp( - (tarr[i] - t0) / τs_ ) *
+                        cumsum_sKFdt[i]
+                    )
                 )^2 *
                 discounting_JuMP(t[i]) *
                 dt
@@ -421,19 +456,18 @@ function optimize_controls!(
             sum(
                 (1 - A[i]) * m.economics.β *
                 Earr[i] *
-                ((m.physics.T0 + 
+                (
+                    m.physics.T0 + 
                     (
-                        (m.physics.a * log_JuMP(
-                                    (m.physics.c0 + cumsum_qMR[i]) /
-                                    (m.physics.c0)
-                                ) - 8.5*G[i]
-                        ) +
-                        m.physics.κ /
-                        (τ * m.physics.B) *
-                        exp( - (tarr[i] - (t0 - dt)) / τ ) *
-                        cumsum_KFdt[i]
-                    ) / (m.physics.B + m.physics.κ)
-                )
+                        (af_ / (m.physics.λ * τf_)) *
+                        exp( - (tarr[i] - t0) / τf_ ) *
+                        cumsum_fKFdt[i]
+                    ) +
+                    (
+                        (as_ / (m.physics.λ * τs_)) *
+                        exp( - (tarr[i] - t0) / τs_ ) *
+                        cumsum_sKFdt[i]
+                    )
                 )^2 *
                 discounting_JuMP(t[i]) *
                 dt
@@ -461,7 +495,7 @@ function optimize_controls!(
     end
     
     mitigate_values = value.(M)[domain_idx]
-    mitigate_values[q[domain_idx].==0.] .= 0.
+    #mitigate_values[q[domain_idx].==0.] .= 0.
     getfield(m.controls, :mitigate)[domain_idx] = mitigate_values
     getfield(m.controls, :remove)[domain_idx] = value.(R)[domain_idx]
     getfield(m.controls, :geoeng)[domain_idx] = value.(G)[domain_idx]

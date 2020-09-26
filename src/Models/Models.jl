@@ -1,32 +1,32 @@
 module Models
 
-export Domain, Physics, Controls, Economics, ClimateModelParameters, ClimateModel
+export Grid, Physics, Controls, Economics, ClimateModelParameters, ClimateModel
 
-include("domain.jl")
+include("grid.jl")
 include("physics.jl")
 include("controls.jl")
 include("economics.jl")
 
 """
-    ClimateModelParameters(name, domain::Domain, economics::Economics, physics::Physics)
+    ClimateModelParameters(name, grid::Grid, economics::Economics, physics::Physics)
 
 Create a named instance of the MARGO climate model parameters, which include
 economic input parameters (`economics`), physical climate parameters (`physics`),
-and climate control policies (`controls`) on some spatial-temporal grid (`domain`).
+and climate control policies (`controls`) on some spatial-temporal grid (`grid`).
 
 Use these to construct a [`ClimateModel`](@ref), which also contains the optimized 
 controls.
 """
 mutable struct ClimateModelParameters
     name::String
-    domain::Domain
+    grid::Grid
     economics::Economics
     physics::Physics
 end
 
 mutable struct ClimateModel
     name::String
-    domain::Domain
+    grid::Grid
     economics::Economics
     physics::Physics
     controls::Controls
@@ -42,14 +42,14 @@ the optimized [`Controls`](@ref). These can be computed using
 """
 ClimateModel(params::ClimateModelParameters, controls::Controls) = ClimateModel(
     params.name,
-    params.domain,
+    params.grid,
     params.economics,
     params.physics,
     controls
 )
 function ClimateModel(params::ClimateModelParameters)
-    dom = params.domain
-    t = collect(dom.initial_year:dom.dt:dom.final_year)
+    grid = params.grid
+    t = collect(grid.initial_year:grid.dt:grid.final_year)
     return ClimateModel(
         params,
         Controls(
