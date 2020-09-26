@@ -89,7 +89,7 @@ Returns the sum of the initial, fast mode, and slow mode temperature change.
 function T(T0, F, λ, af_, τf_, as_, τs_, t, dt; A=0.)
     T_fast_mode = T_mode(F, λ, af_, τf_, t, dt)
     T_slow_mode = T_mode(F, λ, as_, τs_, t, dt)
-    return (T0 .+ T_slow_mode .+ T_fast_mode) .* sqrt.(1. .- A)
+    return (T0 .+ T_fast_mode .+ T_slow_mode) .* sqrt.(1. .- A)
 end
 
 T(grid::Grid, phys::Physics, F; A=0.) = T(

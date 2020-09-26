@@ -38,8 +38,6 @@ function optimize_controls!(
     τf_ = τf(m.physics)
     τs_ = τs(m.physics)
 
-    print(af_, as_, τf_, τs_)
-
     dt = m.grid.dt
     t0 = tarr[1]
     tp = m.grid.present_year
@@ -83,7 +81,7 @@ function optimize_controls!(
         "acceptable_tol" => 1.e-8, "max_iter" => Int64(1e8),
         "acceptable_constr_viol_tol" => 1.e-3, "constr_viol_tol" => 1.e-4,
         "print_frequency_iter" => 50,  "print_timing_statistics" => bool_str,
-        "print_level" => print_int,
+        "print_level" => print_int, "diverging_iterates_tol" => 1.e40,
     ))
 
     function fM_JuMP(α)
@@ -211,7 +209,19 @@ function optimize_controls!(
             end
         end
     end
-
+    # No mitigation after baseline emissions go to zero.
+    for i=1:N
+        if q[i]==0.
+            fix(M[i], 0.; force = true)
+        end
+    end
+    end_buffer = tarr .>= (tarr[end] - 20.);
+    for i=1:N
+        if end_buffer[i]
+            fix(R[i], 0.; force = true)
+            fix(G[i], 0.; force = true)
+        end
+    end
     # add integral function as a new variable defined by first order finite differences
     @variable(model_optimizer, cumsum_qMR[1:N]);
     for i in 1:N-1
@@ -485,7 +495,7 @@ function optimize_controls!(
     end
     
     mitigate_values = value.(M)[domain_idx]
-    mitigate_values[q[domain_idx].==0.] .= 0.
+    #mitigate_values[q[domain_idx].==0.] .= 0.
     getfield(m.controls, :mitigate)[domain_idx] = mitigate_values
     getfield(m.controls, :remove)[domain_idx] = value.(R)[domain_idx]
     getfield(m.controls, :geoeng)[domain_idx] = value.(G)[domain_idx]
