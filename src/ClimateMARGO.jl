@@ -1,7 +1,7 @@
 module ClimateMARGO
 
-if VERSION < v"1.3"
-    @error "ClimateMARGO requires Julia v1.3 or newer."
+if VERSION < v"1.5"
+    @error "ClimateMARGO requires Julia v1.5 or newer."
 end
 
 include("Models/Models.jl")
