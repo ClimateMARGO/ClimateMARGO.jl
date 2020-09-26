@@ -32,13 +32,9 @@
 
 The MARGO model is described in full in an accompanying manuscript (not yet peer-reviewed, and currently being revised), available to all at [EarthArXiv.org/5bgyc](https://eartharxiv.org/5bgyc/).
 
-Try out the MARGO model by working through the Binder tutorial right in your browser (you don't need to download anything – just click the [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/hdrake/ClimateMARGO.jl/master?filepath=examples%2Ftutorial.ipynb) button and, once the tutorial loads, click on the code cells and press ``Enter`` to run them).
+Try out the MARGO model by working through the Binder tutorial right in your browser (you don't need to download anything – just click the [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v1/gh/hdrake/ClimateMARGO.jl/master?filepath=examples%2Ftutorial.ipynb) button and, once the tutorial loads, click on the code cells and press ``Enter`` to run them).
 
 ClimateMARGO.jl is currently in alpha testing and basic model documentation is slowly being added. Anyone interested in helping develop the model post an Issue here or contact Henri F. Drake directly (henrifdrake `at` gmail.com), until explicit guidelines for contributing to the model are posted at a later date.
-
-<hr>
-
-![MARGO gif](https://raw.githubusercontent.com/hdrake/ClimateMARGO.jl/master/docs/src/MARGO_interactive.gif)
 
 ----
 <small>README.md formatting inspired by [Oceananigans.jl](https://github.com/CliMA/Oceananigans.jl)</small>

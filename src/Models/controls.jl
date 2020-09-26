@@ -10,7 +10,7 @@ C = Controls(a, a, a, a);
 C.geoeng
 
 # output
-4-element Array{Float64,1}:
+4-element Array{Real,1}:
  0.0
  0.0
  0.0
@@ -20,8 +20,10 @@ C.geoeng
 See also: [`ClimateModel`](@ref)
 """
 mutable struct Controls
-    mitigate::Array{Float64,1}
-    remove::Array{Float64,1}
-    geoeng::Array{Float64,1}
-    adapt::Array{Float64,1}
+    deployed::Dict{String, Array{Float64,1}}
+    init::Dict{String, Float64}
 end
+Controls(deployed) = Controls(
+    deployed,
+    Dict("M"=>0.03, "R"=>0., "G"=>0., "A"=>0.)
+)
