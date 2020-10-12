@@ -13,5 +13,7 @@ include("PolicyResponse/PolicyResponse.jl")
 if get(ENV, "JULIA_MARGO_LOAD_PYPLOT", "1") == "1"
     include("Plotting/Plotting.jl")
 else
+    @info "Not loading plotting functions"
     # (in our API, we don't load the plotting functions)
+end
 end
