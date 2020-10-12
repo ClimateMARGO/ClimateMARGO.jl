@@ -22,7 +22,7 @@
   <a href="https://travis-ci.org/hdrake/ClimateMARGO.jl">
     <img alt="Build status" src="https://travis-ci.org/hdrake/ClimateMARGO.jl.svg?branch=master">
   </a>
-  <a href="https://mybinder.org/v2/gh/hdrake/ClimateMARGO.jl/master?filepath=examples%2Ftutorial.ipynb">
+  <a href="https://mybinder.org/v2/gh/hdrake/ClimateMARGO.jl/master?filepath=notebooks%2Ftutorial.ipynb">
     <img alt="Binder logo" src="https://mybinder.org/badge_logo.svg">
   </a>
 
@@ -32,7 +32,7 @@
 
 The MARGO model is described in full in an accompanying manuscript (not yet peer-reviewed, and currently being revised), available to all at [EarthArXiv.org/5bgyc](https://eartharxiv.org/5bgyc/).
 
-Try out the MARGO model by working through the Binder tutorial right in your browser (you don't need to download anything – just click the [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/hdrake/ClimateMARGO.jl/master?filepath=examples%2Ftutorial.ipynb) button and, once the tutorial loads, click on the code cells and press ``Enter`` to run them).
+Try out the MARGO model by working through the Binder tutorial right in your browser (you don't need to download anything – just click the [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/hdrake/ClimateMARGO.jl/master?filepath=notebooks%2Ftutorial.ipynb) button and, once the tutorial loads, click on the code cells and press ``Enter`` to run them).
 
 ClimateMARGO.jl is currently in alpha testing and basic model documentation is slowly being added. Anyone interested in helping develop the model post an Issue here or contact Henri F. Drake directly (henrifdrake `at` gmail.com), until explicit guidelines for contributing to the model are posted at a later date.
 
