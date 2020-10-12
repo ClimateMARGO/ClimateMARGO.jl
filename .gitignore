@@ -1,10 +1,14 @@
 .ipynb_checkpoints
+.vscode
+
 work-in-progress
+figures/
+generated/
 
 docs/build
-docs/Manifest.toml
+Manifest.toml
 
-cmip5_rcp85_gmst.csv
+cmip5_rcp85_gmst.csv*
+graph.txt
 
 test_docs.sh
-
