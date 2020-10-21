@@ -54,12 +54,9 @@ axes[4].legend(loc="lower left")
 axes[5].legend(loc="lower right")
 axes[6].legend(loc="upper right")
 axes[6].set_ylim(0,2.5)
-fig = gcf()
-display(fig)
+gcf()
 
 ##
-
-#savefig("figures/1D_optimization_state.png", dpi=150, bbox_inches="tight")
 
 # ## Comparing the two-dimensional optimization with the brute-force parameter sweep method
 
@@ -149,13 +146,13 @@ xlabel("Emissions mitigation level [% reduction]")
 xticks(0.:0.2:1.0, ["0%", "20%", "40%", "60%", "80%", "100%"])
 ylabel("Net present benefits, relative to baseline [trillion USD]")
 legend(loc="upper left")
-fig = gcf()
-display(fig)
-#savefig("figures/1D_optimization.png", dpi=150, bbox_inches="tight")
+gcf()
+
+##
 
 # ### Visualizing the two-dimensional optimization problem
 
-figure(figsize=(14, 5))
+fig = figure(figsize=(14, 5))
 
 o = 1
 subplot(1,2,o)
@@ -215,6 +212,4 @@ ylabel(L"CO$_{2e}$ removal rate [% of present-day emissions]")
 yticks(0.:0.2:1.0, ["0%", "20%", "40%", "60%", "80%", "100%"])
 annotate(L"$T < 0\degree$C", (0.74, 0.66), xycoords="axes fraction", color="darkblue", fontsize=13)
 title("Cost-benefit analysis")
-fig = gcf()
-display(fig)
-#savefig("figures/2D_optimization.png", dpi=150, bbox_inches="tight")
+gcf()
