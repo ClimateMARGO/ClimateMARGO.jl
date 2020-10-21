@@ -21,7 +21,7 @@ end
 #### Organize page structure
 example_pages = [
     "Optimization with default parameters" => "generated/default_optimization.md",
-    "Two-dimensional optimization" => "generated/one-two_dimensional_optimization.md"
+    "1D and 2D optimization" => "generated/one-two_dimensional_optimization.md"
 ]
 
 pages = [
