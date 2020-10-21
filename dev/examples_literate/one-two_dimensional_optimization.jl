@@ -1,3 +1,4 @@
+##
 # # A simple two-dimensional optimization problem
 
 # ## Loading ClimateMARGO.jl
@@ -13,8 +14,8 @@ using ClimateMARGO.Optimization
 # ## Loading the default MARGO configuration
 params = deepcopy(ClimateMARGO.IO.included_configurations["default"])
 
-# Slightly increasing the discount rate to 1.5% to be more comparable with other models
-params.economics.ρ = 0.015
+# Slightly increasing the discount rate to 3% to be more comparable with other models
+params.economics.ρ = 0.03
 
 # ## Reducing the default problem's dimensionality from ``4N`` to ``2``.
 
@@ -45,12 +46,19 @@ delay_deployment = Dict("mitigate"=>0., "remove"=>0., "geoeng"=>0., "adapt"=>0.)
 max_deployment = Dict("mitigate"=>1.0, "remove"=>1.0, "geoeng"=>0., "adapt"=>0.);
 
 # ### Run the optimization problem once to test
-@time optimize_controls!(m, obj_option = "temp", max_slope=max_slope, max_deployment=max_deployment, delay_deployment=delay_deployment);
+@time optimize_controls!(m, obj_option = "net_benefit", max_slope=max_slope, max_deployment=Dict("mitigate"=>1.0, "remove"=>0., "geoeng"=>0., "adapt"=>0.), delay_deployment=delay_deployment);
 
 # ### Visualizing the results
-ClimateMARGO.Plotting.plot_state(m);
+fig, axes = ClimateMARGO.Plotting.plot_state(m);
+axes[3].legend(loc="upper left")
+axes[4].legend(loc="lower left")
+axes[5].legend(loc="lower right")
+axes[6].legend(loc="upper right")
+axes[6].set_ylim(0,2.5)
+savefig("figures/1D_optimization_state.png", dpi=150, bbox_inches="tight")
 gcf()
 
+##
 # ## Comparing the two-dimensional optimization with the brute-force parameter sweep method
 
 # ### Parameter sweep
@@ -62,10 +70,10 @@ Rs = 0.:0.005:1.0;
 # We will also consider four different temperature thresholds and visualize these constraints in the 2-D space
 temp_goals = [1.5, 2.0, 3., 4.0]
 
-control_cost = zeros(length(Ms), length(Rs)) .+ 0. #
-net_benefit = zeros(length(Ms), length(Rs)) .+ 0. #
-max_temp = zeros(length(Ms), length(Rs)) .+ 0. # stores the maximum temperature acheived for each combination
-min_temp = zeros(length(Ms), length(Rs)) .+ 0. # stores the minimum temperature acheived for each combination
+control_cost = zeros(length(Rs), length(Ms)) .+ 0. #
+net_benefit = zeros(length(Rs), length(Ms)) .+ 0. #
+max_temp = zeros(length(Rs), length(Ms)) .+ 0. # stores the maximum temperature acheived for each combination
+min_temp = zeros(length(Rs), length(Ms)) .+ 0. # stores the minimum temperature acheived for each combination
 optimal_controls = zeros(2, length(temp_goals), 2) # to hold optimal values computed using JuMP
 
 for (o, option) = enumerate(["temp", "net_benefit"])
@@ -88,18 +96,72 @@ for (o, option) = enumerate(["temp", "net_benefit"])
     end
 end
 
-
-# ### Visualizing the two-dimensional optimization problem
+## 
+# ### Visualizing the one-dimensional mitigation optimization problem
+# In the limit of zero-carbon dioxide removal, we can recover the 1D mitigation optimization problem from the 2D one.
 col = ((1., 0.8, 0.), (0.8, 0.5, 0.), (0.7, 0.2, 0.), (0.6, 0., 0.),)
+
+fig = figure(figsize=(14,5))
+ax = subplot(1,2,1)
+ind1 = argmin(abs.(max_temp[1,:] .- 1.5))
+ind2 = argmin(abs.(max_temp[1,:] .- 2.))
+ind3 = argmin(abs.(max_temp[1,:] .- 3.))
+ind4 = argmin(abs.(max_temp[1,:] .- 4.))
+plot(Ms, control_cost[1,:], "k-", lw=2)
+plot(Ms[ind1], control_cost[1,ind1], "o", color=col[1], markersize=10)
+plot(Ms[ind2], control_cost[1,ind2], "o", color=col[2], markersize=10)
+plot(Ms[ind3], control_cost[1,ind3], "o", color=col[3], markersize=10)
+plot(Ms[ind4], control_cost[1,ind4], "o", color=col[4], markersize=10)
+minM1 = Ms[ind1]
+minM2 = Ms[ind2]
+minM3 = Ms[ind3]
+minM4 = Ms[ind4]
+ylims = ax.get_ylim()
+fill_between([minM2,minM1], [ylims[1], ylims[1]], [ylims[2],ylims[2]], color=col[1], alpha=0.2)
+fill_between([minM3,minM2], [ylims[1], ylims[1]], [ylims[2],ylims[2]], color=col[2], alpha=0.2)
+fill_between([minM4,minM3], [ylims[1], ylims[1]], [ylims[2],ylims[2]], color=col[3], alpha=0.2)
+fill_between([0,minM4], [ylims[1], ylims[1]], [ylims[2],ylims[2]], color=col[4], alpha=0.2)
+axvline(minM1, color=col[1])
+axvline(minM2, color=col[2])
+axvline(minM3, color=col[3])
+axvline(minM4, color=col[4])
+ylim(ylims)
+xlim(0,1)
+xlabel("Emissions mitigation level [% reduction]")
+xticks(0.:0.2:1.0, ["0%", "20%", "40%", "60%", "80%", "100%"])
+ylabel("Net present cost of controls [trillion USD]")
+plot([], [], "o", color="grey", label="lowest cost", markersize=10.)
+legend(loc="upper left")
+
+ax = subplot(1,2,2)
+plot(Ms, net_benefit[1,:], "k-", lw=2)
+ind = argmax(net_benefit[1,:])
+plot(Ms[ind], net_benefit[1,ind], "ko", markersize=10, label="most benefits")
+ylims = ax.get_ylim()
+axvline(minM1, color=col[1])
+axvline(minM2, color=col[2])
+axvline(minM3, color=col[3])
+axvline(minM4, color=col[4])
+ylim(ylims)
+xlim(0,1)
+xlabel("Emissions mitigation level [% reduction]")
+xticks(0.:0.2:1.0, ["0%", "20%", "40%", "60%", "80%", "100%"])
+ylabel("Net present benefits, relative to baseline [trillion USD]")
+legend(loc="upper left")
+savefig("figures/1D_optimization.png", dpi=150, bbox_inches="tight")
+gcf()
+
+##
+# ### Visualizing the two-dimensional optimization problem
+
 
 figure(figsize=(14, 5))
 
 o = 1
 subplot(1,2,o)
-pcolor(Ms, Rs, control_cost, cmap="Greys", norm=matplotlib.colors.LogNorm(vmin=20, vmax=800))
-ticks = [20, 40, 100, 400, 800]
-cbar = colorbar(label="Net present cost of controls [trillion USD]", ticks=ticks)
-cbar.ax.set_yticklabels(ticks)
+pcolor(Ms, Rs, control_cost, cmap="Greys", vmin=0., vmax=150.)
+cbar = colorbar(label="Net present cost of controls [trillion USD]")
+contour(Ms, Rs, control_cost, levels=[25, 50, 75], colors="k", linewidths=0.85, alpha=0.4)
 
 grid(true, color="k", alpha=0.25)
 temp_mask = ones(size(max_temp))
@@ -130,10 +192,9 @@ title("Cost-effectiveness analysis")
 
 o = 2
 subplot(1,2,o)
-q = pcolor(Ms, Rs, net_benefit, cmap="Greys_r", norm=matplotlib.colors.SymLogNorm(linthresh=100, linscale=0.01, vmin=-10, vmax=800))
-ticks = [0, 200, 400, 800]
-cbar = colorbar(label="Net present benefits, relative to baseline [trillion USD]", ticks=ticks, extend="both")
-cbar.ax.set_yticklabels(ticks)
+q = pcolor(Ms, Rs, net_benefit, cmap="Greys_r", vmin=-75, vmax=75)
+cbar = colorbar(label="Net present benefits, relative to baseline [trillion USD]", extend="both")
+contour(Ms, Rs, net_benefit, levels=[0, 25, 50], colors="k", linewidths=0.85, alpha=0.4)
 
 grid(true, color="k", alpha=0.25)
 temp_mask = ones(size(min_temp))
@@ -154,4 +215,5 @@ ylabel(L"CO$_{2e}$ removal rate [% of present-day emissions]")
 yticks(0.:0.2:1.0, ["0%", "20%", "40%", "60%", "80%", "100%"])
 annotate(L"$T < 0\degree$C", (0.74, 0.66), xycoords="axes fraction", color="darkblue", fontsize=13)
 title("Cost-benefit analysis")
+savefig("figures/2D_optimization.png", dpi=150, bbox_inches="tight")
 gcf()
