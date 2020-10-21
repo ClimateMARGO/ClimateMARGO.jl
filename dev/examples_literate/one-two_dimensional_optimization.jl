@@ -1,4 +1,3 @@
-##
 # # A simple two-dimensional optimization problem
 
 # ## Loading ClimateMARGO.jl
@@ -55,10 +54,13 @@ axes[4].legend(loc="lower left")
 axes[5].legend(loc="lower right")
 axes[6].legend(loc="upper right")
 axes[6].set_ylim(0,2.5)
-savefig("figures/1D_optimization_state.png", dpi=150, bbox_inches="tight")
-gcf()
+fig = gcf()
+display(fig)
 
 ##
+
+#savefig("figures/1D_optimization_state.png", dpi=150, bbox_inches="tight")
+
 # ## Comparing the two-dimensional optimization with the brute-force parameter sweep method
 
 # ### Parameter sweep
@@ -96,7 +98,6 @@ for (o, option) = enumerate(["temp", "net_benefit"])
     end
 end
 
-## 
 # ### Visualizing the one-dimensional mitigation optimization problem
 # In the limit of zero-carbon dioxide removal, we can recover the 1D mitigation optimization problem from the 2D one.
 col = ((1., 0.8, 0.), (0.8, 0.5, 0.), (0.7, 0.2, 0.), (0.6, 0., 0.),)
@@ -148,12 +149,11 @@ xlabel("Emissions mitigation level [% reduction]")
 xticks(0.:0.2:1.0, ["0%", "20%", "40%", "60%", "80%", "100%"])
 ylabel("Net present benefits, relative to baseline [trillion USD]")
 legend(loc="upper left")
-savefig("figures/1D_optimization.png", dpi=150, bbox_inches="tight")
-gcf()
+fig = gcf()
+display(fig)
+#savefig("figures/1D_optimization.png", dpi=150, bbox_inches="tight")
 
-##
 # ### Visualizing the two-dimensional optimization problem
-
 
 figure(figsize=(14, 5))
 
@@ -215,5 +215,6 @@ ylabel(L"CO$_{2e}$ removal rate [% of present-day emissions]")
 yticks(0.:0.2:1.0, ["0%", "20%", "40%", "60%", "80%", "100%"])
 annotate(L"$T < 0\degree$C", (0.74, 0.66), xycoords="axes fraction", color="darkblue", fontsize=13)
 title("Cost-benefit analysis")
-savefig("figures/2D_optimization.png", dpi=150, bbox_inches="tight")
-gcf()
+fig = gcf()
+display(fig)
+#savefig("figures/2D_optimization.png", dpi=150, bbox_inches="tight")
