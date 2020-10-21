@@ -158,6 +158,7 @@ o = 1
 subplot(1,2,o)
 pcolor(Ms, Rs, control_cost, cmap="Greys", vmin=0., vmax=150.)
 cbar = colorbar(label="Net present cost of controls [trillion USD]")
+control_cost[(min_temp .> 0.)] .= NaN
 contour(Ms, Rs, control_cost, levels=[25, 50, 75], colors="k", linewidths=0.85, alpha=0.4)
 
 grid(true, color="k", alpha=0.25)
