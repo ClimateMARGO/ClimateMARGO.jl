@@ -305,8 +305,10 @@ function optimize_controls!(
                     fM_JuMP(M[i]) +
                     m.economics.adapt_cost * fA_JuMP(A[i]) +
                     m.economics.remove_cost * fR_JuMP(R[i]) +
-                    m.economics.geoeng_cost * Earr[i] *
-                    fG_JuMP(G[i])
+                    Earr[i] * (
+                        m.economics.geoeng_cost * fG_JuMP(G[i]) + m.economics.epsilon_cost
+                    )
+                    
                 ) *
                 discounting_JuMP(tarr[i]) *
                 dt
@@ -321,8 +323,9 @@ function optimize_controls!(
                     fM_JuMP(M[i]) +
                     m.economics.adapt_cost * fA_JuMP(A[i]) +
                     m.economics.remove_cost * fR_JuMP(R[i]) +
-                    m.economics.geoeng_cost * Earr[i] *
-                    fG_JuMP(G[i])
+                    Earr[i] * (
+                        m.economics.geoeng_cost * fG_JuMP(G[i]) + m.economics.epsilon_cost
+                    )
                 ) *
                 discounting_JuMP(tarr[i]) *
                 dt
@@ -408,8 +411,9 @@ function optimize_controls!(
                     fM_JuMP(M[i]) +
                     m.economics.adapt_cost * fA_JuMP(A[i]) +
                     m.economics.remove_cost * fR_JuMP(R[i]) +
-                    m.economics.geoeng_cost * Earr[i] *
-                    fG_JuMP(G[i])
+                    Earr[i] * (
+                        m.economics.geoeng_cost * fG_JuMP(G[i]) + m.economics.epsilon_cost
+                    )
                 ) *
                 discounting_JuMP(t[i]) *
                 dt
@@ -447,8 +451,9 @@ function optimize_controls!(
                     fM_JuMP(M[i]) +
                     m.economics.adapt_cost * fA_JuMP(A[i]) +
                     m.economics.remove_cost * fR_JuMP(R[i]) +
-                    m.economics.geoeng_cost * Earr[i] *
-                    fG_JuMP(G[i])
+                    Earr[i] * (
+                        m.economics.geoeng_cost * fG_JuMP(G[i]) + m.economics.epsilon_cost
+                    )
                 ) <= expenditure * Earr[i]
             )
         end
