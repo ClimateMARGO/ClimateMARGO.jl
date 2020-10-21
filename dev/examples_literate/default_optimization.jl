@@ -30,5 +30,5 @@ m = ClimateModel(params);
 
 # Finally, let's plot the resulting temperature timeseries
 using PyPlot
-ClimateMARGO.Plotting.plot_state(m);
+fig, axes = ClimateMARGO.Plotting.plot_state(m);
 gcf()
