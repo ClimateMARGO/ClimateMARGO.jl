@@ -10,7 +10,7 @@ print(@__DIR__)
 
 examples = [
     "default_optimization.jl",
-    "two_dimensional_optimization.jl"
+    "one-two_dimensional_optimization.jl"
 ]
 
 for example in examples
@@ -21,7 +21,7 @@ end
 #### Organize page structure
 example_pages = [
     "Optimization with default parameters" => "generated/default_optimization.md",
-    "Two-dimensional optimization" => "generated/two_dimensional_optimization.md"
+    "Two-dimensional optimization" => "generated/one-two_dimensional_optimization.md"
 ]
 
 pages = [
