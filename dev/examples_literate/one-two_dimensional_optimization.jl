@@ -58,8 +58,6 @@ gcf()
 
 # ## Comparing the two-dimensional optimization with the brute-force parameter sweep method
 
-##
-
 # ### Parameter sweep
 
 # In the brute-force approach, we sweep through all possible values of **M**itigation and **R**emoval to map out the objective functions and constraints and visually identify the "optimal" solution in this 2-D space.
@@ -149,8 +147,6 @@ legend(loc="upper left")
 gcf()
 
 # ### Visualizing the two-dimensional optimization problem
-
-##
 
 fig = figure(figsize=(14, 5))
 
