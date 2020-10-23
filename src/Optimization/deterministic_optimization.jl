@@ -124,7 +124,7 @@ function optimize_controls!(
     end
     register(model_optimizer, :fG_JuMP, 1, fG_JuMP, autodiff=true)
 
-    scale = 1.e-2
+    scale = 5.e-3
     function Hstep(α)
         if α <= 0.
             return 0.
