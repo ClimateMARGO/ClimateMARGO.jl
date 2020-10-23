@@ -124,14 +124,19 @@ function optimize_controls!(
     end
     register(model_optimizer, :fG_JuMP, 1, fG_JuMP, autodiff=true)
 
-    function Gstep(G)
-        if G <= 1.e-3
+    scale = 1.e-2
+    function Hstep(α)
+        if α <= 0.
             return 0.
-        else
-            return m.economics.epsilon_cost
+        elseif 0. < α <= scale/2.
+            return 2*(α/scale)^2
+        elseif scale/2. < α <= scale
+            return 1. - 2((α - scale)/scale)^2
+        if α > scale
+            return 1. 
         end
     end
-    register(model_optimizer, :Gstep, 1, Gstep, autodiff=true)
+    register(model_optimizer, :Hstep, 1, Hstep, autodiff=true)
     
     function log_JuMP(x)
         if x <= 0.
@@ -316,7 +321,7 @@ function optimize_controls!(
                     m.economics.remove_cost * fR_JuMP(R[i]) +
                     Earr[i] * (
                         m.economics.geoeng_cost * fG_JuMP(G[i]) +
-                        m.economics.epsilon_cost * Gstep(G[i])
+                        m.economics.epsilon_cost * Hstep(G[i])
                     )
                     
                 ) *
@@ -335,7 +340,7 @@ function optimize_controls!(
                     m.economics.remove_cost * fR_JuMP(R[i]) +
                     Earr[i] * (
                         m.economics.geoeng_cost * fG_JuMP(G[i]) +
-                        m.economics.epsilon_cost * Gstep(G[i])
+                        m.economics.epsilon_cost * Hstep(G[i])
                     )
                 ) *
                 discounting_JuMP(tarr[i]) *
@@ -424,7 +429,7 @@ function optimize_controls!(
                     m.economics.remove_cost * fR_JuMP(R[i]) +
                     Earr[i] * (
                         m.economics.geoeng_cost * fG_JuMP(G[i]) +
-                        m.economics.epsilon_cost * Gstep(G[i])
+                        m.economics.epsilon_cost * Hstep(G[i])
                     )
                 ) *
                 discounting_JuMP(t[i]) *
@@ -465,7 +470,7 @@ function optimize_controls!(
                     m.economics.remove_cost * fR_JuMP(R[i]) +
                     Earr[i] * (
                         m.economics.geoeng_cost * fG_JuMP(G[i]) +
-                        m.economics.epsilon_cost * Gstep(G[i])
+                        m.economics.epsilon_cost * Hstep(G[i])
                     )
                 ) <= expenditure * Earr[i]
             )
