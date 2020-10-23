@@ -132,7 +132,7 @@ function optimize_controls!(
             return 2*(α/scale)^2
         elseif scale/2. < α <= scale
             return 1. - 2((α - scale)/scale)^2
-        if α > scale
+        elseif α > scale
             return 1. 
         end
     end
