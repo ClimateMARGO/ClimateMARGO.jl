@@ -131,7 +131,7 @@ function optimize_controls!(
             return m.economics.epsilon_cost
         end
     end
-    register(model_optimizer, :fG_JuMP, 1, fG_JuMP, autodiff=true)
+    register(model_optimizer, :Gstep, 1, Gstep, autodiff=true)
     
     function log_JuMP(x)
         if x <= 0.
