@@ -306,7 +306,8 @@ function optimize_controls!(
                     m.economics.adapt_cost * fA_JuMP(A[i]) +
                     m.economics.remove_cost * fR_JuMP(R[i]) +
                     Earr[i] * (
-                        m.economics.geoeng_cost * fG_JuMP(G[i]) + m.economics.epsilon_cost
+                        m.economics.geoeng_cost * fG_JuMP(G[i]) +
+                        m.economics.epsilon_cost * (G[i] > 0.)
                     )
                     
                 ) *
@@ -324,7 +325,8 @@ function optimize_controls!(
                     m.economics.adapt_cost * fA_JuMP(A[i]) +
                     m.economics.remove_cost * fR_JuMP(R[i]) +
                     Earr[i] * (
-                        m.economics.geoeng_cost * fG_JuMP(G[i]) + m.economics.epsilon_cost
+                        m.economics.geoeng_cost * fG_JuMP(G[i]) +
+                        m.economics.epsilon_cost * (G[i] > 0.)
                     )
                 ) *
                 discounting_JuMP(tarr[i]) *
@@ -412,7 +414,8 @@ function optimize_controls!(
                     m.economics.adapt_cost * fA_JuMP(A[i]) +
                     m.economics.remove_cost * fR_JuMP(R[i]) +
                     Earr[i] * (
-                        m.economics.geoeng_cost * fG_JuMP(G[i]) + m.economics.epsilon_cost
+                        m.economics.geoeng_cost * fG_JuMP(G[i]) +
+                        m.economics.epsilon_cost * (G[i] > 0.)
                     )
                 ) *
                 discounting_JuMP(t[i]) *
@@ -452,7 +455,8 @@ function optimize_controls!(
                     m.economics.adapt_cost * fA_JuMP(A[i]) +
                     m.economics.remove_cost * fR_JuMP(R[i]) +
                     Earr[i] * (
-                        m.economics.geoeng_cost * fG_JuMP(G[i]) + m.economics.epsilon_cost
+                        m.economics.geoeng_cost * fG_JuMP(G[i]) +
+                        m.economics.epsilon_cost * (G[i] > 0.)
                     )
                 ) <= expenditure * Earr[i]
             )
