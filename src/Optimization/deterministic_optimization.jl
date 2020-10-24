@@ -3,13 +3,13 @@ function optimize_controls!(
         m::ClimateModel;
         obj_option = "temp", temp_goal = 2.0, budget=10., expenditure = 0.5,
         max_deployment = Dict("mitigate"=>1., "remove"=>1., "geoeng"=>1., "adapt"=>0.4),
-        max_slope = Dict("mitigate"=>1. /40., "remove"=>1. /40., "geoeng"=>1. /20., "adapt"=>0.),
+        max_slope = Dict("mitigate"=>1. /40., "remove"=>1. /40., "geoeng"=>1. /80., "adapt"=>0.),
         max_update = Dict("mitigate"=>nothing, "remove"=>nothing, "geoeng"=>nothing, "adapt"=>0.1),
         temp_final = nothing,
         delay_deployment = Dict(
             "mitigate"=>0,
-            "remove"=>10,
-            "geoeng"=>30,
+            "remove"=>0,
+            "geoeng"=>0,
             "adapt"=>0
         ),
         cost_exponent = 2.,
@@ -123,6 +123,20 @@ function optimize_controls!(
         end
     end
     register(model_optimizer, :fG_JuMP, 1, fG_JuMP, autodiff=true)
+
+    scale = 5.e-3
+    function Hstep(α)
+        if α <= 0.
+            return 0.
+        elseif 0. < α <= scale/2.
+            return 2*(α/scale)^2
+        elseif scale/2. < α <= scale
+            return 1. - 2((α - scale)/scale)^2
+        elseif α > scale
+            return 1. 
+        end
+    end
+    register(model_optimizer, :Hstep, 1, Hstep, autodiff=true)
     
     function log_JuMP(x)
         if x <= 0.
@@ -305,8 +319,11 @@ function optimize_controls!(
                     fM_JuMP(M[i]) +
                     m.economics.adapt_cost * fA_JuMP(A[i]) +
                     m.economics.remove_cost * fR_JuMP(R[i]) +
-                    m.economics.geoeng_cost * Earr[i] *
-                    fG_JuMP(G[i])
+                    Earr[i] * (
+                        m.economics.geoeng_cost * fG_JuMP(G[i]) +
+                        m.economics.epsilon_cost * Hstep(G[i])
+                    )
+                    
                 ) *
                 discounting_JuMP(tarr[i]) *
                 dt
@@ -321,8 +338,10 @@ function optimize_controls!(
                     fM_JuMP(M[i]) +
                     m.economics.adapt_cost * fA_JuMP(A[i]) +
                     m.economics.remove_cost * fR_JuMP(R[i]) +
-                    m.economics.geoeng_cost * Earr[i] *
-                    fG_JuMP(G[i])
+                    Earr[i] * (
+                        m.economics.geoeng_cost * fG_JuMP(G[i]) +
+                        m.economics.epsilon_cost * Hstep(G[i])
+                    )
                 ) *
                 discounting_JuMP(tarr[i]) *
                 dt
@@ -408,8 +427,10 @@ function optimize_controls!(
                     fM_JuMP(M[i]) +
                     m.economics.adapt_cost * fA_JuMP(A[i]) +
                     m.economics.remove_cost * fR_JuMP(R[i]) +
-                    m.economics.geoeng_cost * Earr[i] *
-                    fG_JuMP(G[i])
+                    Earr[i] * (
+                        m.economics.geoeng_cost * fG_JuMP(G[i]) +
+                        m.economics.epsilon_cost * Hstep(G[i])
+                    )
                 ) *
                 discounting_JuMP(t[i]) *
                 dt
@@ -447,8 +468,10 @@ function optimize_controls!(
                     fM_JuMP(M[i]) +
                     m.economics.adapt_cost * fA_JuMP(A[i]) +
                     m.economics.remove_cost * fR_JuMP(R[i]) +
-                    m.economics.geoeng_cost * Earr[i] *
-                    fG_JuMP(G[i])
+                    Earr[i] * (
+                        m.economics.geoeng_cost * fG_JuMP(G[i]) +
+                        m.economics.epsilon_cost * Hstep(G[i])
+                    )
                 ) <= expenditure * Earr[i]
             )
         end
