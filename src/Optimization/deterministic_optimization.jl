@@ -3,13 +3,13 @@ function optimize_controls!(
         m::ClimateModel;
         obj_option = "temp", temp_goal = 2.0, budget=10., expenditure = 0.5,
         max_deployment = Dict("mitigate"=>1., "remove"=>1., "geoeng"=>1., "adapt"=>0.4),
-        max_slope = Dict("mitigate"=>1. /40., "remove"=>1. /40., "geoeng"=>1. /20., "adapt"=>0.),
+        max_slope = Dict("mitigate"=>1. /40., "remove"=>1. /40., "geoeng"=>1. /80., "adapt"=>0.),
         max_update = Dict("mitigate"=>nothing, "remove"=>nothing, "geoeng"=>nothing, "adapt"=>0.1),
         temp_final = nothing,
         delay_deployment = Dict(
             "mitigate"=>0,
-            "remove"=>10,
-            "geoeng"=>30,
+            "remove"=>0,
+            "geoeng"=>0,
             "adapt"=>0
         ),
         cost_exponent = 2.,
