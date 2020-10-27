@@ -68,7 +68,7 @@ end
 
 function plot_controls(m::ClimateModel)
     title("optimized control deployments")
-    plot(t(m), m.controls.mitigate, color="C0", label=L"$M$ (emissions mitigation)")
+    plot(t(m)[m.economics.baseline_emissions .> 0.], m.controls.mitigate[m.economics.baseline_emissions .> 0.], color="C0", label=L"$M$ (emissions mitigation)")
     plot(t(m), m.controls.remove, color="C1", label=L"$R$ (carbon dioxide removal)")
     plot(t(m), m.controls.adapt, color="C2", label=L"$A$ (adaptation)")
     plot(t(m), m.controls.geoeng, color="C3", label=L"$G$ (solar geoengineering)")
