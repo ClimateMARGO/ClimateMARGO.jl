@@ -57,7 +57,7 @@ function plot_temperatures(m::ClimateModel)
     plot(t(m),T(m, M=true, R=true, G=true, A=true), color="C2", label=L"$T_{M,R,G,A}$")
     plot(t(m),2.0.*ones(size(t(m))),"k--", alpha=0.75)
     ylims = [0., maximum(T(m)) * 1.05]
-    ylabel(L"temperature anomaly [$^{\circ}$C]")
+    ylabel(L"temperature anomaly [°C]")
     xlabel("year")
     xlim(t(m)[1],2200.)
     xticks(t(m)[1]:40.:2200.)
@@ -127,7 +127,7 @@ function plot_damages(m::ClimateModel; discounting=true, percent_GWP=false)
     plot(
         t(m)[domain_idx],
         (damage(m.economics.β, E(m), Tgoal, 0., discount=discount(m)) ./ Enorm)[domain_idx],
-        "k--", alpha=0.75, label=L"damage threshold at 2$^{\circ}$ C with $A=0$"
+        "k--", alpha=0.75, label=L"damage threshold at 2°C with $A=0$"
     )
 
     ylim([0, maximum((damage(m, discounting=discounting) ./ Enorm)[domain_idx]) * 0.75])
