@@ -17,7 +17,7 @@ function plot_emissions(m::ClimateModel)
     title("effective emissions")
     #fill_past(m, ylims)
     plot(t(m), zeros(size(t(m))), "k-", alpha=0.9)
-    plot(t(m), effective_emissions(m), linestyle = "--", color="grey", label=L"$rq$ (no-policy baseline)")
+    plot(t(m), effective_emissions(m), linestyle = "-", color="grey", label=L"$rq$ (no-policy baseline)")
     plot(t(m), effective_emissions(m, M=true), color="C0", label=L"$rq(1-M)$ (controlled)")
     plot(t(m), effective_emissions(m, M=true, R=true), color="C1", label=L"$rq(1-M) - rq_{0}R$ (controlled)")
     ylimit = maximum(effective_emissions(m)) * 1.1
@@ -122,7 +122,7 @@ function plot_damages(m::ClimateModel; discounting=true, percent_GWP=false)
     plot(t(m)[domain_idx], ((damages .+ costs)./ Enorm)[domain_idx], color="k", label="net costs (controlled damages + controls)")
     plot(t(m)[domain_idx], (damages ./ Enorm)[domain_idx], color="C1", label="controlled damages")
     plot(t(m)[domain_idx], (costs ./ Enorm)[domain_idx], color="C3", label="cost of controls")
-    
+
     Tgoal = 2.
     plot(
         t(m)[domain_idx],
