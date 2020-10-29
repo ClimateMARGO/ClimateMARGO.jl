@@ -13,16 +13,16 @@
   <a href="https://mit-license.org">
     <img alt="MIT license" src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square">
   </a>
-  <a href="https://github.com/hdrake/ClimateMARGO.jl/issues/new">
+  <a href="https://github.com/ClimateMARGO/ClimateMARGO.jl/issues/new">
     <img alt="Ask us anything" src="https://img.shields.io/badge/Ask%20us-anything-1abc9c.svg?style=flat-square">
   </a>
-  <a href="https://hdrake.github.io/ClimateMARGO.jl/dev/">
+  <a href="https://ClimateMARGO.github.io/ClimateMARGO.jl/dev/">
     <img alt="Documentation in development" src="https://img.shields.io/badge/docs-latest-blue.svg?style=flat-square">
   </a>
-  <a href="https://travis-ci.org/hdrake/ClimateMARGO.jl">
+  <a href="https://travis-ci.org/ClimateMARGO/ClimateMARGO.jl">
     <img alt="Build status" src="https://travis-ci.org/hdrake/ClimateMARGO.jl.svg?branch=master">
   </a>
-  <a href="https://mybinder.org/v2/gh/hdrake/ClimateMARGO.jl/master?filepath=notebooks%2Ftutorial.ipynb">
+  <a href="https://mybinder.org/v2/gh/ClimateMARGO/ClimateMARGO.jl/master?filepath=notebooks%2Ftutorial.ipynb">
     <img alt="Binder logo" src="https://mybinder.org/badge_logo.svg">
   </a>
 
