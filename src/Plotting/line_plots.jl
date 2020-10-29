@@ -57,7 +57,7 @@ function plot_temperatures(m::ClimateModel)
     plot(t(m),T(m, M=true, R=true, G=true, A=true), color="C2", label=L"$T_{M,R,G,A}$")
     plot(t(m),2.0.*ones(size(t(m))),"k--", alpha=0.75)
     ylims = [0., maximum(T(m)) * 1.05]
-    ylabel(L"temperature anomaly [°C]")
+    ylabel("temperature anomaly [°C]")
     xlabel("year")
     xlim(t(m)[1],2200.)
     xticks(t(m)[1]:40.:2200.)
