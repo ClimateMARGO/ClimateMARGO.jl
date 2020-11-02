@@ -1,5 +1,5 @@
 rcParams = PyPlot.PyDict(PyPlot.matplotlib."rcParams")
-rcParams["lines.linewidth"] = 2.5 # Change linewidth
+rcParams["lines.linewidth"] = 2.25 # Change linewidth
 
 function fill_past(m, ylims)
     domain_idx = (t(m) .> m.present_year)
