@@ -106,9 +106,9 @@ function plot_controls(m::ClimateModel)
     plot(t(m), m.controls.remove, color="C1", lw=2, label=L"$R$ (carbon dioxide removal)")
     plot(t(m), m.controls.adapt, color="C2", lw=2, label=L"$A$ (adaptation)")
     plot(t(m), m.controls.geoeng, color="C3", lw=2, label=L"$G$ (solar geoengineering)")
-    ylims = [0., 1.]
-    ylim([0,1.0])
+    ylims = [0., 1.075]
     yticks(0.:0.2:1.0, 0:20:100)
+    ylim(ylims)
     ylabel("control deployment [%]")
     xlabel("year")
     xlim(t(m)[1],2200.)
