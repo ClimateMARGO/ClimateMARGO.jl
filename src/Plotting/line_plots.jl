@@ -76,7 +76,7 @@ function plot_forcings(m::ClimateModel; F0=3.)
 end
 
 function plot_temperatures(m::ClimateModel)
-    title("temperature change since 1850")
+    title("adaptive temperature change")
     #fill_past(m, ylims)
 
     fill_between(t(m), T(m), T(m, M=true), facecolor="C0", alpha=0.3, label="Mitigation")
