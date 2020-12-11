@@ -14,7 +14,7 @@ function fill_past(m, ylims)
 end
 
 function plot_emissions(m::ClimateModel)
-    title("effective emissions")
+    title("effective greenhouse gas emissions")
     #fill_past(m, ylims)
 
     fill_between(t(m), effective_emissions(m), effective_emissions(m, M=true), facecolor="C0", alpha=0.3, label="Mitigation")
@@ -36,7 +36,7 @@ function plot_emissions(m::ClimateModel)
 end
 
 function plot_concentrations(m::ClimateModel)
-    title("concentrations")
+    title("greenhouse gas concentrations")
     #fill_past(m, ylims)
 
     fill_between(t(m), c(m), c(m, M=true), facecolor="C0", alpha=0.3, label="Mitigation")
@@ -48,28 +48,28 @@ function plot_concentrations(m::ClimateModel)
     ylabel(L"CO$_{2e}$ concentration [ppm]")
     xlabel("year")
     xlim(t(m)[1],2200.)
-    ylim(100., 1.05*maximum(c(m)))
+    ylim(ylims)
     xticks(t(m)[1]:40.:2200.)
     grid(true, alpha=0.3)
     return
 end
 
-function plot_forcing(m::ClimateModel)
-    title("concentrations")
+function plot_forcing(m::ClimateModel; F0=3.)
+    title("forcing (greenhouse effect and SRM)")
     #fill_past(m, ylims)
 
-    fill_between(t(m), F(m), F(m, M=true), facecolor="C0", alpha=0.3, label=L"Mitigation")
-    fill_between(t(m), F(m, M=true), F(m, M=true, R=true), facecolor="C1", alpha=0.3, label=L"CDR")
-    fill_between(t(m), F(m, M=true, R=true), F(m, M=true, R=true, G=true), facecolor="C3", alpha=0.3, label=L"SRM")
-    plot(t(m), F(m), "-", color="grey", lw=2.25, label=L"$F$ (no-policy baseline)")
-    plot(t(m), F(m, M=true), "k-", lw=1, alpha=0.4)
-    plot(t(m), F(m, M=true, R=true), "k-", lw=1, alpha=0.4)
-    plot(t(m), F(m, M=true, R=true, G=true), "k-", lw=2.25, label=L"$F_{M,R,G}$ (controlled)")
-    ylims = [0., maximum(c(m))*1.05]
+    fill_between(t(m), F(m, F0=F0), F(m, M=true, F0=F0), facecolor="C0", alpha=0.3, label="Mitigation")
+    fill_between(t(m), F(m, M=true, F0=F0), F(m, M=true, R=true, F0=F0), facecolor="C1", alpha=0.3, label="CDR")
+    fill_between(t(m), F(m, M=true, R=true, F0=F0), F(m, M=true, R=true, G=true, F0=F0), facecolor="C3", alpha=0.3, label="SRM")
+    plot(t(m), F(m, F0=F0), "-", color="grey", lw=2.25, label=L"$F$ (no-policy baseline)")
+    plot(t(m), F(m, M=true, F0=F0), "k-", lw=1, alpha=0.4)
+    plot(t(m), F(m, M=true, R=true, F0=F0), "k-", lw=1, alpha=0.4)
+    plot(t(m), F(m, M=true, R=true, G=true, F0=F0), "k-", lw=2.25, label=L"$F_{M,R,G}$ (controlled)")
+    ylims = [0., maximum(F(m, F0=F0))*1.05]
     ylabel(L"radiative forcing [W/m$^{2}$]")
     xlabel("year")
     xlim(t(m)[1],2200.)
-    ylim(100., 1.05*maximum(c(m)))
+    ylim(ylims)
     xticks(t(m)[1]:40.:2200.)
     grid(true, alpha=0.3)
     return
@@ -79,9 +79,9 @@ function plot_temperatures(m::ClimateModel)
     title("temperature change since 1850")
     #fill_past(m, ylims)
 
-    fill_between(t(m), T(m), T(m, M=true), facecolor="C0", alpha=0.3, label=L"Mitigation")
-    fill_between(t(m), T(m, M=true), T(m, M=true, R=true), facecolor="C1", alpha=0.3, label=L"CDR")
-    fill_between(t(m), T(m, M=true, R=true), T(m, M=true, R=true, G=true), facecolor="C3", alpha=0.3, label=L"SRM")
+    fill_between(t(m), T(m), T(m, M=true), facecolor="C0", alpha=0.3, label="Mitigation")
+    fill_between(t(m), T(m, M=true), T(m, M=true, R=true), facecolor="C1", alpha=0.3, label="CDR")
+    fill_between(t(m), T(m, M=true, R=true), T(m, M=true, R=true, G=true), facecolor="C3", alpha=0.3, label="SRM")
     fill_between(t(m), T(m, M=true, R=true, G=true), T(m, M=true, R=true, G=true, A=true), facecolor="C2", alpha=0.3, label="Adaptation")
     plot(t(m), T(m), "-", color="grey", lw=2.25, label=L"$T$ (no-policy baseline)")
     plot(t(m), T(m, M=true), "k-", lw=1, alpha=0.4)
@@ -220,9 +220,9 @@ function plot_state(m::ClimateModel; new_figure=true, plot_legends=true)
         for ii in 1:6
             sca(axs[ii])
             if ii <= 2;
-                legend(loc="lower left", labelspacing=0.08, handlelength=1.75);
+                legend(loc="lower left", labelspacing=0.1, handlelength=1.75);
             else
-                legend(loc="upper left", labelspacing=0.08, handlelength=1.75);
+                legend(loc="upper left", labelspacing=0.1, handlelength=1.75);
             end
         end
     end
