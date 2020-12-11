@@ -220,9 +220,9 @@ function plot_state(m::ClimateModel; new_figure=true, plot_legends=true)
         for ii in 1:6
             sca(axs[ii])
             if ii <= 2;
-                legend(loc="lower left");
+                legend(loc="lower left", labelspacing=0.08, handlelength=1.75);
             else
-                legend(loc="upper left");
+                legend(loc="upper left", labelspacing=0.08, handlelength=1.75);
             end
         end
     end
