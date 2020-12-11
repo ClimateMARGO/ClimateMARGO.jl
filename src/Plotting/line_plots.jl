@@ -54,7 +54,7 @@ function plot_concentrations(m::ClimateModel)
     return
 end
 
-function plot_forcing(m::ClimateModel; F0=3.)
+function plot_forcings(m::ClimateModel; F0=3.)
     title("forcing (greenhouse effect and SRM)")
     #fill_past(m, ylims)
 
