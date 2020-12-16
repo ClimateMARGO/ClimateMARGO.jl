@@ -79,17 +79,17 @@ function plot_temperatures(m::ClimateModel)
     title("adaptive temperature change")
     #fill_past(m, ylims)
 
-    fill_between(t(m), T(m), T(m, M=true), facecolor="C0", alpha=0.3, label="Mitigation")
-    fill_between(t(m), T(m, M=true), T(m, M=true, R=true), facecolor="C1", alpha=0.3, label="CDR")
-    fill_between(t(m), T(m, M=true, R=true), T(m, M=true, R=true, G=true), facecolor="C3", alpha=0.3, label="SRM")
-    fill_between(t(m), T(m, M=true, R=true, G=true), T(m, M=true, R=true, G=true, A=true), facecolor="C2", alpha=0.3, label="Adaptation")
-    plot(t(m), T(m), "-", color="grey", lw=2.25, label=L"$T$ (no-policy baseline)")
-    plot(t(m), T(m, M=true), "k-", lw=1, alpha=0.4)
-    plot(t(m), T(m, M=true, R=true), "k-", lw=1, alpha=0.4)
-    plot(t(m), T(m, M=true, R=true, G=true), "k-", lw=1, alpha=0.4)
-    plot(t(m), T(m, M=true, R=true, G=true, A=true), "k-", lw=2.25, label=L"$T_{M,R,G,A}$ (controlled)")
+    fill_between(t(m), T_adapt(m), T_adapt(m, M=true), facecolor="C0", alpha=0.3, label="Mitigation")
+    fill_between(t(m), T_adapt(m, M=true), T_adapt(m, M=true, R=true), facecolor="C1", alpha=0.3, label="CDR")
+    fill_between(t(m), T_adapt(m, M=true, R=true), T_adapt(m, M=true, R=true, G=true), facecolor="C3", alpha=0.3, label="SRM")
+    fill_between(t(m), T_adapt(m, M=true, R=true, G=true), T_adapt(m, M=true, R=true, G=true, A=true), facecolor="C2", alpha=0.3, label="Adaptation")
+    plot(t(m), T_adapt(m), "-", color="grey", lw=2.25, label=L"$T$ (no-policy baseline)")
+    plot(t(m), T_adapt(m, M=true), "k-", lw=1, alpha=0.4)
+    plot(t(m), T_adapt(m, M=true, R=true), "k-", lw=1, alpha=0.4)
+    plot(t(m), T_adapt(m, M=true, R=true, G=true), "k-", lw=1, alpha=0.4)
+    plot(t(m), T_adapt(m, M=true, R=true, G=true, A=true), "k-", lw=2.25, label=L"$T_{M,R,G,A}$ (controlled)")
     plot(t(m),1.5.*ones(size(t(m))),"--", color="grey", alpha=0.75)
-    ylims = [0., maximum(T(m)) * 1.05]
+    ylims = [0., maximum(T_adapt(m)) * 1.05]
     ylabel("temperature anomaly [°C]")
     xlabel("year")
     xlim(t(m)[1],2200.)
@@ -160,7 +160,7 @@ function plot_damages(m::ClimateModel; discounting=true, percent_GWP=false)
     Tgoal = 1.5
     plot(
         t(m)[domain_idx],
-        (damage(m.economics.β, E(m), Tgoal, 0., discount=discount(m)) ./ Enorm)[domain_idx],
+        (damage(m.economics.β, E(m), Tgoal, discount=discount(m)) ./ Enorm)[domain_idx],
         "k--", alpha=0.75, lw=2, label=L"damage threshold at 1.5°C with $A=0$"
     )
 

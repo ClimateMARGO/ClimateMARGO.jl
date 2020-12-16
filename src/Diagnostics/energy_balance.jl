@@ -33,26 +33,25 @@ calc_B(m::ClimateModel; ECS=ECS(m)) = calc_B(m.physics.a, ECS)
 τd(m::ClimateModel) = τd(m.physics)
 
 """
-    T_fast(F, κ, B; A=0.)
+    T_fast(F, κ, B)
 """
-T_fast(F, κ, B; A=0.) = sqrt.(1. .- A) .* F/(κ + B)
+T_fast(F, κ, B) = F/(κ + B)
 
 """
-    T_fast(m::ClimateModel; M=false, R=false, G=false, A=false)
+    T_fast(m::ClimateModel; M=false, R=false, G=false)
 """
-T_fast(m::ClimateModel; M=false, R=false, G=false, A=false) = T_fast(
+T_fast(m::ClimateModel; M=false, R=false, G=false) = T_fast(
     F(m, M=M, R=R, G=G),
     m.physics.κ,
-    m.physics.B,
-    A=m.controls.adapt .* (1. .- .~future_mask(m) * ~A)
+    m.physics.B
 )
 
 """
-    T_slow(F, Cd, κ, B, t, dt; A=0.)
+    T_slow(F, Cd, κ, B, t, dt)
 """
-function T_slow(F, Cd, κ, B, t, dt; A=0.)
+function T_slow(F, Cd, κ, B, t, dt)
     τ = τd(Cd, κ, B)
-    return sqrt.(1. .- A) .* (
+    return (
         (κ/B) / (κ + B) *
         exp.( - (t .- (t[1] - dt)) / τ) .*
         cumsum( (exp.( (t .- (t[1] - dt)) / τ) / τ) .* F * dt)
@@ -60,20 +59,19 @@ function T_slow(F, Cd, κ, B, t, dt; A=0.)
 end
 
 """
-    T_slow(m::ClimateModel; M=false, R=false, G=false, A=false)
+    T_slow(m::ClimateModel; M=false, R=false, G=false)
 """
-T_slow(m::ClimateModel; M=false, R=false, G=false, A=false) = T_slow(
+T_slow(m::ClimateModel; M=false, R=false, G=false) = T_slow(
     F(m, M=M, R=R, G=G),
     m.physics.Cd,
     m.physics.κ,
     m.physics.B,
     t(m),
-    m.domain.dt,
-    A=m.controls.adapt .* (1. .- .~future_mask(m) * ~A)
+    m.domain.dt
 )
 
 """
-    T(T0, F, Cd, κ, B, t, dt; A=0.)
+    T(T0, F, Cd, κ, B, t, dt)
 
 Returns the sum of the initial, fast mode, and slow mode temperature change.
 
@@ -85,29 +83,35 @@ Returns the sum of the initial, fast mode, and slow mode temperature change.
 - `B::Float64`: feedback parameter [W m``^{2}`` K``^{-1}``]
 - `t::Array{Float64}`: year [years]
 - `dt::Float64`: timestep [years]
-- `A::Float64`: Adaptation control [fraction]
 
 """
-T(T0, F, Cd, κ, B, t, dt; A=0.) = sqrt.(1. .- A) .* (
+T(T0, F, Cd, κ, B, t, dt) = (
     T0 .+
     T_fast(F, κ, B) .+
     T_slow(F, Cd, κ, B, t, dt)
 )
 
 """
-    T(m::ClimateModel; M=false, R=false, G=false, A=false)
+    T(m::ClimateModel; M=false, R=false, G=false)
 
 Returns the sum of the initial, fast mode, and slow mode temperature change,
 as diagnosed from `m` and modified by the climate controls activated by the
 Boolean kwargs.
 """
-T(m::ClimateModel; M=false, R=false, G=false, A=false) = T(
+T(m::ClimateModel; M=false, R=false, G=false) = T(
     m.physics.T0,
     F(m, M=M, R=R, G=G),
     m.physics.Cd,
     m.physics.κ,
     m.physics.B,
     t(m),
-    m.domain.dt,
-    A=m.controls.adapt .* (1. .- .~future_mask(m) * ~A)
+    m.domain.dt
+)
+
+T_adapt(Tc, Tb, A) = Tc .- A.*Tb
+
+T_adapt(m::ClimateModel; M=false, R=false, G=false, A=false) = T_adapt(
+    T(m, M=M, R=R, G=G),
+    T(m),
+    m.controls.adapt .* (1. .- .~future_mask(m) * ~A),
 )
