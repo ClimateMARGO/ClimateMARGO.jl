@@ -6,7 +6,7 @@ using ClimateMARGO.Utils
 export
     t, future_mask,
     ramp_emissions, emissions, effective_emissions,
-    c, F, Tslow, Tfast, T,
+    c, F, Tslow, Tfast, T, T_adapt,
     τd, B, F2x, ECS,
     discount, f, E,
     damage, cost, benefit,

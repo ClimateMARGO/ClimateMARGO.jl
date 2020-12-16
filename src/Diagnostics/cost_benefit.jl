@@ -6,18 +6,21 @@ E(m) = E(t(m), m.economics.E0, m.economics.γ)
 discount(t, ρ, tp) = .~future_mask(t, tp) .* (1. .+ ρ) .^ (- (t .- tp))
 discount(m::ClimateModel) = discount(t(m), m.economics.ρ, m.domain.present_year)
 
-damage(β, E, T, A; discount=1.) = ((1. .- A) .* β .* E .* T.^2) .* discount
+damage(β, E, Ta; discount=1.) = (β .* E .* Ta.^2) .* discount
 
 damage(m; discounting=false, M=false, R=false, G=false, A=false) = damage(
     m.economics.β,
     E(m),
-    T(m, M=M, R=R, G=G, A=A),
-    0.,
+    T_adapt(m, M=M, R=R, G=G, A=A),
     discount=1. .+ discounting * (discount(m) .- 1.)
 )
 
 cost(CM, CR, CG, CA, ϵCG, E, q, M, R, G, A; discount=1., p=2.) = (
-    ( ppm_to_GtCO2(q).*CM.*f(M, p=p) + E.*(CG.*f(G, p=p) .+ ϵCG*(G.>1.e-3)) + CR*f(R, p=p) + CA*f(A, p=p) ) .* discount
+    ( ppm_to_GtCO2(q).*CM.*f(M, p=p) +
+      E.*(CG.*f(G, p=p) .+ ϵCG*(G.>1.e-3)) +
+      CR*f(R, p=p) +
+      E[1]*CA.*f(A, p=p)
+    ) .* discount
 )
 cost(m::ClimateModel; discounting=false, p=2., M=false, R=false, G=false, A=false) = cost(
     m.economics.mitigate_cost,
