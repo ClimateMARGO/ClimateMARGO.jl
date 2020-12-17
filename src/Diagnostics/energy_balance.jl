@@ -17,14 +17,14 @@ function F(m; M=false, R=false, G=false, F0=0.)
     )
 end
 
-F2x(a::Float64) = a*log(2)
+F2x(a::Real) = a*log(2)
 F2x(m::ClimateModel) = F2x(m.physics.a)
 
 ECS(a, B) = F2x(a)/B
 ECS(params::ClimateModelParameters) = ECS(params.physics.a, m.physics.B)
 ECS(m::ClimateModel) = ECS(m.physics.a, m.physics.B)
 
-calc_B(a::Float64, ECS::Float64) = F2x(a)/ECS
+calc_B(a::Real, ECS::Real) = F2x(a)/ECS
 calc_B(params::ClimateModelParameters; ECS=ECS(params)) = calc_B(params.physics.a, ECS)
 calc_B(m::ClimateModel; ECS=ECS(m)) = calc_B(m.physics.a, ECS)
 
