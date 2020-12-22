@@ -4,8 +4,8 @@ function optimize_controls!(
         obj_option = "temp", temp_goal = 1.5, budget=10., expenditure = 0.5,
         max_deployment = Dict("mitigate"=>1., "remove"=>1., "geoeng"=>1., "adapt"=>0.4),
         max_slope = Dict("mitigate"=>1. /40., "remove"=>1. /40., "geoeng"=>1. /80., "adapt"=> 0.),
-        max_update = Dict("mitigate"=>nothing, "remove"=>nothing, "geoeng"=>nothing, "adapt"=>0.1),
-        temp_final = nothing,
+        temp_overshoot = nothing,
+        overshoot_year = 2100,
         delay_deployment = Dict(
             "mitigate"=>0,
             "remove"=>0,
@@ -13,7 +13,6 @@ function optimize_controls!(
             "adapt"=>0
         ),
         cost_exponent = 2.,
-        mitigation_penetration = nothing,
         print_status = false, print_statistics = false, print_raw_status = true,
     )
     
@@ -43,26 +42,20 @@ function optimize_controls!(
     N = length(tarr)
     
     # Set default temperature goal for end year
-    if isnothing(temp_final)
-        temp_final = temp_goal
-    elseif temp_final >= temp_goal
-        temp_final = temp_goal
+    if isnothing(temp_overshoot)
+        temp_overshoot = temp_goal
+        odx = N
+    elseif temp_overshoot >= temp_goal
+        odx = argmin(abs.(tarr .- overshoot_year)) # overshoot index
+    elseif temp_overshoot < temp_goal
+        temp_overshoot = temp_goal
+        odx = N
     end
     
     # Set defaults for start_deployment
     start_deployment = Dict()
     for (key, item) in delay_deployment
         start_deployment[key] = t0 + delay_deployment[key]
-    end
-    
-    max_slope_update = Dict()
-    for (key, item) in max_update
-        if isnothing(item)
-            max_slope_update[key] = 0
-            max_update[key] = Inf
-        else
-            max_slope_update[key] = 1
-        end
     end
     
     if typeof(cost_exponent) in [Int64, Float64]
@@ -83,17 +76,9 @@ function optimize_controls!(
 
     function fM_JuMP(α)
         if α <= 0.
-            return 100.
+            return 1000.
         else
-            base_cost = α ^ cost_exponent["mitigate"]
-            if isnothing(mitigation_penetration)
-                return base_cost
-            else
-                penetration_factor = (
-                    1. /(1. - exp( - (1. - α) / (1. - mitigation_penetration)))
-                )
-                return base_cost * penetration_factor
-            end
+            return α ^ cost_exponent["mitigate"]
         end
     end
     register(model_optimizer, :fM_JuMP, 1, fM_JuMP, autodiff=true)
@@ -261,43 +246,36 @@ function optimize_controls!(
     );
 
     # Add constraint of rate of changes
-    present_idx = findmin(abs.(tarr .- tp))[2]
+    present_idx = argmin(abs.(tarr .- tp))
+    if m.domain.present_year == t0
+        allow_adapt_changes = 0;
+    else
+        allow_adapt_changes = 1;
+    end
 
     @variables(model_optimizer, begin
-            -max_slope["mitigate"] <= dMdt[present_idx+max_slope_update["mitigate"]:N-1] <= max_slope["mitigate"]
-            -max_slope["remove"] <= dRdt[present_idx+max_slope_update["remove"]:N-1] <= max_slope["remove"]
-            -max_slope["geoeng"] <= dGdt[present_idx+max_slope_update["geoeng"]:N-1] <= max_slope["geoeng"]
-            -max_slope["adapt"] <= dAdt[present_idx+max_slope_update["adapt"]:N-1] <= max_slope["adapt"]
+            -max_slope["mitigate"] <= dMdt[present_idx:N-1] <= max_slope["mitigate"]
+            -max_slope["remove"] <= dRdt[present_idx:N-1] <= max_slope["remove"]
+            -max_slope["geoeng"] <= dGdt[present_idx:N-1] <= max_slope["geoeng"]
+            -max_slope["adapt"] <= dAdt[present_idx+allow_adapt_changes:N-1] <= max_slope["adapt"]
     end);
-    for i in present_idx+max_slope_update["mitigate"]:N-1
+    for i in present_idx:N-1
         @constraint(model_optimizer, dMdt[i] == (M[i+1] - M[i]) / dt)
     end
-    for i in present_idx+max_slope_update["remove"]:N-1
+    for i in present_idx:N-1
         @constraint(model_optimizer, dRdt[i] == (R[i+1] - R[i]) / dt)
     end
-    for i in present_idx+max_slope_update["geoeng"]:N-1
+    for i in present_idx:N-1
         @constraint(model_optimizer, dGdt[i] == (G[i+1] - G[i]) / dt)
     end
-    for i in present_idx+max_slope_update["adapt"]:N-1
+    for i in present_idx+allow_adapt_changes:N-1
         @constraint(model_optimizer, dAdt[i] == (A[i+1] - A[i]) / dt)
-    end
-    
-    if present_idx > 1
-        @variables(model_optimizer, begin
-            -max_update["mitigate"] <= dM <= max_update["mitigate"]
-            -max_update["remove"] <= dR <= max_update["remove"]
-            -max_update["geoeng"] <= dG <= max_update["geoeng"]
-            -max_update["adapt"] <= dA <= max_update["adapt"]
-        end);
-        @constraint(model_optimizer, dM == (M[present_idx+1] - M[present_idx]))
-        @constraint(model_optimizer, dR == (R[present_idx+1] - R[present_idx]))
-        @constraint(model_optimizer, dG == (G[present_idx+1] - G[present_idx]))
-        @constraint(model_optimizer, dA == (A[present_idx+1] - A[present_idx]))
     end
     
     ## Optimization options
     if obj_option == "net_benefit"
-        # in practice we solve the equivalent problem of minimizing the net cost (- net benefit)
+        # maximize net benefits
+        # (in practice we solve the equivalent problem of minimizing the net cost, i.e. minus the net benefit)
         @NLobjective(model_optimizer, Min, 
             sum(
                 (
@@ -332,26 +310,8 @@ function optimize_controls!(
                 dt
             for i=1:N)
         )
-        for i in 1:N
-            @NLconstraint(model_optimizer,
-                (m.physics.T0 + 
-                    (
-                        (m.physics.a * log_JuMP(
-                                    (m.physics.c0 + cumsum_qMR[i]) /
-                                    (m.physics.c0)
-                                ) - m.economics.Finf*G[i] 
-                        ) +
-                        m.physics.κ /
-                        (τ * m.physics.B) *
-                        exp( - (tarr[i] - (t0 - dt)) / τ ) *
-                        cumsum_KFdt[i]
-                    ) / (m.physics.B + m.physics.κ)
-                ) -  A[i]*Tb[i] >=  1.e-8
-            )
-        end
 
     elseif obj_option == "temp"
-        # Minimize net benefits
         @NLobjective(model_optimizer, Min, 
             sum(
                 (
@@ -386,26 +346,9 @@ function optimize_controls!(
                 dt
             for i=1:N)
         )
-        # @NLobjective(model_optimizer, Min,
-        #     sum(
-        #         (
-        #             m.economics.mitigate_cost * qGtCO2[i] *
-        #             fM_JuMP(M[i]) +
-        #             Earr[1] * m.economics.adapt_cost * fA_JuMP(A[i]) +
-        #             m.economics.remove_cost * fR_JuMP(R[i]) +
-        #             Earr[i] * (
-        #                 m.economics.geoeng_cost * fG_JuMP(G[i]) +
-        #                 m.economics.epsilon_cost * Hstep(G[i])
-        #             ) -
-        #             m.economics.β * Earr[i] * (A[i]*Tb[i])^2
-        #         ) *
-        #         discounting_JuMP(tarr[i]) *
-        #         dt
-        #     for i=1:N)
-        # )
-        
-        # Subject to temperature goal
-        for i in 1:N-1
+
+        # Subject to temperature goal (after temporary overshoot period)
+        for i in odx:N
             @NLconstraint(model_optimizer,
             (m.physics.T0 + 
                 (
@@ -422,44 +365,27 @@ function optimize_controls!(
             ) <= temp_goal
             )
         end
-        # Subject to target temperature in final year
-        i=N
-        @NLconstraint(model_optimizer,
-        (m.physics.T0 + 
-            (
-                 (m.physics.a * log_JuMP(
-                            (m.physics.c0 + cumsum_qMR[i]) /
-                            (m.physics.c0)
-                        ) - m.economics.Finf*G[i] 
-                ) +
-                m.physics.κ /
-                (τ * m.physics.B) *
-                exp( - (tarr[i] - (t0 - dt)) / τ ) *
-                cumsum_KFdt[i]
-            ) / (m.physics.B + m.physics.κ)
-        ) <= temp_final
-        )
-        # But can't let adaptive temperature go below zero!
-        # for i in 1:N
-        #     @NLconstraint(model_optimizer,
-        #         (m.physics.T0 + 
-        #             (
-        #                 (m.physics.a * log_JuMP(
-        #                             (m.physics.c0 + cumsum_qMR[i]) /
-        #                             (m.physics.c0)
-        #                         ) - m.economics.Finf*G[i] 
-        #                 ) +
-        #                 m.physics.κ /
-        #                 (τ * m.physics.B) *
-        #                 exp( - (tarr[i] - (t0 - dt)) / τ ) *
-        #                 cumsum_KFdt[i]
-        #             ) / (m.physics.B + m.physics.κ)
-        #         ) -  A[i]*Tb[i] >=  1.e-8
-        #     )
-        # end
-
+        # Subject to temperature goal (during overshoot period)
+        for i in 1:odx-1
+            @NLconstraint(model_optimizer,
+            (m.physics.T0 + 
+                (
+                        (m.physics.a * log_JuMP(
+                                (m.physics.c0 + cumsum_qMR[i]) /
+                                (m.physics.c0)
+                            ) - m.economics.Finf*G[i] 
+                    ) +
+                    m.physics.κ /
+                    (τ * m.physics.B) *
+                    exp( - (tarr[i] - (t0 - dt)) / τ ) *
+                    cumsum_KFdt[i]
+                ) / (m.physics.B + m.physics.κ)
+            ) <= temp_overshoot
+            )
+        end
 
     elseif obj_option == "adaptive_temp"
+        # minimize control costs subject to adaptative-temperature constraint
         @NLobjective(model_optimizer, Min,
             sum(
                 (
@@ -477,7 +403,8 @@ function optimize_controls!(
             for i=1:N)
         )
         
-        for i in 1:N-1
+        # Subject to temperature goal (after temporary overshoot period)
+        for i in odx:N
             @NLconstraint(model_optimizer,
             m.economics.β *
             Earr[i] *
@@ -501,30 +428,33 @@ function optimize_controls!(
                 )
             )
         end
-        i=N
-        @NLconstraint(model_optimizer,
-        m.economics.β *
-        Earr[i] *
-        (((m.physics.T0 + 
-            (
-                 (m.physics.a * log_JuMP(
-                            (m.physics.c0 + cumsum_qMR[i]) /
-                            (m.physics.c0)
-                        ) - m.economics.Finf*G[i] 
-                ) +
-                m.physics.κ /
-                (τ * m.physics.B) *
-                exp( - (tarr[i] - (t0 - dt)) / τ ) *
-                cumsum_KFdt[i]
-            ) / (m.physics.B + m.physics.κ)
-        )
-        - A[i]*Tb[i])^2) <= (
-                m.economics.β *
-                Earr[i] *
-                temp_final^2
+        # Subject to temperature goal (during overshoot period)
+        for i in 1:odx-1
+            @NLconstraint(model_optimizer,
+            m.economics.β *
+            Earr[i] *
+            (((m.physics.T0 + 
+                (
+                     (m.physics.a * log_JuMP(
+                                (m.physics.c0 + cumsum_qMR[i]) /
+                                (m.physics.c0)
+                            ) - m.economics.Finf*G[i] 
+                    ) +
+                    m.physics.κ /
+                    (τ * m.physics.B) *
+                    exp( - (tarr[i] - (t0 - dt)) / τ ) *
+                    cumsum_KFdt[i]
+                ) / (m.physics.B + m.physics.κ)
             )
-        )
+            - A[i]*Tb[i])^2) <= (
+                    m.economics.β *
+                    Earr[i] *
+                    temp_goal^2
+                )
+            )
+        end
 
+    # minimize damages subject to a total discounted budget constraint
     elseif obj_option == "budget"
         @NLobjective(model_optimizer, Min,
             sum(
@@ -566,6 +496,7 @@ function optimize_controls!(
             for i=1:N) <= budget
         )
         
+    # minimize damages subject to annual expenditure constraint (as % of GWP)
     elseif obj_option == "expenditure"
         @NLobjective(model_optimizer, Min,
             sum(

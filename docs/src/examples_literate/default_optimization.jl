@@ -9,6 +9,7 @@ using ClimateMARGO.Optimization
 
 # Load the pre-defined default MARGO parameters, which are described by the ClimateModelParameters struct
 params = deepcopy(ClimateMARGO.IO.included_configurations["default"])
+
 # Create a MARGO instance based on these parameters
 m = ClimateModel(params);
 
@@ -23,7 +24,7 @@ m.controls
 # The optimization can be slow the first time since it has to compile.
 # Let's re-initialize the model and see how fast it runs now that the the optimization routine has been precompiled.
 m = ClimateModel(params);
-@time optimize_controls!(m, obj_option = "net_benefit");
+@time optimize_controls!(m);
 
 # ## Visualizing the results
 
