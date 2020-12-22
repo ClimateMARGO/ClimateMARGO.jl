@@ -184,7 +184,7 @@ function plot_damages(m::ClimateModel; discounting=true, percent_GWP=false)
     xlabel("year")
     xlim(t(m)[1],2200.)
     xticks(t(m)[1]:40.:2200.)
-    grid(true, alpha=0.3)
+    grid(true, alpha=0.175)
     title("costs of avoiding a damage threshold")
     legend()
     return
