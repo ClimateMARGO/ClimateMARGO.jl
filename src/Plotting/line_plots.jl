@@ -158,11 +158,12 @@ function plot_damages(m::ClimateModel; discounting=true, percent_GWP=false, temp
     plot(t(m)[domain_idx], (costs ./ Enorm)[domain_idx], color="C4", lw=2.25, label="cost of controls")
 
     ylim([0, maximum((damage(m, discounting=discounting) ./ Enorm)[domain_idx]) * 0.75])
-
+    
+    dmg_label = string("damage threshold at ",round(temp_goal, digits=2),L"°C with $A=0$")
     plot(
         t(m)[domain_idx],
         (damage(m.economics.β, E(m), temp_goal + 0.075, discount=discount(m)) ./ Enorm)[domain_idx],
-        dashes=(2.5,1.75), color="grey", alpha=0.75, lw=2.25, label=L"damage threshold at 1.5°C with $A=0$"
+        dashes=(2.5,1.75), color="grey", alpha=0.75, lw=2.25, label=dmg_label
     )
 
     if ~percent_GWP;
