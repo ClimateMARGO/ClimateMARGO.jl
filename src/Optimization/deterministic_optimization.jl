@@ -424,7 +424,6 @@ function optimize_controls!(
             )
         end
         # Subject to temperature goal (after temporary overshoot period)
-        print(odx)
         for i in odx:N
             @NLconstraint(model_optimizer,
             ((m.physics.T0 + 
