@@ -347,24 +347,6 @@ function optimize_controls!(
             for i=1:N)
         )
 
-        # Subject to temperature goal (after temporary overshoot period)
-        for i in odx:N
-            @NLconstraint(model_optimizer,
-            (m.physics.T0 + 
-                (
-                     (m.physics.a * log_JuMP(
-                                (m.physics.c0 + cumsum_qMR[i]) /
-                                (m.physics.c0)
-                            ) - m.economics.Finf*G[i] 
-                    ) +
-                    m.physics.κ /
-                    (τ * m.physics.B) *
-                    exp( - (tarr[i] - (t0 - dt)) / τ ) *
-                    cumsum_KFdt[i]
-                ) / (m.physics.B + m.physics.κ)
-            ) <= temp_goal
-            )
-        end
         # Subject to temperature goal (during overshoot period)
         for i in 1:odx-1
             @NLconstraint(model_optimizer,
@@ -381,6 +363,24 @@ function optimize_controls!(
                     cumsum_KFdt[i]
                 ) / (m.physics.B + m.physics.κ)
             ) <= temp_overshoot
+            )
+        end
+        # Subject to temperature goal (after temporary overshoot period)
+        for i in odx:N
+            @NLconstraint(model_optimizer,
+            (m.physics.T0 + 
+                (
+                     (m.physics.a * log_JuMP(
+                                (m.physics.c0 + cumsum_qMR[i]) /
+                                (m.physics.c0)
+                            ) - m.economics.Finf*G[i] 
+                    ) +
+                    m.physics.κ /
+                    (τ * m.physics.B) *
+                    exp( - (tarr[i] - (t0 - dt)) / τ ) *
+                    cumsum_KFdt[i]
+                ) / (m.physics.B + m.physics.κ)
+            ) <= temp_goal
             )
         end
 
@@ -403,37 +403,10 @@ function optimize_controls!(
             for i=1:N)
         )
         
-        # Subject to temperature goal (after temporary overshoot period)
-        for i in odx:N
-            @NLconstraint(model_optimizer,
-            m.economics.β *
-            Earr[i] *
-            (((m.physics.T0 + 
-                (
-                     (m.physics.a * log_JuMP(
-                                (m.physics.c0 + cumsum_qMR[i]) /
-                                (m.physics.c0)
-                            ) - m.economics.Finf*G[i] 
-                    ) +
-                    m.physics.κ /
-                    (τ * m.physics.B) *
-                    exp( - (tarr[i] - (t0 - dt)) / τ ) *
-                    cumsum_KFdt[i]
-                ) / (m.physics.B + m.physics.κ)
-            )
-            - A[i]*Tb[i])^2) <= (
-                    m.economics.β *
-                    Earr[i] *
-                    temp_goal^2
-                )
-            )
-        end
         # Subject to temperature goal (during overshoot period)
         for i in 1:odx-1
             @NLconstraint(model_optimizer,
-            m.economics.β *
-            Earr[i] *
-            (((m.physics.T0 + 
+            ((m.physics.T0 +
                 (
                      (m.physics.a * log_JuMP(
                                 (m.physics.c0 + cumsum_qMR[i]) /
@@ -446,11 +419,29 @@ function optimize_controls!(
                     cumsum_KFdt[i]
                 ) / (m.physics.B + m.physics.κ)
             )
-            - A[i]*Tb[i])^2) <= (
-                    m.economics.β *
-                    Earr[i] *
-                    temp_goal^2
-                )
+            - A[i]*Tb[i]) <=
+                temp_overshoot
+            )
+        end
+        # Subject to temperature goal (after temporary overshoot period)
+        print(odx)
+        for i in odx:N
+            @NLconstraint(model_optimizer,
+            ((m.physics.T0 + 
+                (
+                     (m.physics.a * log_JuMP(
+                                (m.physics.c0 + cumsum_qMR[i]) /
+                                (m.physics.c0)
+                            ) - m.economics.Finf*G[i] 
+                    ) +
+                    m.physics.κ /
+                    (τ * m.physics.B) *
+                    exp( - (tarr[i] - (t0 - dt)) / τ ) *
+                    cumsum_KFdt[i]
+                ) / (m.physics.B + m.physics.κ)
+            )
+            - A[i]*Tb[i]) <=
+                    temp_goal
             )
         end
 
