@@ -38,14 +38,11 @@ m = ClimateModel(params)
 # We can make the controls constant in time by asserting a maximum deployment rate of zero
 max_slope = Dict("mitigate"=>0., "remove"=>0., "geoeng"=>0., "adapt"=>0.);
 
-# Since we make the controls constant in time, we have to let them turn on immediately by removing any deployment delays
-delay_deployment = Dict("mitigate"=>0., "remove"=>0., "geoeng"=>0., "adapt"=>0.);
-
 # Now we get rid of geoengineering and adaptation options by setting their maximum deployment fraction to zero
 max_deployment = Dict("mitigate"=>1.0, "remove"=>1.0, "geoeng"=>0., "adapt"=>0.);
 
 # ### Run the optimization problem once to test
-@time optimize_controls!(m, obj_option = "net_benefit", max_slope=max_slope, max_deployment=Dict("mitigate"=>1.0, "remove"=>0., "geoeng"=>0., "adapt"=>0.), delay_deployment=delay_deployment);
+@time optimize_controls!(m, obj_option = "net_benefit", max_slope=max_slope, max_deployment=Dict("mitigate"=>1.0, "remove"=>0., "geoeng"=>0., "adapt"=>0.));
 
 # ### Visualizing the results
 fig, axes = ClimateMARGO.Plotting.plot_state(m);
@@ -65,7 +62,7 @@ Ms = 0.:0.005:1.0;
 Rs = 0.:0.005:1.0;
 
 # We will also consider four different temperature thresholds and visualize these constraints in the 2-D space
-temp_goals = [1.5, 2.0, 3., 4.0]
+temp_goals = [1.5, 2.0, 3.0, 4.0]
 
 control_cost = zeros(length(Rs), length(Ms)) .+ 0. #
 net_benefit = zeros(length(Rs), length(Ms)) .+ 0. #
@@ -73,7 +70,7 @@ max_temp = zeros(length(Rs), length(Ms)) .+ 0. # stores the maximum temperature 
 min_temp = zeros(length(Rs), length(Ms)) .+ 0. # stores the minimum temperature acheived for each combination
 optimal_controls = zeros(2, length(temp_goals), 2) # to hold optimal values computed using JuMP
 
-for (o, option) = enumerate(["temp", "net_benefit"])
+for (o, option) = enumerate(["adaptive_temp", "net_benefit"])
     for (i, M) = enumerate(Ms)
         for (j, R) = enumerate(Rs)
             m.controls.mitigate = zeros(size(t(m))) .+ M
@@ -88,8 +85,8 @@ for (o, option) = enumerate(["temp", "net_benefit"])
         end
     end
     for (g, temp_goal) = enumerate(temp_goals)
-        optimize_controls!(m, obj_option = option, temp_goal = temp_goal, max_slope=max_slope, max_deployment=max_deployment, delay_deployment=delay_deployment);
-        optimal_controls[:, g, o] = [m.controls.mitigate[1], m.controls.remove[1]]
+        optimize_controls!(m, obj_option = option, temp_goal = temp_goal, max_slope=max_slope, max_deployment=max_deployment);
+        optimal_controls[:, g, o] = deepcopy([m.controls.mitigate[1], m.controls.remove[1]])
     end
 end
 
@@ -108,6 +105,9 @@ plot(Ms[ind1], control_cost[1,ind1], "o", color=col[1], markersize=10)
 plot(Ms[ind2], control_cost[1,ind2], "o", color=col[2], markersize=10)
 plot(Ms[ind3], control_cost[1,ind3], "o", color=col[3], markersize=10)
 plot(Ms[ind4], control_cost[1,ind4], "o", color=col[4], markersize=10)
+for (g, temp_goal) = enumerate(temp_goals)
+    fill_between([], [], [], facecolor=col[g], label=latexstring("\$\\max(T)>\$", temp_goal), alpha=0.5)
+end
 minM1 = Ms[ind1]
 minM2 = Ms[ind2]
 minM3 = Ms[ind3]
@@ -172,7 +172,7 @@ plot([], [], "-", color="darkblue", label=latexstring("\$\\min(T)=\$", 0), lw=2.
 for (g, temp_goal) = enumerate(temp_goals)
     contour(Ms, Rs, max_temp, colors=[col[g]], levels=[temp_goal], linewidths=2.5)
     plot(optimal_controls[1,g,o], optimal_controls[2,g,o], "o", color=col[g], markersize=10.)
-    plot([], [], "-", color=col[g], label=latexstring("\$\\max(T)=\$", temp_goal), lw=2.5)
+    fill_between([], [], [], facecolor=col[g], label=latexstring("\$\\max(T)>\$", temp_goal), alpha=0.5)
 end
 legend(loc="upper left")
 
