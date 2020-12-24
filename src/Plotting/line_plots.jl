@@ -75,7 +75,7 @@ function plot_forcings(m::ClimateModel; F0=3.)
     return
 end
 
-function plot_temperatures(m::ClimateModel; temp_goal=1.2)
+function plot_temperatures(m::ClimateModel; temp_goal=1.1)
     title("adaptive temperature change")
     #fill_past(m, ylims)
 
@@ -139,7 +139,7 @@ function plot_benefits(m::ClimateModel; discounting=true)
     return
 end
 
-function plot_damages(m::ClimateModel; discounting=true, percent_GWP=false, temp_goal=1.2)
+function plot_damages(m::ClimateModel; discounting=true, percent_GWP=false, temp_goal=1.1)
     Enorm = deepcopy(E(m))/100.
     if ~percent_GWP; Enorm=1.; end;
 
