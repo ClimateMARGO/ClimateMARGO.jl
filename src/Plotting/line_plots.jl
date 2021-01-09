@@ -87,7 +87,7 @@ function plot_temperatures(m::ClimateModel; temp_goal=1.1)
     plot(t(m), T_adapt(m, M=true), "k-", lw=1, alpha=0.4)
     plot(t(m), T_adapt(m, M=true, R=true), "k-", lw=1, alpha=0.4)
     plot(t(m), T_adapt(m, M=true, R=true, G=true), "k-", lw=1., alpha=0.4)
-    plot(t(m), T_adapt(m, M=true, R=true, G=true, A=true), "k-", lw=2.25, label=L"$T_{M,R,G,A}$ (adapative)")
+    plot(t(m), T_adapt(m, M=true, R=true, G=true, A=true), "k-", lw=2.25, label=L"$T_{M,R,G,A}$ (adaptive)")
     plot(t(m),temp_goal .* ones(size(t(m))).+0.06, dashes=(2.5, 1.75), color="grey", alpha=0.75, lw=2.5)
     ylims = [0., maximum(T_adapt(m)) * 1.05]
     ylabel("temperature anomaly [°C]")
