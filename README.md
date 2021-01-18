@@ -19,8 +19,8 @@
   <a href="https://ClimateMARGO.github.io/ClimateMARGO.jl/dev/">
     <img alt="Documentation in development" src="https://img.shields.io/badge/docs-latest-blue.svg?style=flat-square">
   </a>
-  <a href="https://travis-ci.org/ClimateMARGO/ClimateMARGO.jl">
-    <img alt="Build status" src="https://travis-ci.org/ClimateMARGO/ClimateMARGO.jl.svg?branch=master">
+  <a href="https://travis-ci.com/ClimateMARGO/ClimateMARGO.jl">
+    <img alt="Build status" src="https://travis-ci.com/ClimateMARGO/ClimateMARGO.jl.svg?branch=master">
   </a>
   <a href="https://mybinder.org/v2/gh/ClimateMARGO/ClimateWidgets/master?urlpath=pluto/open?path=MARGO_optimization_dashboard.jl">
     <img alt="Binder logo" src="https://mybinder.org/badge_logo.svg">
