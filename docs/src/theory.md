@@ -1,8 +1,10 @@
 # Theory
 
+The theory below formulates the simple default configuration of the MARGO model. We invite users to modify these equations or add additional ones, as required by their use cases.
+
 ## The causal chain of climate suffering
 
-It is helpful to conceptualize climate change as a four step process that connects the human-caused emissions of greenhouse gases (GHGs) to the eventual climate suffering (or damages) that they cause. This four-step framing reflects the four major human controls (or controls) which can sever these links to reduce climate suffering: **M**itigation of GHG emissions (e.g. switching away from fossil fuels), **R**emoval of carbon dioxide from the atmosphere (e.g. by planting trees or storing biofuel emissions underground), **G**eoengineering by solar radiation management (e.g. injecting sulfate aerosols into the stratosphere to reduce incoming sunlight), or **A**dapting to the changed climate (e.g. relocating coastal communities displaced by rising seas or expanding indoor air condititiong to fight off intensifying heat waves).
+It is helpful to conceptualize climate change as a four step process that connects the human-caused emissions of greenhouse gases (GHGs) to the eventual climate suffering (or damages) that they cause. This four-step framing reflects the four major human actions (or controls) which can sever these links to reduce climate suffering: **M**itigation of GHG emissions (e.g. switching away from fossil fuels), **R**emoval of carbon dioxide from the atmosphere (e.g. by planting trees or storing biofuel emissions underground), **G**eoengineering by solar radiation management (e.g. injecting sulfate aerosols into the stratosphere to reduce incoming sunlight), or **A**dapting to the changed climate (e.g. relocating coastal communities displaced by rising seas or expanding indoor air condititiong to fight off intensifying heat waves).
 
 ```math
 \text{Emissions}\,
@@ -16,26 +18,26 @@ It is helpful to conceptualize climate change as a four step process that connec
 \text{Suffering}.
 ```
 
-Letting climate change run rampant would clearly cause a lot of suffering; however, climate controls that keep climate change under control are not free either. MARGO empowers users to explore the trade-offs between climate controls and climate suffering by employing an optimization framework commonly used in the climate-economics community. In this section, we develop a simple theory– a set of mathematical equations– which capture the key aspects of the entire causal chain of climate damages.
+Letting climate change run rampant would clearly cause a lot of suffering; however, climate controls that slow or stop climate change are not free either. MARGO empowers users to explore the trade-offs between climate controls and climate suffering by employing an optimization framework commonly used in the climate-economics community. In this section, we develop a simple theory– a set of mathematical equations– which capture the key aspects of the entire causal chain of climate damages.
 
 ![MARGO schematic](MARGO_schematic.png)
 
 !!! ukw "Tuning MARGO's free parameters"
-    We have attempted to make reasonable choices for the default values of MARGO's parameters in the equations below. Some of these, such as the climate physics variables, are well justified based on the best climate science research; others, such as the socio-economic parameters, are chosen based on our values (or those represented in the academic climate change literature). We encourage users to question these choices and plug their own values into ClimateMARGO. If you feel strongly that we should change some of the default values included in the model code, please reach out to us by [opening an issue](https://github.com/hdrake/ClimateMARGO.jl/labels/criticism) on Github.
+    We have attempted to make reasonable choices for the default values of MARGO's parameters in the equations below. Some of these, such as the climate physics variables, are well justified based on the best climate science research; others, such as the socio-economic parameters, are chosen based on our values (or those represented in the academic climate change literature). We encourage users to question these choices and plug their own values into ClimateMARGO. If you feel strongly that we should change some of the default values included in the model code, please reach out to us by [opening an issue](https://github.com/ClimateMARGO/ClimateMARGO.jl/labels/criticism) on Github.
 
 ## Greenhouse gas emissions
 
-While greenhouse gases include more than just the dominant carbon dioxide (CO``_{2}``), it simplifies things greatly to just bundle these into an equivalent concentration CO``_{2e}``. In MARGO, CO``_{2e}`` is emitted at a rate ``q(t)``, with only a fraction ``r = 50\%`` remaining in the atmosphere after a few years, net of uptake by the ocean and terrestrial biosphere.
+Since carbon dioxide (CO``_{2}``) is the dominant anthropogenic greenhouse gas, it dramatically simplifies the model to bundle all of the other gases into an equivalent concentration CO``_{2e}``, which produces an equivalent greenhouse effect. In MARGO, CO``_{2e}`` is emitted at a rate ``q(t)``, with only a fraction ``r`` remaining in the atmosphere after a few years, net of uptake by the ocean and terrestrial biosphere.
 
 !!! note "Climate control: Emissions mitigation"
     GHG emissions are reduced by a **M**itigation factor ``(1-M(t))``, becoming ``q(t)(1-M(t))``, where ``M(t)`` varies between 0% (high-emissions baseline) and 100% (full decarbonization).
 
 ## Greenhouse gas concentrations
 
-CO``_{2e}`` continues to accumulate in the atmosphere and its concentrations ``c(t)= c_{0} + \int_{t_{0}}^{t} rq(t)\text{ d}t\,`` will increase as long as the emissions ``q(t)`` are greater than zero.
+CO``_{2e}`` continues to accumulate in the atmosphere and its concentrations ``c(t)= c_{0} + \int_{t_{0}}^{t} rq(t')\text{ d}t' \,`` will increase as long as the emissions ``q(t)`` are greater than zero.
 
 !!! note "Climate control: Carbon dioxide removal"
-    **R**emoval of CO``_{2e}``, in contrast to mitigation, is de-coupled from instantaneous emissions and is expressed as the percentage of 2020 baseline emissions that are removed from the atmosphere in a given year, ``q_{0}R(t)``. A maximal value of ``R=100\%`` corresponds to removing ``30`` GtCO``_{2e}`` per year, which is roughly equal to a recent upper-bound estimate of the global potential for negative emission technologies.
+    **R**emoval of CO``_{2e}``, in contrast to mitigation, is de-coupled from instantaneous emissions and is expressed as the percentage of 2020 baseline emissions that are removed from the atmosphere in a given year, ``q_{0}R(t)``. A value of ``R=100\%`` corresponds to removing ``60`` GtCO``_{2e}`` per year, which is roughly equal to a recent upper-bound estimate of the global potential for negative emission technologies.
 
     A useful diagnostic quantity is the effective emissions
     ```math
@@ -72,13 +74,13 @@ where ``T_{0} = 1.1``°C is the present warming relative to preindustrial and ``
 Anthropogenic warming causes a myriad of climate impacts, which result suffering (expressed in an economic model as a loss in welfare or monetary damages) that increase non-linearly with temperature, ``D = \beta T^{2}``, where the damage parameter ``\beta`` is tuned such that a warming of ``3``°C results in damages of the ``2\%`` of Gross World Product (GWP), consistent with DICE in the limit of non-catastrophic warming.
 
 !!! note "Climate control: Adaptation"
-    **A**daptation to climate impacts acts to reduce damages by a fraction ``A(t)``. Since some climate impacts are likely impossible to adapt to, we assume that adaptation can at most reduce climate damages by ``A < 40\%``. The controlled damages are thus given by
+    **A**daptation to climate impacts acts to reduce damages by a fraction ``A`` of the baseline damages. Since some climate impacts are likely impossible to adapt to, we assume by default that adaptation can at most reduce climate damages by ``A \ll 100\%``. The controlled damages are thus given by
     ```math
-        D_{M,R,G,A} = \beta (T_{M,R,G})^{2} (1-A(t)).
+        D_{M,R,G,A} = \beta (T_{M,R,G} - A(t) T)^{2}.
     ```
-    Although adaptation does not affect the planetary temperature directly, it is useful to consider an "adapted temperature" ``T_{M,R,G,A}`` which yields controlled damages equivalent to the fully-controlled damages ``\beta (T_{M,R,G,A})^{2} = \beta (T_{M,R,G})^{2} (1-A)`` and is defined
+    Although adaptation does not affect the planetary temperature directly, it is useful to consider an "adapted temperature" ``T_{M,R,G,A}`` which yields controlled damages equivalent to the fully-controlled damages ``\beta (T_{M,R,G,A})^{2} = \beta (T_{M,R,G} - AT)^{2}`` and is defined
     ```math
-        T_{M,R,G,A} \equiv T_{M,R,G} \sqrt{(1-A)}.
+        T_{M,R,G,A} \equiv T_{M,R,G} - A T.
     ```
 
 ## The costs and benefits of climate control

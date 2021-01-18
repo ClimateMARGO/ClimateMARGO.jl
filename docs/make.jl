@@ -29,15 +29,15 @@ pages = [
     "Installation instructions" => "installation_instructions.md",
     "Theory" => "theory.md",
     "Examples" => example_pages,
-    "Submodules" => [
-        "Domain" => "Submodules/Domain.md",
-        "Physics" => "Submodules/Physics.md",
-        "Economics" => "Submodules/Economics.md",
-        "Controls" => "Submodules/Controls.md",
-    ],
+    # "Submodules" => [
+    #     "Domain" => "Submodules/Domain.md",
+    #     "Physics" => "Submodules/Physics.md",
+    #     "Economics" => "Submodules/Economics.md",
+    #     "Controls" => "Submodules/Controls.md",
+    # ],
     "Diagnostics" => "diagnostics.md",
     "Optimization" => "optimization.md",
-    "Function index" => "function_index.md"
+    # "Function index" => "function_index.md"
 ]
 
 makedocs(
