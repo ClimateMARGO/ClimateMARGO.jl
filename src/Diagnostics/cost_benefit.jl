@@ -3,7 +3,7 @@ f(α::Array; p=2.) = α.^p # shape of individual cost functions
 E(t, E0, γ) = E0 * (1. .+ γ).^(t .- t[1])
 E(m) = E(t(m), m.economics.E0, m.economics.γ)
 
-discount(t, ρ, tp) = .~future_mask(t, tp) .* (1. .+ ρ) .^ (- (t .- tp))
+discount(t, ρ, tp) = .~past_mask(t, tp) .* (1. .+ ρ) .^ (- (t .- tp))
 discount(m::ClimateModel) = discount(t(m), m.economics.ρ, m.domain.present_year)
 
 damage(β, E, Ta; discount=1.) = (β .* E .* Ta.^2) .* discount
