@@ -22,7 +22,7 @@
   <a href="https://travis-ci.com/ClimateMARGO/ClimateMARGO.jl">
     <img alt="Build status" src="https://travis-ci.com/ClimateMARGO/ClimateMARGO.jl.svg?branch=master">
   </a>
-  <a href="https://mybinder.org/v2/gh/ClimateMARGO/ClimateWidgets/master?urlpath=pluto/open?path=MARGO_optimization_dashboard.jl">
+  <a href="https://mybinder.org/v2/gh/ClimateMARGO/ClimateWidgets/main?urlpath=pluto/open?path=MARGO_optimization_dashboard.jl">
     <img alt="Binder logo" src="https://mybinder.org/badge_logo.svg">
   </a>
 
@@ -32,7 +32,7 @@
 
 The MARGO model is described in full in an accompanying manuscript (not yet peer-reviewed, and currently being revised), available to all at [EarthArXiv.org/repository/view/214](https://eartharxiv.org/repository/view/214/).
 
-Try out the MARGO model by running a [prototype web-app](https://github.com/ClimateMARGO/ClimateWidgets) directly in your browser. You don't need to download anything – just click the [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ClimateMARGO/ClimateWidgets/master?urlpath=pluto/open?path=MARGO_optimization_dashboard.jl) button and, once the tutorial loads, click on the code cells and press ``Enter`` to run them).
+Try out the MARGO model by running a [prototype web-app](https://github.com/ClimateMARGO/ClimateWidgets) directly in your browser. You don't need to download anything – just click the [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ClimateMARGO/ClimateWidgets/main?urlpath=pluto/open?path=MARGO_optimization_dashboard.jl) button and, once the tutorial loads, click on the code cells and press ``Enter`` to run them).
 
 ClimateMARGO.jl is currently in alpha testing and basic model documentation is slowly being added. Substantial structural changes will take place before the first stable release v1.0.0. Anyone interested in helping develop the model post an Issue here or contact the lead developer Henri Drake directly (henrifdrake `at` gmail.com), until explicit guidelines for contributing to the model are posted at a later date.
 
