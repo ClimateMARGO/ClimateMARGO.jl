@@ -20,7 +20,7 @@
     <img alt="Documentation in development" src="https://img.shields.io/badge/docs-latest-blue.svg?style=flat-square">
   </a>
   <a href="https://travis-ci.com/ClimateMARGO/ClimateMARGO.jl">
-    <img alt="Build status" src="https://travis-ci.com/ClimateMARGO/ClimateMARGO.jl.svg?branch=master">
+    <img alt="Build status" src="https://travis-ci.com/ClimateMARGO/ClimateMARGO.jl.svg?branch=main">
   </a>
   <a href="https://mybinder.org/v2/gh/ClimateMARGO/ClimateWidgets/main?urlpath=pluto/open?path=MARGO_optimization_dashboard.jl">
     <img alt="Binder logo" src="https://mybinder.org/badge_logo.svg">
