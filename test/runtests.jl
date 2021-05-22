@@ -3,6 +3,7 @@ using JuMP
 using ClimateMARGO
 using ClimateMARGO.Models, ClimateMARGO.Optimization, ClimateMARGO.Diagnostics
 using Test
+using BenchmarkTools
 
 
 @testset "Temperature optimization" begin
@@ -65,4 +66,21 @@ end
         @test model.controls.adapt ≈ [0.09378983273810226, 0.09378983273810226, 0.09378983273810226, 0.09378983273810226, 0.09378983273810226, 0.09378983273810226, 0.09378983273810226, 0.09378983273810226, 0.09378983273810226, 0.09378983273810226] rtol=1e-3
     end
 
+end
+
+
+const RUN_BENCHMARKS = true
+
+if RUN_BENCHMARKS
+    @info "Running benchmark..."
+
+    function go()
+        model = ClimateModel(default_parameters(20))
+
+        optimize_controls!(model; temp_goal=2.2, print_raw_status=false)
+    end
+
+    go()
+    
+    display(@benchmark go())
 end
