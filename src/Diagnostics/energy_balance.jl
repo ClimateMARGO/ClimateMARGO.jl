@@ -12,7 +12,7 @@ function F(m; M=false, R=false, G=false, F0=0.)
     return F(
         m.physics.a, m.physics.c0, m.economics.Finf,
         c(m, M=M, R=R),
-        m.controls.geoeng .* (1. .- .~future_mask(m) * ~G),
+        m.controls.geoeng .* (1. .- .~past_mask(m) * ~G),
         F0=F0
     )
 end
@@ -113,5 +113,5 @@ T_adapt(Tc, Tb, A) = Tc .- A.*Tb
 T_adapt(m::ClimateModel; M=false, R=false, G=false, A=false) = T_adapt(
     T(m, M=M, R=R, G=G),
     T(m),
-    m.controls.adapt .* (1. .- .~future_mask(m) * ~A),
+    m.controls.adapt .* (1. .- .~past_mask(m) * ~A),
 )

@@ -23,7 +23,7 @@ emissions(q, M) = q .* (1. .- M)
 function emissions(m::ClimateModel; M=false)
     return emissions(
         m.economics.baseline_emissions,
-        m.controls.mitigate .* (1. .- .~future_mask(m) * ~M)
+        m.controls.mitigate .* (1. .- .~past_mask(m) * ~M)
     )
 end
 
@@ -34,8 +34,8 @@ function effective_emissions(m; M=false, R=false)
     return effective_emissions(
         m.physics.r,
         m.economics.baseline_emissions,
-        m.controls.mitigate .* (1. .- .~future_mask(m) * ~M),
-        m.controls.remove .* (1. .- .~future_mask(m) * ~R)
+        m.controls.mitigate .* (1. .- .~past_mask(m) * ~M),
+        m.controls.remove .* (1. .- .~past_mask(m) * ~R)
     )
 end
 

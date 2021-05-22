@@ -19,10 +19,10 @@ function plot_emissions(m::ClimateModel)
 
     fill_between(t(m), effective_emissions(m), effective_emissions(m, M=true), facecolor="C0", alpha=0.3, label="Mitigation")
     fill_between(t(m), effective_emissions(m, M=true), effective_emissions(m, M=true, R=true), facecolor="C1", alpha=0.3, label="CDR")
-    plot(t(m), zeros(size(t(m))), "k--", alpha=0.9)
     plot(t(m), effective_emissions(m), "-", color="grey", lw=2.25, label=L"$rq$ (no-policy baseline)")
     plot(t(m), effective_emissions(m, M=true), "k-", lw=1, alpha=0.4)
     plot(t(m), effective_emissions(m, M=true, R=true), "k-", lw=2.25, label=L"$rq(1-M) - rq_{0}R$ (controlled)")
+    plot(t(m), zeros(size(t(m))), dashes=(2.5, 1.75), color="grey", alpha=0.5)
 
     ylimit = maximum(effective_emissions(m)) * 1.1
     ylims = [-ylimit, ylimit]
@@ -75,7 +75,7 @@ function plot_forcings(m::ClimateModel; F0=3.)
     return
 end
 
-function plot_temperatures(m::ClimateModel)
+function plot_temperatures(m::ClimateModel; temp_goal=1.1)
     title("adaptive temperature change")
     #fill_past(m, ylims)
 
@@ -86,9 +86,9 @@ function plot_temperatures(m::ClimateModel)
     plot(t(m), T_adapt(m), "-", color="grey", lw=2.25, label=L"$T$ (no-policy baseline)")
     plot(t(m), T_adapt(m, M=true), "k-", lw=1, alpha=0.4)
     plot(t(m), T_adapt(m, M=true, R=true), "k-", lw=1, alpha=0.4)
-    plot(t(m), T_adapt(m, M=true, R=true, G=true), "k-", lw=1, alpha=0.4)
-    plot(t(m), T_adapt(m, M=true, R=true, G=true, A=true), "k-", lw=2.25, label=L"$T_{M,R,G,A}$ (controlled)")
-    plot(t(m),1.5.*ones(size(t(m))),"--", color="grey", alpha=0.75)
+    plot(t(m), T_adapt(m, M=true, R=true, G=true), "k-", lw=1., alpha=0.4)
+    plot(t(m), T_adapt(m, M=true, R=true, G=true, A=true), "k-", lw=2.25, label=L"$T_{M,R,G,A}$ (adaptive)")
+    plot(t(m),temp_goal .* ones(size(t(m))).+0.06, dashes=(2.5, 1.75), color="grey", alpha=0.75, lw=2.5)
     ylims = [0., maximum(T_adapt(m)) * 1.05]
     ylabel("temperature anomaly [°C]")
     xlabel("year")
@@ -127,8 +127,8 @@ function plot_benefits(m::ClimateModel; discounting=true)
         facecolor="grey", alpha=0.2
     )
     plot(t(m)[domain_idx], 0 .*ones(size(t(m)))[domain_idx], "-", lw=2, color="gray", label="no-policy baseline")
-    plot(t(m)[domain_idx], benefit(m, discounting=discounting, M=true, R=true, G=true, A=true)[domain_idx], color="C1", lw=2, label="benefits (of avoided damages)")
-    plot(t(m)[domain_idx], cost(m, discounting=discounting, M=true, R=true, G=true, A=true)[domain_idx], color="C3", lw=2, label="costs (of climate controls)")
+    plot(t(m)[domain_idx], benefit(m, discounting=discounting, M=true, R=true, G=true, A=true)[domain_idx], color="C8", lw=2, label="benefits (of avoided damages)")
+    plot(t(m)[domain_idx], cost(m, discounting=discounting, M=true, R=true, G=true, A=true)[domain_idx], color="C4", lw=2, label="costs (of climate controls)")
     plot(t(m)[domain_idx], net_benefit(m, discounting=discounting, M=true, R=true, G=true, A=true)[domain_idx], color="k", lw=2, label="net benefits (benefits - costs)")
     ylabel(L"discounted costs and benefits [10$^{12}$ \$ / year]")
     xlabel("year")
@@ -139,7 +139,7 @@ function plot_benefits(m::ClimateModel; discounting=true)
     return
 end
 
-function plot_damages(m::ClimateModel; discounting=true, percent_GWP=false)
+function plot_damages(m::ClimateModel; discounting=true, percent_GWP=false, temp_goal=1.1)
     Enorm = deepcopy(E(m))/100.
     if ~percent_GWP; Enorm=1.; end;
 
@@ -148,23 +148,23 @@ function plot_damages(m::ClimateModel; discounting=true, percent_GWP=false)
         t(m)[domain_idx],
         0 .*ones(size(t(m)))[domain_idx],
         (cost(m, discounting=discounting, M=true, R=true, G=true, A=true) ./ Enorm)[domain_idx],
-        facecolor="C3", alpha=0.2
+        facecolor="C4", alpha=0.2
     )
     damages = damage(m, discounting=discounting, M=true, R=true, G=true, A=true)
     costs = cost(m, discounting=discounting, M=true, R=true, G=true, A=true)
-    plot(t(m)[domain_idx], (damage(m, discounting=discounting) ./ Enorm)[domain_idx], color="gray", lw=2, label="uncontrolled damages")
-    plot(t(m)[domain_idx], ((damages .+ costs)./ Enorm)[domain_idx], color="k", lw=2, label="net costs (controlled damages + controls)")
-    plot(t(m)[domain_idx], (damages ./ Enorm)[domain_idx], color="C1", lw=2, label="controlled damages")
-    plot(t(m)[domain_idx], (costs ./ Enorm)[domain_idx], color="C3", lw=2, label="cost of controls")
-
-    Tgoal = 1.5
-    plot(
-        t(m)[domain_idx],
-        (damage(m.economics.β, E(m), Tgoal, discount=discount(m)) ./ Enorm)[domain_idx],
-        "k--", alpha=0.75, lw=2, label=L"damage threshold at 1.5°C with $A=0$"
-    )
+    plot(t(m)[domain_idx], (damage(m, discounting=discounting) ./ Enorm)[domain_idx], color="gray", lw=2.25, label="uncontrolled damages")
+    plot(t(m)[domain_idx], ((damages .+ costs)./ Enorm)[domain_idx], color="k", lw=2.25, label="net costs (controlled damages + controls)")
+    plot(t(m)[domain_idx], (damages ./ Enorm)[domain_idx], color="C8", lw=2.25, label="controlled damages")
+    plot(t(m)[domain_idx], (costs ./ Enorm)[domain_idx], color="C4", lw=2.25, label="cost of controls")
 
     ylim([0, maximum((damage(m, discounting=discounting) ./ Enorm)[domain_idx]) * 0.75])
+    
+    dmg_label = string("damage threshold at ",round(temp_goal, digits=2),L"°C with $A=0$")
+    plot(
+        t(m)[domain_idx],
+        (damage(m.economics.β, E(m), temp_goal + 0.075, discount=discount(m)) ./ Enorm)[domain_idx],
+        dashes=(2.5,1.75), color="grey", alpha=0.75, lw=2.25, label=dmg_label
+    )
 
     if ~percent_GWP;
         if ~discounting;
@@ -184,7 +184,7 @@ function plot_damages(m::ClimateModel; discounting=true, percent_GWP=false)
     xlabel("year")
     xlim(t(m)[1],2200.)
     xticks(t(m)[1]:40.:2200.)
-    grid(true, alpha=0.3)
+    grid(true, alpha=0.175)
     title("costs of avoiding a damage threshold")
     legend()
     return

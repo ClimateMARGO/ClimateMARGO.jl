@@ -1,6 +1,6 @@
 name = "ClimateMARGO"
 uuid = "d3f62095-a717-45bf-aadc-ac9dfc258fa6"
-version = "0.2.0"
+version = "0.2.1"
 repo = "https://github.com/ClimateMARGO/ClimateMARGO.jl"
 
 [deps]
@@ -13,7 +13,6 @@ Ipopt_jll = "9cc047cb-c261-5740-88fc-0cf96f7bdcc7"
 JSON2 = "2535ab7d-5cd8-5a07-80ac-9b1792aadce3"
 JuMP = "4076af6c-e467-56ae-b986-b466b2749572"
 PyPlot = "d330b81b-6aea-500a-939a-2ce795aea3ee"
-Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
 
 [compat]
 DiffResults = "= 1.0.2"
@@ -23,7 +22,6 @@ Ipopt = "= 0.6.5"
 JSON2 = "0.3.2"
 JuMP = "= 0.21.5"
 PyPlot = "2.9.0"
-Revise = "2.7.6"
 julia = "^1.5"
 
 [extras]
