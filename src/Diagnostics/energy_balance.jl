@@ -1,8 +1,16 @@
+function log_JuMP(x)
+    if x <= 0.
+        return -1000.0
+    else
+        return log(x)
+    end
+end
+
 """
     F(a, c0, Finf, c, G; F0=0.)
 """
 function F(a, c0, Finf, c, G; F0=0.)
-    F0 .+ a .* log.( c/c0 ) .- G*Finf
+    F0 .+ a .* log_JuMP.(c/c0) .- G*Finf
 end
 
 """
@@ -53,8 +61,8 @@ function T_slow(F, Cd, κ, B, t, dt)
     τ = τd(Cd, κ, B)
     return (
         (κ/B) / (κ + B) *
-        exp.( - (t .- (t[1] - dt)) / τ) .*
-        cumsum( (exp.( (t .- (t[1] - dt)) / τ) / τ) .* F * dt)
+        exp.(- (t .- (t[1] - dt)) / τ) .*
+        cumsum( (exp.((t .- (t[1] - dt)) / τ) / τ) .* F * dt)
     )
 end
 

@@ -60,5 +60,12 @@ function ClimateModel(params::ClimateModelParameters)
             )
         )
 end
+
+ClimateModelParameters(model::ClimateModel) = ClimateModelParameters(
+    model.name,
+    model.domain,
+    model.economics,
+    model.physics,
+)
     
 end

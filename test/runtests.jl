@@ -60,9 +60,9 @@ end
     end
 
     @testset "Optimization" begin
-        model = ClimateModel(default_parameters(20))
+        model = ClimateModel(default_parameters(50))
 
-        optimize_controls!(model, temp_goal=2.2)
+        optimize_controls!(model, temp_goal=3.2)
 
         @test model.controls.mitigate ≈ [0.0, 0.2622327257259913, 0.3756069054925597, 0.5383017458771391, 0.7309812393611623, 0.904183223823383, 0.999999991007597, 0.0, 0.0, 0.0] rtol=1e-3
         @test model.controls.remove ≈ [0.0, 0.04017304516129229, 0.05754153344586193, 0.08246575725211311, 0.11198351460708776, 0.1385173926652173, 0.16224795528492542, 0.17802096041962337, 0.17336250309642975, 0.1274237589588297] rtol=1e-3

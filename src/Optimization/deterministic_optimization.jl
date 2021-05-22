@@ -15,6 +15,8 @@ function optimize_controls!(
         cost_exponent = 2.,
         print_status = false, print_statistics = false, print_raw_status = true,
     )
+
+    m_copy = ClimateModel(ClimateModelParameters(m))
     
     # Translate JuMP printing options
     if print_status
@@ -145,12 +147,105 @@ function optimize_controls!(
     end
     register(model_optimizer, :discounting_JuMP, 1, discounting_JuMP, autodiff=true)
 
+    function T_adapt_fast(m, Ms, Rs, Gs, As)
+	
+        # Ms = m.controls.mitigate
+        # Rs = m.controls.remove
+        # Gs = m.controls.geoeng
+        # As = m.controls.adapt
+        
+        
+        
+        
+        cumsum_qMR = Vector{Any}(undef, N)
+        cumsum_qMR[1] = (dt * (m.physics.r * (q[1] * (1. - Ms[1]) - q[1] * Rs[1])))
+        for i in 1:N-1
+            cumsum_qMR[i+1] = cumsum_qMR[i] +
+            (dt * (m.physics.r * (q[i+1] * (1. - Ms[i+1]) - q[1] * Rs[i+1])))
+        end
+        
+        cumsum_KFdt = Vector{Any}(undef, N)
+        for i in 0:N-1
+                cumsum_KFdt[i+1] = (i == 0 ? 0.0 : cumsum_KFdt[i]) +
+                (
+                    dt *
+                    exp( (tarr[i+1] - (t0 - dt)) / τ ) * (
+                        m.physics.a * log_JuMP(
+                            (m.physics.c0 + cumsum_qMR[i+1]) /
+                            (m.physics.c0)
+                        ) - m.economics.Finf*Gs[i+1] )
+                )
+        end	
+        
+        
+        cumsum_KFdt
+        
+        map(eachindex(tarr)) do i
+            (m.physics.T0 +
+                    (
+                         (m.physics.a * log_JuMP(
+                                    (m.physics.c0 + cumsum_qMR[i]) /
+                                    (m.physics.c0)
+                                ) - m.economics.Finf*Gs[i] 
+                        ) +
+                        m.physics.κ /
+                        (τ * m.physics.B) *
+                        exp( - (tarr[i] - (t0 - dt)) / τ ) *
+                        cumsum_KFdt[i]
+                    ) / (m.physics.B + m.physics.κ)
+                ) - As[i]*Tb[i]
+        end
+        
+    end
+
+
+    val(i::Int) = i
+    val(i::Float64) = Int(i)
+    val(i::JuMP.ForwardDiff.Dual) = Int(i.value)
+
+    function T_adapt_JuMP_wrapped(Ms::AbstractVector{T}, Rs::AbstractVector{T}, Gs::AbstractVector{T}, As::AbstractVector{T}) where T <: Real
+        # m_copy.controls.mitigate = Ms
+        # m_copy.controls.remove = Rs
+        # m_copy.controls.geoeng = Gs
+        # m_copy.controls.adapt = As
+        T_adapt_fast(m_copy, Ms, Rs, Gs, As)
+    end
+
+    T_adapt_JuMP_memory = Dict{UInt,Any}()
+    function T_adapt_JuMP(args...)
+
+        id = objectid(args[1:4N])
+
+        T = get!(T_adapt_JuMP_memory, id) do
+
+            Ms = collect(args[              1 : 1 * N])
+            Rs = collect(args[    N + 1 : 2 * N])
+            Gs = collect(args[2 * N + 1 : 3 * N])
+            As = collect(args[3 * N + 1 : 4 * N])
+            
+            T_adapt_JuMP_wrapped(Ms, Rs, Gs, As)
+        end
+
+        i = val(args[end])
+        T[i]
+    end
+
+    register(model_optimizer, 
+        :T_adapt_JuMP, 
+        N * 4 + 1, 
+        T_adapt_JuMP;
+        autodiff=true
+    )
+
     # constraints on control variables
     @variables(model_optimizer, begin
             0. <= M[1:N] <= max_deployment["mitigate"]  # emissions reductions
-            0. <= R[1:N] <= max_deployment["remove"]  # negative emissions
-            0. <= G[1:N] <= max_deployment["geoeng"]  # geoengineering
-            0. <= A[1:N] <= max_deployment["adapt"]  # adapt
+            # 0. <= R[1:N] <= max_deployment["remove"]  # negative emissions
+            # 0. <= G[1:N] <= max_deployment["geoeng"]  # geoengineering
+            # 0. <= A[1:N] <= max_deployment["adapt"]  # adapt
+            0. == R[1:N]
+            0. == G[1:N]
+            0. == A[1:N]
     end)
 
     control_vars = Dict(
@@ -207,43 +302,43 @@ function optimize_controls!(
     end
 
     # add integral function as a new variable defined by first order finite differences
-    @variable(model_optimizer, cumsum_qMR[1:N]);
-    for i in 1:N-1
-        @constraint(
-            model_optimizer, cumsum_qMR[i+1] - cumsum_qMR[i] ==
-            (dt * (m.physics.r * (q[i+1] * (1. - M[i+1]) - q[1] * R[i+1])))
-        )
-    end
-    @constraint(
-        model_optimizer, cumsum_qMR[1] == (dt * (m.physics.r * (q[1] * (1. - M[1]) - q[1] * R[1])))
-    );
+    # @variable(model_optimizer, cumsum_qMR[1:N]);
+    # for i in 1:N-1
+    #     @constraint(
+    #         model_optimizer, cumsum_qMR[i+1] - cumsum_qMR[i] ==
+    #         (dt * (m.physics.r * (q[i+1] * (1. - M[i+1]) - q[1] * R[i+1])))
+    #     )
+    # end
+    # @constraint(
+    #     model_optimizer, cumsum_qMR[1] == (dt * (m.physics.r * (q[1] * (1. - M[1]) - q[1] * R[1])))
+    # );
     
     # add temperature kernel as new variable defined by first order finite difference
-    @variable(model_optimizer, cumsum_KFdt[1:N]);
-    for i in 1:N-1
-        @NLconstraint(
-            model_optimizer, cumsum_KFdt[i+1] - cumsum_KFdt[i] ==
-            (
-                dt *
-                exp( (tarr[i+1] - (t0 - dt)) / τ ) * (
-                    m.physics.a * log_JuMP(
-                        (m.physics.c0 + cumsum_qMR[i+1]) /
-                        (m.physics.c0)
-                    ) - m.economics.Finf*G[i+1] )
-            )
-        )
-    end
-    @NLconstraint(
-        model_optimizer, cumsum_KFdt[1] == 
-        (
-            dt *
-            exp( dt / τ ) * (
-                m.physics.a * log_JuMP(
-                    (m.physics.c0 + cumsum_qMR[1]) /
-                    (m.physics.c0)
-                ) - m.economics.Finf*G[1] )
-         )
-    );
+    # @variable(model_optimizer, cumsum_KFdt[1:N]);
+    # for i in 1:N-1
+    #     @NLconstraint(
+    #         model_optimizer, cumsum_KFdt[i+1] - cumsum_KFdt[i] ==
+    #         (
+    #             dt *
+    #             exp( (tarr[i+1] - (t0 - dt)) / τ ) * (
+    #                 m.physics.a * log_JuMP(
+    #                     (m.physics.c0 + cumsum_qMR[i+1]) /
+    #                     (m.physics.c0)
+    #                 ) - m.economics.Finf*G[i+1] )
+    #         )
+    #     )
+    # end
+    # @NLconstraint(
+    #     model_optimizer, cumsum_KFdt[1] == 
+    #     (
+    #         dt *
+    #         exp( dt / τ ) * (
+    #             m.physics.a * log_JuMP(
+    #                 (m.physics.c0 + cumsum_qMR[1]) /
+    #                 (m.physics.c0)
+    #             ) - m.economics.Finf*G[1] )
+    #      )
+    # );
 
     # Add constraint of rate of changes
     present_idx = argmin(abs.(tarr .- tp))
@@ -404,45 +499,52 @@ function optimize_controls!(
         )
         
         # Subject to temperature goal (during overshoot period)
-        for i in 1:odx-1
-            @NLconstraint(model_optimizer,
-            ((m.physics.T0 +
-                (
-                     (m.physics.a * log_JuMP(
-                                (m.physics.c0 + cumsum_qMR[i]) /
-                                (m.physics.c0)
-                            ) - m.economics.Finf*G[i] 
-                    ) +
-                    m.physics.κ /
-                    (τ * m.physics.B) *
-                    exp( - (tarr[i] - (t0 - dt)) / τ ) *
-                    cumsum_KFdt[i]
-                ) / (m.physics.B + m.physics.κ)
+        # for i in 1:odx-1
+            @NLconstraint(model_optimizer, [i = 1:odx-1],
+                T_adapt_JuMP(M..., R..., G..., A..., i) <= temp_overshoot
             )
-            - A[i]*Tb[i]) <=
-                temp_overshoot
-            )
-        end
+            # @NLconstraint(model_optimizer,
+            # ((m.physics.T0 +
+            #     (
+            #          (m.physics.a * log_JuMP(
+            #                     (m.physics.c0 + cumsum_qMR[i]) /
+            #                     (m.physics.c0)
+            #                 ) - m.economics.Finf*G[i] 
+            #         ) +
+            #         m.physics.κ /
+            #         (τ * m.physics.B) *
+            #         exp( - (tarr[i] - (t0 - dt)) / τ ) *
+            #         cumsum_KFdt[i]
+            #     ) / (m.physics.B + m.physics.κ)
+            # )
+            # - A[i]*Tb[i]) <=
+            #     temp_overshoot
+            # )
+        # end
         # Subject to temperature goal (after temporary overshoot period)
-        for i in odx:N
-            @NLconstraint(model_optimizer,
-            ((m.physics.T0 + 
-                (
-                     (m.physics.a * log_JuMP(
-                                (m.physics.c0 + cumsum_qMR[i]) /
-                                (m.physics.c0)
-                            ) - m.economics.Finf*G[i] 
-                    ) +
-                    m.physics.κ /
-                    (τ * m.physics.B) *
-                    exp( - (tarr[i] - (t0 - dt)) / τ ) *
-                    cumsum_KFdt[i]
-                ) / (m.physics.B + m.physics.κ)
+        # for i in odx:N
+
+            @NLconstraint(model_optimizer, [i = odx:N],
+                T_adapt_JuMP(M..., R..., G..., A..., i) <= temp_goal
             )
-            - A[i]*Tb[i]) <=
-                    temp_goal
-            )
-        end
+            # @NLconstraint(model_optimizer,
+            # ((m.physics.T0 + 
+            #     (
+            #          (m.physics.a * log_JuMP(
+            #                     (m.physics.c0 + cumsum_qMR[i]) /
+            #                     (m.physics.c0)
+            #                 ) - m.economics.Finf*G[i] 
+            #         ) +
+            #         m.physics.κ /
+            #         (τ * m.physics.B) *
+            #         exp( - (tarr[i] - (t0 - dt)) / τ ) *
+            #         cumsum_KFdt[i]
+            #     ) / (m.physics.B + m.physics.κ)
+            # )
+            # - A[i]*Tb[i]) <=
+            #         temp_goal
+            # )
+        # end
 
     # minimize damages subject to a total discounted budget constraint
     elseif obj_option == "budget"
