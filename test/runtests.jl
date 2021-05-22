@@ -1,3 +1,7 @@
+try
+    using Revise
+catch
+end
 using JuMP
 using ClimateMARGO
 using ClimateMARGO.Models, ClimateMARGO.Optimization, ClimateMARGO.Diagnostics
@@ -39,8 +43,8 @@ end
     @testset "Forward" begin
         model = ClimateModel(default_parameters(20))
 
-        bump() = [0.0:0.2:0.9;  1.0:-0.2:0.1] # == [0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 0.8, 0.6, 0.4, 0.2]
-        slope() = 0.0:0.1:0.99
+        bump() = collect([0.0:0.2:0.9;  1.0:-0.2:0.1]) # == [0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 0.8, 0.6, 0.4, 0.2]
+        slope() = collect(0.0:0.1:0.99)
         constant() = fill(1.0, size(slope())...)
 
         model.controls.mitigate = bump()
