@@ -1,5 +1,6 @@
 .ipynb_checkpoints
 .vscode
+.DS_Store
 
 work-in-progress
 figures/
