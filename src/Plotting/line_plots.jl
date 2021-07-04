@@ -75,7 +75,7 @@ function plot_forcings(m::ClimateModel; F0=3.)
     return
 end
 
-function plot_temperatures(m::ClimateModel; temp_goal=1.1)
+function plot_temperatures(m::ClimateModel; temp_goal=1.2)
     title("adaptive temperature change")
     #fill_past(m, ylims)
 
@@ -88,7 +88,7 @@ function plot_temperatures(m::ClimateModel; temp_goal=1.1)
     plot(t(m), T_adapt(m, M=true, R=true), "k-", lw=1, alpha=0.4)
     plot(t(m), T_adapt(m, M=true, R=true, G=true), "k-", lw=1., alpha=0.4)
     plot(t(m), T_adapt(m, M=true, R=true, G=true, A=true), "k-", lw=2.25, label=L"$T_{M,R,G,A}$ (adaptive)")
-    plot(t(m),temp_goal .* ones(size(t(m))).+0.06, dashes=(2.5, 1.75), color="grey", alpha=0.75, lw=2.5)
+    plot(t(m),temp_goal .* ones(size(t(m))), dashes=(2.5, 1.75), color="grey", alpha=0.75, lw=2.5)
     ylims = [0., maximum(T_adapt(m)) * 1.05]
     ylabel("temperature anomaly [°C]")
     xlabel("year")
@@ -139,7 +139,7 @@ function plot_benefits(m::ClimateModel; discounting=true)
     return
 end
 
-function plot_damages(m::ClimateModel; discounting=true, percent_GWP=false, temp_goal=1.1)
+function plot_damages(m::ClimateModel; discounting=true, percent_GWP=false, temp_goal=1.2)
     Enorm = deepcopy(E(m))/100.
     if ~percent_GWP; Enorm=1.; end;
 
@@ -162,7 +162,7 @@ function plot_damages(m::ClimateModel; discounting=true, percent_GWP=false, temp
     dmg_label = string("damage threshold at ",round(temp_goal, digits=2),L"°C with $A=0$")
     plot(
         t(m)[domain_idx],
-        (damage(m.economics.β, E(m), temp_goal + 0.075, discount=discount(m)) ./ Enorm)[domain_idx],
+        (damage(m.economics.β, E(m), temp_goal, discount=discount(m)) ./ Enorm)[domain_idx],
         dashes=(2.5,1.75), color="grey", alpha=0.75, lw=2.25, label=dmg_label
     )
 
@@ -190,7 +190,7 @@ function plot_damages(m::ClimateModel; discounting=true, percent_GWP=false, temp
     return
 end
 
-function plot_state(m::ClimateModel; new_figure=true, plot_legends=true)
+function plot_state(m::ClimateModel; new_figure=true, plot_legends=true, temp_goal=1.2)
     if new_figure
         fig, axs = subplots(2, 3, figsize=(14,8))
         axs = vcat(axs...)
@@ -203,7 +203,7 @@ function plot_state(m::ClimateModel; new_figure=true, plot_legends=true)
     plot_concentrations(m)
     title("b)", loc="left")
     sca(axs[3])
-    plot_temperatures(m)
+    plot_temperatures(m, temp_goal=temp_goal)
     title("c)", loc="left")
 
     sca(axs[4])
@@ -213,7 +213,7 @@ function plot_state(m::ClimateModel; new_figure=true, plot_legends=true)
     plot_benefits(m)
     title("e)", loc="left")
     sca(axs[6])
-    plot_damages(m)
+    plot_damages(m, temp_goal=temp_goal)
     title("f)", loc="left")
 
     if plot_legends;

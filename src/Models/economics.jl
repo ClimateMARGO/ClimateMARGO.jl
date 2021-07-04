@@ -30,7 +30,8 @@ mutable struct Economics
     β::Float64
     ρ::Float64
     Finf::Float64
-    
+    Tb::Float64
+
     mitigate_cost::Float64
     remove_cost::Float64
     geoeng_cost::Float64
@@ -87,6 +88,7 @@ function Economics(E0::Float64,
     β::Float64,
     ρ::Float64,
     Finf::Float64,
+    Tb::Float64,
     mitigate_cost::Float64,
     remove_cost::Float64,
     geoeng_cost::Float64,
@@ -103,6 +105,7 @@ function Economics(E0::Float64,
         β,
         ρ,
         Finf,
+        Tb,
         mitigate_cost,
         remove_cost,
         geoeng_cost,
