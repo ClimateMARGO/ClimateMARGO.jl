@@ -12,7 +12,7 @@ function optimize_controls!(
             "geoeng"=>0,
             "adapt"=>0
         ),
-        cost_exponent = 2.,
+        cost_exponent = 3.,
         print_status = false, print_statistics = false, print_raw_status = true,
     )
     
