@@ -1,8 +1,8 @@
 
 function optimize_controls!(
         m::ClimateModel;
-        obj_option = "adaptive_temp", temp_goal = 1.2, budget=10., expenditure = 0.5,
-        max_deployment = Dict("mitigate"=>1., "remove"=>1., "geoeng"=>1., "adapt"=>0.4),
+        obj_option = "adaptive_temp", temp_goal = 1.5, budget=10., expenditure = 0.5,
+        max_deployment = Dict("mitigate"=>1., "remove"=>1., "geoeng"=>1., "adapt"=>1.),
         max_slope = Dict("mitigate"=>1. /40., "remove"=>1. /40., "geoeng"=>1. /40., "adapt"=> 1. /40.),
         temp_overshoot = nothing,
         overshoot_year = 2100,
