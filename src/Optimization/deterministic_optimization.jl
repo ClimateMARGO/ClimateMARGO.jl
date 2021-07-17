@@ -146,6 +146,11 @@ function optimize_controls!(
     register(model_optimizer, :discounting_JuMP, 1, discounting_JuMP, autodiff=true)
 
     # constraints on control variables
+    for (key, item) in max_deployment
+        if item==0.
+            max_deployment[key] = item+1.e-8
+        end
+    end
     @variables(model_optimizer, begin
             0. <= M[1:N] <= max_deployment["mitigate"]  # emissions reductions
             0. <= R[1:N] <= max_deployment["remove"]  # negative emissions
@@ -291,7 +296,7 @@ function optimize_controls!(
                             cumsum_KFdt[i]
                         ) / (m.physics.B + m.physics.κ)
                         )^2
-                    ) * ( (1 - A[i]) + Earr[i] * m.economics.adapt_cost * fA_JuMP(A[i]) / Db) +
+                    ) * ( (1 - A[i]) + Earr[i] * m.economics.adapt_cost * fA_JuMP(A[i]) / Db[i]) +
                     m.economics.mitigate_cost * qGtCO2[i] *
                     fM_JuMP(M[i]) +
                     m.economics.remove_cost * fR_JuMP(R[i]) +
@@ -306,7 +311,7 @@ function optimize_controls!(
             for i=1:N)
         )
 
-    # minimize costs subject to a temperature goal
+    # maximize net benefits subject to a temperature goal
     elseif obj_option == "temp"
         @NLobjective(model_optimizer, Min,
             sum(
