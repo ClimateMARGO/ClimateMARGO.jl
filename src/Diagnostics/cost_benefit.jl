@@ -26,7 +26,7 @@ cost(CM, CR, CG, CA, ϵCG, E, T_MRG, Tb, q, M, R, G, A; discount=1., p=3.) = (
     ( ppm_to_GtCO2(q).*CM.*f(M, p=p) +
       E.*(CG.*f(G, p=p) .+ ϵCG*(G.>1.e-3)) +
       CR*f(R, p=p) +
-      E.*CA.*f(A, p=p) .* (T_MRG.^2 / Tb^2)
+      E.*CA.*f(A, p=p)
     ) .* discount
 )
 cost(m::ClimateModel; discounting=false, p=3., M=false, R=false, G=false, A=false) = cost(

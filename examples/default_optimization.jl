@@ -1,5 +1,9 @@
 # # Optimization of the default MARGO configuration
 
+using Revise
+
+## 
+
 # ## Using `ClimateMARGO.jl`
 using ClimateMARGO
 using ClimateMARGO.Models
@@ -24,7 +28,7 @@ m.controls
 # The optimization can be slow the first time since it has to compile.
 # Let's re-initialize the model and see how fast it runs now that the the optimization routine has been precompiled.
 m = ClimateModel(params);
-@time optimize_controls!(m, temp_goal=1.5, max_deployment=Dict("mitigate"=>1., "remove"=>1., "geoeng"=>1., "adapt"=>0.4));
+@time optimize_controls!(m, temp_goal=1.5);
 
 # ## Visualizing the results
 
