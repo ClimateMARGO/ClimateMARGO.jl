@@ -22,7 +22,7 @@ damage(m; discounting=false, M=false, R=false, G=false, A=false) = damage(
     discount=1. .+ discounting * (discount(m) .- 1.)
 )
 
-cost(CM, CR, CG, CA, ϵCG, E, T_MRG, Tb, q, M, R, G, A; discount=1., p=3.) = (
+cost(CM, CR, CG, CA, ϵCG, E, q, M, R, G, A; discount=1., p=3.) = (
     ( ppm_to_GtCO2(q).*CM.*f(M, p=p) +
       E.*(CG.*f(G, p=p) .+ ϵCG*(G.>1.e-3)) +
       CR*f(R, p=p) +
@@ -36,8 +36,6 @@ cost(m::ClimateModel; discounting=false, p=3., M=false, R=false, G=false, A=fals
     m.economics.adapt_cost,
     m.economics.epsilon_cost,
     E(m),
-    T(m, M=M, R=R, G=G),
-    m.economics.Tb,
     m.economics.baseline_emissions,
     m.controls.mitigate .* M,
     m.controls.remove .* R,

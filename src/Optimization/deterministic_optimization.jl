@@ -38,7 +38,6 @@ function optimize_controls!(
     tp = m.domain.present_year
     q = m.economics.baseline_emissions
     qGtCO2 = ppm_to_GtCO2(q)
-    Db = m.economics.β .* Earr .* m.economics.Tb^2
     N = length(tarr)
     
     # Set default temperature goal for end year
