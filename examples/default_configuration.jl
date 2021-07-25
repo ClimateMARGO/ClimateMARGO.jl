@@ -170,7 +170,6 @@ mitigate_cost_percentGWP = 0.02
 mitigate_cost = mitigate_cost_percentGWP*E_arr[ti]/ppm_to_GtCO2(q[ti]); # [trillion USD / year / GtCO2]
 
 # Costs of negative emissions technologies [US$/tCO2]
-
 costs = Dict(
     "BECCS" => 150.,
     "DACCS" => 200.,
@@ -181,7 +180,6 @@ costs = Dict(
 )
 
 # Upper-bound potential for sequestration (GtCO2/year)
-
 potentials = Dict(
     "BECCS" => 5.,
     "DACCS" => 5.,
@@ -199,7 +197,6 @@ CDR_potential_fraction = CDR_potential / ppm_to_GtCO2(q0)
 remove_cost = (mean_cost * CDR_potential*1.e9) / (CDR_potential_fraction^3) * 1.e-12; # [trillion USD / year]
 
 adapt_cost = 0.115; # [%GWP / year] directly from de Bruin, Dellink, and Tol (2009)
-Tb = 2.3 # Adaptation costs are tuned for a warming of about 2.3ºC of warming relative to pre-industrial
 
 geoeng_cost = βtilde*(Finf/B)^2; # [% GWP]
 
@@ -219,7 +216,7 @@ gcf()
 # These parameters, in addition to a no-policy baseline emissions time-series and present-day control values, define the economic model.
 
 Econ = Economics(
-    E0, γ, βtilde, ρ, Finf, Tb,
+    E0, γ, βtilde, ρ, Finf,
     mitigate_cost, remove_cost, geoeng_cost, adapt_cost,
     0., 0., 0., 0., # Initial condition on control deployments at t[1]
     q
