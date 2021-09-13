@@ -25,6 +25,7 @@ JSON2 = "0.3.2"
 JuMP = "= 0.21.5"
 PyPlot = "2.9.0"
 julia = "^1.5"
+Revise = "3.1.17"
 
 [extras]
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
