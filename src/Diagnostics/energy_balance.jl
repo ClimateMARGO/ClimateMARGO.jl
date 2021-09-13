@@ -107,11 +107,3 @@ T(m::ClimateModel; M=false, R=false, G=false) = T(
     t(m),
     m.domain.dt
 )
-
-T_adapt(Tc, Tb, A) = Tc .- A.*Tb
-
-T_adapt(m::ClimateModel; M=false, R=false, G=false, A=false) = T_adapt(
-    T(m, M=M, R=R, G=G),
-    T(m),
-    m.controls.adapt .* (1. .- .~past_mask(m) * ~A),
-)

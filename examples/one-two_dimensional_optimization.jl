@@ -13,8 +13,8 @@ using ClimateMARGO.Optimization
 # ## Loading the default MARGO configuration
 params = deepcopy(ClimateMARGO.IO.included_configurations["default"])
 
-# Slightly increasing the discount rate to 3% to be more comparable with other models
-params.economics.ρ = 0.03
+# Slightly increasing the discount rate to 4% to be more comparable with other models
+params.economics.ρ = 0.04
 
 # ## Reducing the default problem's dimensionality from ``4N`` to ``2``.
 
@@ -146,6 +146,8 @@ ylabel("Net present benefits, relative to baseline [trillion USD]")
 legend(loc="upper left")
 gcf()
 
+##
+
 # ### Visualizing the two-dimensional optimization problem
 
 fig = figure(figsize=(14, 5))
@@ -155,7 +157,7 @@ subplot(1,2,o)
 pcolor(Ms, Rs, control_cost, cmap="Greys", vmin=0., vmax=150.)
 cbar = colorbar(label="Net present cost of controls [trillion USD]")
 control_cost[(min_temp .<= 0.)] .= NaN
-contour(Ms, Rs, control_cost, levels=[25, 50, 75], colors="k", linewidths=0.85, alpha=0.4)
+contour(Ms, Rs, control_cost, levels=[10, 50], colors="k", linewidths=0.5, alpha=0.4)
 
 grid(true, color="k", alpha=0.25)
 temp_mask = ones(size(max_temp))
@@ -180,15 +182,15 @@ xlabel("Emissions mitigation level [% reduction]")
 xticks(0.:0.2:1.0, ["0%", "20%", "40%", "60%", "80%", "100%"])
 ylabel(L"CO$_{2e}$ removal rate [% of present-day emissions]")
 yticks(0.:0.2:1.0, ["0%", "20%", "40%", "60%", "80%", "100%"])
-annotate(L"$T > 4\degree$C", (0.02, 0.04), xycoords="axes fraction", color="darkred", fontsize=13)
-annotate(L"$T < 0\degree$C", (0.74, 0.66), xycoords="axes fraction", color="darkblue", fontsize=13)
+annotate(L"$\max(T) > 4\degree$C", (0.015, 0.03), xycoords="axes fraction", color="darkred", fontsize=9)
+annotate(L"$\min(T) < 0\degree$C", (0.72, 0.725), xycoords="axes fraction", color="darkblue", fontsize=9)
 title("Cost-effectiveness analysis")
 
 o = 2
 subplot(1,2,o)
-q = pcolor(Ms, Rs, net_benefit, cmap="Greys_r", vmin=-75, vmax=75)
+q = pcolor(Ms, Rs, net_benefit, cmap="Greys_r", vmin=0, vmax=250)
 cbar = colorbar(label="Net present benefits, relative to baseline [trillion USD]", extend="both")
-contour(Ms, Rs, net_benefit, levels=[0, 25, 50], colors="k", linewidths=0.85, alpha=0.4)
+contour(Ms, Rs, net_benefit, levels=[100, 200], colors="k", linewidths=0.5, alpha=0.4)
 
 grid(true, color="k", alpha=0.25)
 temp_mask = ones(size(min_temp))
@@ -207,6 +209,6 @@ xlabel("Emissions mitigation level [% reduction]")
 xticks(0.:0.2:1.0, ["0%", "20%", "40%", "60%", "80%", "100%"])
 ylabel(L"CO$_{2e}$ removal rate [% of present-day emissions]")
 yticks(0.:0.2:1.0, ["0%", "20%", "40%", "60%", "80%", "100%"])
-annotate(L"$T < 0\degree$C", (0.74, 0.66), xycoords="axes fraction", color="darkblue", fontsize=13)
+annotate(L"$\min(T) < 0\degree$C", (0.72, 0.725), xycoords="axes fraction", color="darkblue", fontsize=9)
 title("Cost-benefit analysis")
 gcf()
