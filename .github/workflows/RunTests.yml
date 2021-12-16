@@ -20,8 +20,8 @@ jobs:
         # continue-on-error: true
         strategy:
             matrix:
-                julia-version: ["1.6"]
-                os: [ubuntu-latest]
+                julia-version: ["1.6", "1.7"]
+                os: [ubuntu-latest, macOS-latest]
 
         steps:
             # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
