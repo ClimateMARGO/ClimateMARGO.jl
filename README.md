@@ -30,6 +30,8 @@ The MARGO model is described in full in an [accompanying Research Article](https
 
 Try out the MARGO model by running our [web-app](https://margo.plutojl.org/introduction.html) directly in your browser!
 
+![Gif of ClimateMARGO.jl being used interactively. The user's mouse cursor clicks on an emissions curve to drag the emissions down. A second panel shows how these emissions reductions result in less global warming, ultimately keeping global warming below a target of 2ºC.](https://raw.githubusercontent.com/hdrake/MARGO-gifs/main/MARGO_interactive_2degrees.gif)
+
 ClimateMARGO.jl is currently in beta testing; basic model documentation is slowly being added. Substantial structural changes may still take place before the first stable release v1.0.0. Anyone interested in helping develop the model post an Issue here or contact the lead developer Henri Drake directly (henrifdrake `at` gmail.com), until explicit guidelines for contributing to the model are posted at a later date.
 
 
