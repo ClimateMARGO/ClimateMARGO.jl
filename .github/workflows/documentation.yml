@@ -1,0 +1,43 @@
+name: Documentation
+
+on:
+  push:
+    branches:
+      - main
+    tags: '*'
+  pull_request:
+
+# Can remove this entirely once PyPlot is replaced by Plots.jl
+env:
+  global:
+    - PYTHON=''
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    # Can remove this entirely once PyPlot is replaced by Plots.jl
+    #env:
+    #  JULIA_MARGO_LOAD_PYPLOT: nope
+
+    # Uncomment if you want to see all results for all OSses. Otherwise, the first failed test cancels all others
+    # continue-on-error: true
+    strategy:
+      matrix:
+        julia-version: ["1.6", "1.7"]
+        os: [ubuntu-latest, macOS-latest]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: julia-actions/setup-julia@latest
+        with:
+          version: ${{ matrix.julia-version }}
+
+      - name: Install dependencies
+        run: julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
+
+      - name: Build and deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # If authenticating with GitHub Actions token
+          # DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }} # If authenticating with SSH deploy key
+        run: julia --project=docs/ docs/make.jl
