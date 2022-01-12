@@ -27,7 +27,7 @@ A natural and widely-used approach is cost-benefit analysis, in which the cost `
     \left(\mathcal{B}_{M, R, G, A} - \mathcal{C}_{M, R, G, A} \right) (1 + \rho)^{-(t-t_{0})} \, \text{d}t \right\},
 ```
 
-where ``\rho`` is a social discount rate that determines the annual depreciation of future costs and benefits of climate control to society. There are different views about the appropriate non-zero discount rate to apply to multi-generational social utility. Here, we choose a discount rate of ``\rho = 1\%``, on the low end of values used in the literature, motivated by our preference towards inter-generational equity.
+where ``\rho`` is a social discount rate that determines the annual depreciation of future costs and benefits of climate control to society. There are different views about the appropriate non-zero discount rate to apply to multi-generational social utility. Here, we choose a discount rate of ``\rho = 2\%`` equal to the exogeneous economic growth rate of ``\gamma = 2\%``, on the low end of values used in the literature, motivated by our preference towards inter-generational equity.
 
 ### Cost-effectiveness of keeping below a warming threshold
 

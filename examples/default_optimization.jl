@@ -1,9 +1,5 @@
 # # Optimization of the default MARGO configuration
 
-using Revise
-
-## 
-
 # ## Using `ClimateMARGO.jl`
 using ClimateMARGO
 using ClimateMARGO.Models
