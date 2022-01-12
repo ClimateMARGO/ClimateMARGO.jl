@@ -1,6 +1,6 @@
 # Theory
 
-The theory below formulates the simple default configuration of the MARGO model. We invite users to modify these equations or add additional ones, as required by their use cases.
+The theory below formulates the simple default configuration of the MARGO model. We invite users to modify these equations or add additional ones, as required by their use cases. For a full description of the model, see the [original ClimateMARGO.jl publication](https://iopscience.iop.org/article/10.1088/1748-9326/ac243e) in *Environmental Research Letters* (and its supplementary information).
 
 ## The causal chain of climate suffering
 
@@ -71,25 +71,25 @@ More specifically, the controlled near-surface air temperature evolves according
 ```
 where ``T_{0} = 1.1``°C is the present warming relative to preindustrial and ``\tau_{D} = 240`` years is the slow timescale of ocean heat uptake. The first term on the right-hand side represents a fast transient response while the second term represents a slow recalcitrant response due to the thermal inertia of the deep ocean. Climate inertia decouples the temperature response from instantaneous forcing and implies that an additional fraction of short-term warming (or cooling) is locked in for the future, even if radiative forcing is stabilized, as in the case of bringing emissions to zero in our model.
 
-Anthropogenic warming causes a myriad of climate impacts, which result suffering (expressed in an economic model as a loss in welfare or monetary damages) that increase non-linearly with temperature, ``D = \beta T^{2}``, where the damage parameter ``\beta`` is tuned such that a warming of ``3``°C results in damages of the ``2\%`` of Gross World Product (GWP), consistent with DICE in the limit of non-catastrophic warming.
+Anthropogenic warming causes a myriad of climate impacts, which result suffering (expressed in an economic model as a loss in welfare or monetary damages) that increase non-linearly with temperature, ``D = \beta T^{2}``, where the damage parameter ``\beta`` is tuned such that a warming of ``2``°C results in damages of ``4\%`` of Gross World Product (GWP).
 
 !!! note "Climate control: Adaptation"
-    **A**daptation to climate impacts acts to reduce damages by a fraction ``A`` of the baseline damages. Since some climate impacts are likely impossible to adapt to, we assume by default that adaptation can at most reduce climate damages by ``A \ll 100\%``. The controlled damages are thus given by
+    **A**daptation to climate impacts acts to reduce damages by a fraction ``A``. The controlled damages are thus given by
     ```math
-        D_{M,R,G,A} = \beta (T_{M,R,G} - A(t) T)^{2}.
+        D_{M,R,G,A} = \beta T_{M,R,G} T^{2} (1 - A(t)).
     ```
-    Although adaptation does not affect the planetary temperature directly, it is useful to consider an "adapted temperature" ``T_{M,R,G,A}`` which yields controlled damages equivalent to the fully-controlled damages ``\beta (T_{M,R,G,A})^{2} = \beta (T_{M,R,G} - AT)^{2}`` and is defined
+    Although adaptation does not affect the planetary temperature directly, it is useful to consider an "adapted temperature" ``T_{M,R,G,A}`` which yields controlled damages equivalent to the fully-controlled damages ``\beta (T_{M,R,G,A})^{2} = \beta (T_{M,R,G})^{2} (1 - A(t))`` and is defined
     ```math
-        T_{M,R,G,A} \equiv T_{M,R,G} - A T.
+        T_{M,R,G,A} \equiv T_{M,R,G} \sqrt{ 1 - A(t) }.
     ```
 
 ## The costs and benefits of climate control
 
 Control costs are summed up across each of the four controls:
 ```math
-    \mathcal{C} = \mathcal{C}_{M} M^{2} + \mathcal{C}_{R} R^{2} + \mathcal{C}_{G} G^{2} + \mathcal{C}_{A} A^{2},
+    \mathcal{C} = \mathcal{C}_{M} M^{3} + \mathcal{C}_{R} R^{3} + \mathcal{C}_{G} G^{3} + \mathcal{C}_{A} A^{3},
 ```
-where the ``C_{*}`` are the hypothetical annual costs of fully deploying that control and the cost functions are assumed to be convex functions of fractional deployment with zero initial marginal cost and are here all taken to be quadratic for simplicity.
+where the ``C_{*}`` are the hypothetical annual costs of fully deploying that control and the cost functions are assumed to be convex functions of fractional deployment with zero initial marginal cost and are here all taken to be cubic for simplicity, such that marginal costs (their derivatives) increase quadratically.
 
 The benefits of deploying climate controls are the avoided climate damages relative to the high-emissions no-policy baseline scenario,
 ```math

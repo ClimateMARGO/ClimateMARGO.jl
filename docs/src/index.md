@@ -7,8 +7,7 @@ ClimateMARGO.jl couples together a very simple model of Earth's physical climate
 Compared to more conventional *Integrated Assessment Models (IAMs)*, MARGO is:
 * **Faster**: The algorithm solves convex optimization problems in less than 100 milliseconds (most use cases), meaning the model can be run interactively in real-time and that both large-ensemble, high-dimensional, and stochastic optimizations are all computationally feasible.
 * **More accessible**: The ClimateMARGO.jl package is free to use and is accessible in several different forms depending on the user's programming experience and use case:
-  * *An interactive web-app (Coming Soon)* – For code-free interactive exploration of climate storylines (and their sensitivity to model parameters).
-  * *A browser-based binder tutorial* – For users with some programming experience who want to run *ClimateMARGO.jl* themselves.
+  * *An [interactive web-app](https://margo.plutojl.org/introduction.html)* – For interactive exploration of climate storylines (and their sensitivity to model parameters).
   * *Importing ClimateMARGO.jl* – For users proficient in Julia who want to use the MARGO model for education or scientific research.
   * *Forking ClimateMARGO.jl* – For users wanting to extend or fundamentally modify the MARGO model source code, e.g. for their own scientific or policy research.
 * **More interpretable**: The entire model algorithm is simple enough to be expressed in a single closed-form math equation and is determined by only a handful of intuitive free parameters (see also the MARGO flowchart below).
@@ -16,6 +15,8 @@ Compared to more conventional *Integrated Assessment Models (IAMs)*, MARGO is:
 * **More general**: By including all four of the primary climate controls in the default configuration, more common configurations like "Mitigation-only" experiments are straight-forward to implement by simply turning unwanted features off.
 * **More explicitly value-dependent**: Rather than burying important value-dependent choices in various obscure economic and social parameters, we abstract away many of the complexities to yield a small number of intuitive parameters, which can be easily modified by users.
 * **More extendable**: The modular and interpretable nature of the Julia source implementation means that existing features can be easily modified and new features are easily added.
+
+![Schematic explaining the MARGO model.](https://raw.githubusercontent.com/hdrake/MARGO-gifs/main/Margo_schematic.png)
 
 !!! warning "Don't take MARGO's results too seriously"
     The extreme simplicity of the MARGO model also means its *quantitative* results should be taken with a handful of salt. MARGO should instead be used to explore underlying *patterns* and *relative* climate outcomes.
