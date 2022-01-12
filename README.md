@@ -5,7 +5,7 @@
 
 <!-- description -->
 <p align="center">
-  <strong> A Julia implementation of <b>MARGO</b>, an idealized framework for optimization of climate change control strategies.</strong>
+  <strong> A Julia implementation of <b>MARGO</b>, an idealized framework for optimization of climate control strategies.</strong>
 </p>
 
 <!-- Information badges -->
