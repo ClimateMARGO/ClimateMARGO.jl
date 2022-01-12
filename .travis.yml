@@ -6,6 +6,8 @@ os:
 
 julia:
   - 1.5
+  - 1.6
+  - 1.7
 
 env:
   global:
@@ -17,7 +19,7 @@ notifications:
 jobs:
   include:
     - stage: "Documentation"
-      julia: 1.5
+      julia: 1.7
       os: linux
       script:
         - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd()));

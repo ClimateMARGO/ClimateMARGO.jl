@@ -22,19 +22,17 @@
   <a href="https://travis-ci.com/ClimateMARGO/ClimateMARGO.jl">
     <img alt="Build status" src="https://travis-ci.com/ClimateMARGO/ClimateMARGO.jl.svg?branch=main">
   </a>
-  <a href="https://mybinder.org/v2/gh/ClimateMARGO/ClimateWidgets/main?urlpath=pluto/open?path=MARGO_optimization_dashboard.jl">
-    <img alt="Binder logo" src="https://mybinder.org/badge_logo.svg">
-  </a>
-
 </p>
 
 <!-- CI/CD badges -->
 
-The MARGO model is described in full in an accompanying manuscript (not yet peer-reviewed, and currently being revised), available to all at [EarthArXiv.org/repository/view/214](https://eartharxiv.org/repository/view/214/).
+The MARGO model is described in full in an [accompanying Research Article](https://iopscience.iop.org/article/10.1088/1748-9326/ac243e/pdf), published *Open-Access* in the journal *Environmental Research Letters*. The julia scripts and jupyter notebooks that contain all of the paper's analysis are available in the [MARGO-paper](https://github.com/ClimateMARGO/MARGO-paper) repository (these are useful as advanced applications of MARGO to complement the minimal examples included in the documentation).
 
-Try out the MARGO model by running a [prototype web-app](https://github.com/ClimateMARGO/ClimateWidgets) directly in your browser. You don't need to download anything – just click the [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ClimateMARGO/ClimateWidgets/main?urlpath=pluto/open?path=MARGO_optimization_dashboard.jl) button and, once the tutorial loads, click on the code cells and press ``Enter`` to run them).
+Try out the MARGO model by running our [web-app](https://margo.plutojl.org/introduction.html) directly in your browser!
 
-ClimateMARGO.jl is currently in alpha testing and basic model documentation is slowly being added. Substantial structural changes will take place before the first stable release v1.0.0. Anyone interested in helping develop the model post an Issue here or contact the lead developer Henri Drake directly (henrifdrake `at` gmail.com), until explicit guidelines for contributing to the model are posted at a later date.
+![Gif of ClimateMARGO.jl being used interactively. The user's mouse cursor clicks on an emissions curve to drag the emissions down. A second panel shows how these emissions reductions result in less global warming, ultimately keeping global warming below a target of 2ºC.](https://raw.githubusercontent.com/hdrake/MARGO-gifs/main/MARGO_interactive_2degrees.gif)
+
+ClimateMARGO.jl is currently in beta testing; basic model documentation is slowly being added. Substantial structural changes may still take place before the first stable release v1.0.0. Anyone interested in helping develop the model post an Issue here or contact the lead developer Henri Drake directly (henrifdrake `at` gmail.com), until explicit guidelines for contributing to the model are posted at a later date.
 
 
 ----
