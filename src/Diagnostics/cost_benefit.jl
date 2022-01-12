@@ -1,4 +1,4 @@
-f(α::Array; p=3.) = α.^p # shape of individual cost functions
+f(α::Array; p=3) = α.^p # shape of individual cost functions
 
 E(t, E0, γ) = E0 * (1. .+ γ).^(t .- t[1])
 E(m) = E(t(m), m.economics.E0, m.economics.γ)
@@ -22,14 +22,14 @@ damage(m; discounting=false, M=false, R=false, G=false, A=false) = damage(
     discount=1. .+ discounting * (discount(m) .- 1.)
 )
 
-cost(CM, CR, CG, CA, ϵCG, E, q, M, R, G, A; discount=1., p=3.) = (
+cost(CM, CR, CG, CA, ϵCG, E, q, M, R, G, A; discount=1., p=3) = (
     ( ppm_to_GtCO2(q).*CM.*f(M, p=p) +
       E.*(CG.*f(G, p=p) .+ ϵCG*(G.>1.e-3)) +
       CR*f(R, p=p) +
       E.*CA.*f(A, p=p)
     ) .* discount
 )
-cost(m::ClimateModel; discounting=false, p=3., M=false, R=false, G=false, A=false) = cost(
+cost(m::ClimateModel; discounting=false, p=3, M=false, R=false, G=false, A=false) = cost(
     m.economics.mitigate_cost,
     m.economics.remove_cost,
     m.economics.geoeng_cost, 
@@ -45,14 +45,14 @@ cost(m::ClimateModel; discounting=false, p=3., M=false, R=false, G=false, A=fals
     p=p
 )
 
-function cost(m::ClimateModel, controls::String; discounting=false)
+function cost(m::ClimateModel, controls::String; discounting=false, p=3)
     vars = Dict("M"=>false, "R"=>false, "G"=>false, "A"=>false)
     for (key, value) in vars
         if occursin(key, controls)
             vars[key] = true
         end
     end
-    return cost(m, discounting=discounting; M=vars["M"], R=vars["R"], G=vars["G"], A=vars["A"])
+    return cost(m, discounting=discounting; p=p, M=vars["M"], R=vars["R"], G=vars["G"], A=vars["A"])
 end
 
 benefit(damage_baseline, damage) = damage_baseline .- damage
@@ -62,24 +62,24 @@ benefit(m::ClimateModel; discounting=false, M=false, R=false, G=false, A=false) 
 )
 
 net_benefit(benefit, cost) = benefit .- cost
-net_benefit(m::ClimateModel; discounting=true, M=false, R=false, G=false, A=false) = net_benefit(
+net_benefit(m::ClimateModel; discounting=true, p=3, M=false, R=false, G=false, A=false) = net_benefit(
     benefit(m, discounting=discounting, M=M, R=R, G=G, A=A),
-    cost(m, discounting=discounting, M=M, R=R, G=G, A=A)
+    cost(m, discounting=discounting, p=p, M=M, R=R, G=G, A=A)
 )
 
 net_present_cost(cost, dt) = sum(cost*dt)
 function net_present_cost(
         m::ClimateModel;
-        discounting=true, M=false, R=false, G=false, A=false
+        discounting=true, p=3, M=false, R=false, G=false, A=false
     )
     return net_present_cost(
-        cost(m, discounting=discounting, M=M, R=R, G=G, A=A),
+        cost(m, discounting=discounting, p=p, M=M, R=R, G=G, A=A),
         m.domain.dt
     )
 end
 
 net_present_benefit(net_benefit, dt) = sum(net_benefit*dt)
-net_present_benefit(m::ClimateModel; discounting=true, M=false, R=false, G=false, A=false) = net_present_benefit(
-    net_benefit(m, discounting=discounting, M=M, R=R, G=G, A=A),
+net_present_benefit(m::ClimateModel; discounting=true, p=3, M=false, R=false, G=false, A=false) = net_present_benefit(
+    net_benefit(m, discounting=discounting, p=p, M=M, R=R, G=G, A=A),
     m.domain.dt
 )
