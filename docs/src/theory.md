@@ -20,7 +20,7 @@ It is helpful to conceptualize climate change as a four step process that connec
 
 Letting climate change run rampant would clearly cause a lot of suffering; however, climate controls that slow or stop climate change are not free either. MARGO empowers users to explore the trade-offs between climate controls and climate suffering by employing an optimization framework commonly used in the climate-economics community. In this section, we develop a simple theory - a set of mathematical equations – which capture the key aspects of the entire causal chain of climate damages.
 
-![MARGO schematic](MARGO_schematic.png)
+![Schematic explaining the MARGO model.](https://raw.githubusercontent.com/hdrake/MARGO-gifs/main/Margo_schematic.png)
 
 !!! ukw "Tuning MARGO's free parameters"
     We have attempted to make reasonable choices for the default values of MARGO's parameters in the equations below. Some of these, such as the climate physics variables, are well justified based on the best climate science research; others, such as the socio-economic parameters, are chosen based on our values (or those represented in the academic climate change literature). We encourage users to question these choices and plug their own values into ClimateMARGO. If you feel strongly that we should change some of the default values included in the model code, please reach out to us by [opening an issue](https://github.com/ClimateMARGO/ClimateMARGO.jl/labels/criticism) on Github.
