@@ -53,4 +53,4 @@ makedocs(
     pages = pages
 )
 
-deploydocs(repo = "github.com/ClimateMARGO/ClimateMARGO.jl.git",)
+deploydocs(repo = "github.com/ClimateMARGO/ClimateMARGO.jl.git", devbranch = "main")
