@@ -1,7 +1,7 @@
 # # ClimateMARGO.jl tutorial
 
-# The following schematic shows the full formulation of the MARGO model, which is described in detail in the accompanying (but not yet peer-reviewed) manuscript, available for free at [EarthArXiv.org/5bgyc](https://eartharxiv.org/5bgyc). No-policy baseline emissions $q(t)$ are prescribed, leading to changing greenhouse gas (CO$_{2e}$) concentrations, radiative forcing, temperatures, and climate damages. Emissions can be decreased by **M**itigation; concentrations can be decreased by carbon dioxide **R**emoval; forcing can be decreased by solar **G**eo-engineering; and the "adapted" temperature that leads to climate damages can be reduced by **A**dapting to the changed climate.
-# <img src="../docs/src/MARGO_schematic.png" alt="drawing" width="60%" style="float:left"/>
+# The following schematic shows the full formulation of the MARGO model, which is described in detail in the accompanying article, [published open-access](https://iopscience.iop.org/article/10.1088/1748-9326/ac243e) in the journal *Environmental Research Letters*. No-policy baseline emissions $q(t)$ are prescribed, leading to changing greenhouse gas (CO$_{2e}$) concentrations, radiative forcing, temperatures, and climate damages. Emissions can be decreased by **M**itigation; concentrations can be decreased by carbon dioxide **R**emoval; forcing can be decreased by solar **G**eo-engineering; and the "adapted" temperature that leads to climate damages can be reduced by **A**dapting to the changed climate.
+# <img src="https://raw.githubusercontent.com/hdrake/MARGO-gifs/main/Margo_schematic.png" alt="drawing" width="60%" style="float:left"/>
 
 # ### Import software
 
@@ -51,9 +51,9 @@ dom = Domain(dt, initial_year, initial_year, final_year);
 #### 2. Configuring the carbon cycle and energy balance models
 
 # CO$_{2e}$ concentrations are given by:
-# \begin{equation}
-# c_{M,R}(t) = c_{0} + \int_{t_{0}}^{t} rq(t')(1-M(t')) \text{ d}t' - q_{0} \int_{t_{0}}^{t} R(t')\text{ d}t'.
-# \end{equation}
+# ```math
+# c_{M,R}(t) = c_{0} + \int_{t_{0}}^{t} rq(t')(1-M(t')) \text{ d}t' - q_{0} \int_{t_{0}}^{t} R(t')\text{ d}t' \, .
+# ```
 # where $q(t)$ is a specific timeseries of no-climate-policy baseline emissions (with $q(t_{0}) = q_{0}$), $c_{0}$ is the initial CO$_{2e}$ concentration, and $r$ is the fraction of emitted CO$_{2e}$ that remains in the atmosphere net of short-term uptake by the ocean and biosphere. $M(t')$ and $R(t')$ represent the effects emissions mitigation and carbon dioxide removal, respectively, on CO$_{2e}$ concentrations relative to the baseline; they will be initially set to zero and later determined by solving an optimization problem.
 
 # The default no-policy scenario is one of rapid, fossil-fueled growth which leads to an accumulation of $c(t) = 1400$ ppm of CO$_{2e}$ in the atmosphere by 2150, when emissions are assumed to finally reach net-zero.
@@ -90,9 +90,9 @@ grid(true)
 gcf()
 
 # These CO$_{2e}$ concentrations drive an anomalous greenhouse effect, which is represented by the radiative forcing
-# \begin{equation}
-# F_{M,R,G} = a \ln\left(\frac{c_{M,R}(t)}{c_{0}}\right) - G(t)F_{\infty},
-# \end{equation}
+# ```math
+# F_{M,R,G} = a \ln\left(\frac{c_{M,R}(t)}{c_{0}}\right) - G(t)F_{\infty} \, ,
+# ```
 # where $a$ is an empirically determined coefficient, $G(t)$ represents the effects of geoengineering, and $F_{\infty} = 8.5$ W/m$^2$ is a scaling factor for the effects of geoengineering by Solar Radiation Modification (SRM).
 
 a = (6.9/2.)/log(2.); # F4xCO2/2 / log(2) [W m^-2]
@@ -112,9 +112,9 @@ ylim([0,10.]);
 gcf()
 
 # Next, we configure MARGO's energy balance model, which is forced by the controlled forcing $F_{M,R,G}$. The two-layer energy balance model can be solved, approximately, as:
-# \begin{equation}
-#     T_{M,R,G}(t) - T_{0} = \frac{F_{M,R,G}(t)}{B + \kappa} + \frac{\kappa}{B} \int_{t_{0}}^{t} \frac{e^{\frac{t'-t}{\tau_{D}}}}{\tau_{D}} \frac{F_{M,R,G}(t')}{B+\kappa} \, \text{d}t',
-# \end{equation}
+# ```math
+#     T_{M,R,G}(t) - T_{0} = \frac{F_{M,R,G}(t)}{B + \kappa} + \frac{\kappa}{B} \int_{t_{0}}^{t} \frac{e^{\frac{t'-t}{\tau_{D}}}}{\tau_{D}} \frac{F_{M,R,G}(t')}{B+\kappa} \, \text{d}t' \, ,
+# ```
 # where $T_{0}$ is the initial temperature change relative to preindustrial, $B$ is the feedback parameter, $\kappa$ is , and the timescale $\tau_{D} = \dfrac{C_{D}}{B} \dfrac{B + \kappa}{\kappa}$ is a more convenient expression for the deep ocean heat capacity $C_{D}$.
 
 # Default parameter values are taken from [Geoffroy et al. 2013](https://journals.ametsoc.org/doi/full/10.1175/JCLI-D-12-00195.1)'s physically-based calibration of the two-layer model to CMIP5.
@@ -159,9 +159,9 @@ gcf()
 βtilde = 0.01; # damages [%GWP / celsius^2]
 
 # The total cost of climate controls is simply the sum of their individual costs, each of which follows a parabolic cost function:
-# \begin{equation}
-#     \mathcal{C}_{M,R,G,A} = \mathcal{C}_{M}M^2 + \mathcal{C}_{R}R^2 +  \mathcal{C}_{G}G^2 + \mathcal{C}_{A}A^2
-# \end{equation}
+# ```math
+#     \mathcal{C}_{M,R,G,A} = \mathcal{C}_{M}M^2 + \mathcal{C}_{R}R^2 +  \mathcal{C}_{G}G^2 + \mathcal{C}_{A}A^2 \, .
+# ```
 
 # The calculation of the reference control costs $\mathcal{C}_{M}, \mathcal{C}_{R}, \mathcal{C}_{G}, \mathcal{C}_{A}$ are somewhat more complicated; see our Methods in [the preprint](https://eartharxiv.org/5bgyc/) and `defaults.jl` for details. Here, we simply provide their default numerical values, where the costs of mitigation $\mathcal{C}_{M} = \tilde{\mathcal{C}}_{M} E(t)$ and geoengineering $\mathcal{C}_{G} = \tilde{\mathcal{C}}_{G} E(t)$ grow with the size of the global economy and are thus specified as a fraction of GWP, while adaptaiton and removal costs are in trillions of USD per year.
 
@@ -254,15 +254,15 @@ m = ClimateModel(
 # #### Formulating the optimization problem
 # By default, the optimization problem we solve is for the most cost-effective combination of controls, as determined by minimization of the discounted net present value,
 
-# \begin{equation}
-#     \min\left\{\int_{t_{0}}^{t_{f}} \mathcal{C}_{M,R,G,A} (1 + \rho)^{-(t-t_{0})} \text{ d}t\right\}
-# \end{equation}
+# ```math
+#     \min\left\{\int_{t_{0}}^{t_{f}} \mathcal{C}_{M,R,G,A} (1 + \rho)^{-(t-t_{0})} \text{ d}t\right\} \, ,
+# ```
 
 # which keep controlled damages below the level corresponding to a chosen temperature threshold $T^{\star}$,
 
-# \begin{equation}
-#     \tilde{\beta} E(t) (T_{M,R,G})^{2} (1 - A(t)) < \tilde{\beta} E(t) (T^{\star})^{2}.
-# \end{equation}
+# ```math
+#     \tilde{\beta} E(t) (T_{M,R,G})^{2} (1 - A(t)) < \tilde{\beta} E(t) (T^{\star})^{2} \, .
+# ```
 
 temp_goal = 2.0;
 
