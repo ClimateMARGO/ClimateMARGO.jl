@@ -48,7 +48,7 @@ t_arr = t(initial_year, final_year, dt);
 present_year = initial_year
 dom = Domain(dt, initial_year, initial_year, final_year);
 
-#### 2. Configuring the carbon cycle and energy balance models
+# #### 2. Configuring the carbon cycle and energy balance models
 
 # CO$_{2e}$ concentrations are given by:
 # ```math
