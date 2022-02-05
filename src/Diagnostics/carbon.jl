@@ -27,12 +27,19 @@ function emissions(m::ClimateModel; M=false)
     )
 end
 
-function effective_emissions(r, q, M, R)
-    return r*(emissions(q, M) .- q[1]*R)
-end
+effective_emissions(r, q, M, R) = r * net_emissions(q, M, R)
 function effective_emissions(m; M=false, R=false)
     return effective_emissions(
         m.physics.r,
+        m.economics.baseline_emissions,
+        m.controls.mitigate .* (1. .- .~past_mask(m) * ~M),
+        m.controls.remove .* (1. .- .~past_mask(m) * ~R)
+    )
+end
+
+net_emissions(q, M, R) = emissions(q, M) .- q[1]*R
+function net_emissions(m; M=false, R=false)
+    return net_emissions(
         m.economics.baseline_emissions,
         m.controls.mitigate .* (1. .- .~past_mask(m) * ~M),
         m.controls.remove .* (1. .- .~past_mask(m) * ~R)
