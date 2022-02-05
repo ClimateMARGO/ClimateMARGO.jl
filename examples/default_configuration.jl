@@ -11,7 +11,9 @@
 
 using ClimateMARGO # Julia implementation of the MARGO model
 using Plots # A basic plotting package
+using LaTeXStrings
 gr()
+default(label="", grid=true, gridalpha=0.15, linewidth=2.5, color=:navyblue)
 
 #
 
@@ -70,20 +72,17 @@ q = ramp_emissions(t_arr, q0, q0mult, t_peak, t_zero);
 
 #
 
-p1 = plot(t_arr, ppm_to_GtCO2(q))
-plot!(p1, xlabel = "year", ylabel=L"baseline emissions $q(t)$ [GtCO2 / year]")
-plot!(xlim = (2020, 2200), grid=true, gridalpha=0.25)
+p1 = plot(t_arr, ppm_to_GtCO2(q));
+plot!(p1, xlabel = "year", ylabel=L"baseline emissions $q(t)$ [GtCO2 / year]");
+plot!(xlim = (2020, 2200));
 
-subplot(1,2,2)
-q_effective = effective_emissions(r, q, 0., 0.) # No mitigation, no carbon removal
-c_baseline = c(c0, q_effective, dt)
-plot(t_arr, c_baseline)
-xlabel("year")
-ylabel(L"baseline concentrations $c(t)$ [ppm]")
-xlim([2020, 2200])
-tight_layout();
-grid(true)
-gcf()
+q_effective = effective_emissions(r, q, 0., 0.); # No mitigation, no carbon removal
+c_baseline = c(c0, q_effective, dt);
+p2 = plot(t_arr, c_baseline);
+plot!(p2, xlabel="year", ylabel = L"baseline concentrations $c(t)$ [ppm]");
+plot!(p2, xlim = (2020, 2200));
+
+p = plot(p1, p2, size=(1000, 400), margin=5Plots.Measures.mm)
 
 # These CO$_{2e}$ concentrations drive an anomalous greenhouse effect, which is represented by the radiative forcing
 # ```math
@@ -96,16 +95,12 @@ Finf = 8.5;
 
 #
 
-figure(figsize=(4.5,3.2))
-F0 = 3.0
-F_baseline = F(a, c0, Finf, c_baseline, 0.)
-plot(t_arr, F_baseline .+ F0)
-xlabel("year")
-ylabel(L"baseline radiative forcing $F(t)$ [W/m$^2$]")
-xlim([2020, 2200])
-grid(true)
-ylim([0,10.]);
-gcf()
+F0 = 3.0;
+F_baseline = F(a, c0, Finf, c_baseline, 0.);
+p = plot(size=(500, 400), margin=5Plots.Measures.mm);
+plot!(p, t_arr, F_baseline .+ F0);
+plot!(p, xlabel = "year", ylabel=L"baseline radiative forcing $F(t)$ [W/m$^2$]");
+plot!(p, xlim = (2020, 2200), ylim = (0, 10.))
 
 # Next, we configure MARGO's energy balance model, which is forced by the controlled forcing $F_{M,R,G}$. The two-layer energy balance model can be solved, approximately, as:
 # ```math
@@ -141,14 +136,10 @@ E0 = 100. # Gross World Product at t0 [10^12$ yr^-1]
 
 E_arr = E(t_arr, E0, γ)
 
-figure(figsize=(4, 2.5))
-plot(t_arr, E_arr)
-xlabel("year")
-ylabel("GWP [trillion USD]")
-xlim([2020, 2200])
-ylim([0, 3000]);
-grid(true)
-gcf()
+p = plot(size=(500, 400), margin=5Plots.Measures.mm);
+plot!(p, t_arr, E_arr);
+plot!(p, xlabel="year", ylabel="GWP [trillion USD]");
+plot!(p, xlim = (2020, 2200), ylim = (0, 3000))
 
 # Economic damages $D_{M,R,G,A} = \tilde{\beta}E(t) (\Delta T_{M,R,G})^{2} (1 - A(t))$, expressed as a fraction $\tilde{\beta}(\Delta T_{M,R,G})^{2}$ of the instantaneous Gross World Product, increase quadratically with temperature change relative to preindustrial. They can be decrease by adaptation controls $A(t)$. The default value of the damage parameter $\tilde{\beta}$ corresponds to damages of 2\% of GWP at 3ºC of warming.
 
@@ -200,14 +191,10 @@ geoeng_cost = βtilde*(Finf/B)^2; # [% GWP]
 
 ρ = 0.02;
 
-figure(figsize=(4, 2.5))
-plot(t_arr, discount(t_arr, ρ, present_year)*100)
-xlabel("year")
-ylabel("discount factor (%)")
-xlim([2020, 2200])
-ylim([0, 100]);
-grid(true)
-gcf()
+p = plot(size=(500, 400), margin=5Plots.Measures.mm);
+plot!(p, t_arr, discount(t_arr, ρ, present_year)*100);
+plot!(p, xlabel="year", ylabel="discount factor (%)");
+plot!(p, xlim=(2020, 2200), ylim = [0, 100])
 
 # These parameters, in addition to a no-policy baseline emissions time-series and present-day control values, define the economic model.
 
@@ -301,7 +288,6 @@ using ClimateMARGO.Optimization
 
 using ClimateMARGO.Plotting
 plot_state(m, temp_goal=temp_goal)
-gcf()
 
 # ## Customizing MARGO
 
@@ -320,7 +306,6 @@ max_deployment["adapt"] = 0.
 );
 
 plot_state(m, temp_goal=temp_goal)
-gcf()
 
 # ## Saving (and loading) MARGO simulations (or parameter configurations)
 
