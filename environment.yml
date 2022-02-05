@@ -1,5 +1,0 @@
-name: ClimateMARGO
-channels:
-  - conda-forge
-dependencies:
-  - matplotlib
