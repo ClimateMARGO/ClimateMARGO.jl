@@ -79,7 +79,7 @@ function plot_controls(m::ClimateModel)
     plot!(p, t(m), m.controls.adapt, color=:forestgreen,  linewidth=2.5, label=L"$A$ (adaptation)")
     plot!(p, t(m), m.controls.geoeng, color=:firebrick,  linewidth=2.5, label=L"$G$ (solar geoengineering)")
     ylims = [0., 1.075]
-    plot!(p, yticks=0.:0.2:1.0, yticklabels=0:20:100, xticks=t(m)[1]:40.:2200.)
+    plot!(p, xticks=t(m)[1]:40.:2200., yticks=([0.:0.2:1.0;], string.(0:20:100)))
     plot!(p, ylim=ylims, xlim=(t(m)[1],2200.))
     plot!(p, xlabel="year", ylabel="control deployment [%]")
     plot!(p, legend=:topleft)
@@ -100,7 +100,7 @@ function plot_benefits(m::ClimateModel; discounting=true)
     plot!(p, t(m)[domain_idx], benefit(m, discounting=discounting, M=true, R=true, G=true, A=true)[domain_idx], color=:olive,  linewidth=2, label="benefits (of avoided damages)")
     plot!(p, t(m)[domain_idx], cost(m, discounting=discounting, M=true, R=true, G=true, A=true)[domain_idx], color=:purple,  linewidth=2, label="costs (of climate controls)")
     plot!(p, t(m)[domain_idx], net_benefit(m, discounting=discounting, M=true, R=true, G=true, A=true)[domain_idx], color=:black,  linewidth=2, label="net benefits (benefits - costs)")
-    plot!(p, ylabel=L"discounted costs and benefits [10$^{12}$ \$ / year]", xlabel="year")
+    plot!(p, ylabel=L"discounted costs and benefits [10$^{12}$ USD / year]", xlabel="year")
     plot!(p, xlim=(t(m)[1],2200.), xticks=t(m)[1]:40.:2200.)
     plot!(p, legend=:topleft)
     return p
@@ -137,9 +137,9 @@ function plot_damages(m::ClimateModel; discounting=true, percent_GWP=false, temp
 
     if ~percent_GWP;
         if ~discounting;
-            ylabel=L"costs [10$^{12}$ \$ / year]";
+            ylabel=L"costs [10$^{12}$ USD / year]";
         else;
-            ylabel=L"discounted costs [10$^{12}$ \$ / year]";
+            ylabel=L"discounted costs [10$^{12}$  USD / year]";
         end
     else
         if ~discounting

@@ -10,7 +10,8 @@
 # If you are running this tutorial via Binder, there is no need to install the package; just import it using the command below.
 
 using ClimateMARGO # Julia implementation of the MARGO model
-using PyPlot # A basic plotting package
+using Plots # A basic plotting package
+gr()
 
 #
 
@@ -69,14 +70,9 @@ q = ramp_emissions(t_arr, q0, q0mult, t_peak, t_zero);
 
 #
 
-figure(figsize=(9,3.5))
-
-subplot(1,2,1)
-plot(t_arr, ppm_to_GtCO2(q))
-xlabel("year")
-ylabel(L"baseline emissions $q(t)$ [GtCO2 / year]")
-xlim([2020, 2200])
-grid(true)
+p1 = plot(t_arr, ppm_to_GtCO2(q))
+plot!(p1, xlabel = "year", ylabel=L"baseline emissions $q(t)$ [GtCO2 / year]")
+plot!(xlim = (2020, 2200), grid=true, gridalpha=0.25)
 
 subplot(1,2,2)
 q_effective = effective_emissions(r, q, 0., 0.) # No mitigation, no carbon removal
