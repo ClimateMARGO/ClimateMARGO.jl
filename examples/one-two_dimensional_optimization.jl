@@ -2,7 +2,7 @@
 
 # ## Loading ClimateMARGO.jl
 using ClimateMARGO # Julia implementation of the MARGO model
-using PyPlot # A basic plotting package
+using Plots # A basic plotting package
 
 # Loading submodules for convenience
 using ClimateMARGO.Models
@@ -45,14 +45,8 @@ max_deployment = Dict("mitigate"=>1.0, "remove"=>1.0, "geoeng"=>0., "adapt"=>0.)
 @time optimize_controls!(m, obj_option = "net_benefit", max_slope=max_slope, max_deployment=Dict("mitigate"=>1.0, "remove"=>0., "geoeng"=>0., "adapt"=>0.));
 
 # ### Visualizing the results
-fig, axes = ClimateMARGO.Plotting.plot_state(m);
-axes[3].legend(loc="upper left")
-axes[4].legend(loc="lower left")
-axes[5].legend(loc="lower right")
-axes[6].legend(loc="upper right")
-axes[6].set_ylim(0,2.5)
-gcf()
-
+p = ClimateMARGO.Plotting.plot_state(m)
+plot!(p[4], ylim = (0, 1.2), yticks=([0.:0.2:1.0;], string.(0:20:100)))
 # ## Comparing the two-dimensional optimization with the brute-force parameter sweep method
 
 # ### Parameter sweep
@@ -92,123 +86,92 @@ end
 
 # ### Visualizing the one-dimensional mitigation optimization problem
 # In the limit of zero-carbon dioxide removal, we can recover the 1D mitigation optimization problem from the 2D one.
-col = ((1., 0.8, 0.), (0.8, 0.5, 0.), (0.7, 0.2, 0.), (0.6, 0., 0.),)
+col = (
+    Colors.RGBA(1., 0.8, 0.),
+    Colors.RGBA(0.8, 0.5, 0.),
+    Colors.RGBA(0.7, 0.2, 0.),
+    Colors.RGBA(0.6, 0., 0.),
+)
 
-fig = figure(figsize=(14,5))
-ax = subplot(1,2,1)
-ind1 = argmin(abs.(max_temp[1,:] .- 1.5))
-ind2 = argmin(abs.(max_temp[1,:] .- 2.))
-ind3 = argmin(abs.(max_temp[1,:] .- 3.))
-ind4 = argmin(abs.(max_temp[1,:] .- 4.))
-plot(Ms, control_cost[1,:], "k-", lw=2)
-plot(Ms[ind1], control_cost[1,ind1], "o", color=col[1], markersize=10)
-plot(Ms[ind2], control_cost[1,ind2], "o", color=col[2], markersize=10)
-plot(Ms[ind3], control_cost[1,ind3], "o", color=col[3], markersize=10)
-plot(Ms[ind4], control_cost[1,ind4], "o", color=col[4], markersize=10)
+p1 = plot(title="1D cost-effectivness optimization");
+ind1 = argmin(abs.(max_temp[1,:] .- 1.5));
+ind2 = argmin(abs.(max_temp[1,:] .- 2.));
+ind3 = argmin(abs.(max_temp[1,:] .- 3.));
+ind4 = argmin(abs.(max_temp[1,:] .- 4.));
+plot!(p1, Ms, control_cost[1,:], color=:black);
+plot!(p1, [Ms[ind1]], [control_cost[1,ind1]], marker=:circle, markercolor=col[1], markersize=10);
+plot!(p1, [Ms[ind2]], [control_cost[1,ind2]], marker=:circle, markercolor=col[2], markersize=10);
+plot!(p1, [Ms[ind3]], [control_cost[1,ind3]], marker=:circle, markercolor=col[3], markersize=10);
+plot!(p1, [Ms[ind4]], [control_cost[1,ind4]], marker=:circle, markercolor=col[4], markersize=10);
 for (g, temp_goal) = enumerate(temp_goals)
-    fill_between([], [], [], facecolor=col[g], label=latexstring("\$\\max(T)>\$", temp_goal), alpha=0.5)
+    plot!(p1, [NaN], [NaN], fillrange=[NaN], color=col[g], label=latexstring("\$\\max(T)>\$", temp_goal), alpha=0.5);
 end
-minM1 = Ms[ind1]
-minM2 = Ms[ind2]
-minM3 = Ms[ind3]
-minM4 = Ms[ind4]
-ylims = ax.get_ylim()
-fill_between([minM2,minM1], [ylims[1], ylims[1]], [ylims[2],ylims[2]], color=col[1], alpha=0.2)
-fill_between([minM3,minM2], [ylims[1], ylims[1]], [ylims[2],ylims[2]], color=col[2], alpha=0.2)
-fill_between([minM4,minM3], [ylims[1], ylims[1]], [ylims[2],ylims[2]], color=col[3], alpha=0.2)
-fill_between([0,minM4], [ylims[1], ylims[1]], [ylims[2],ylims[2]], color=col[4], alpha=0.2)
-axvline(minM1, color=col[1])
-axvline(minM2, color=col[2])
-axvline(minM3, color=col[3])
-axvline(minM4, color=col[4])
-ylim(ylims)
-xlim(0,1)
-xlabel("Emissions mitigation level [% reduction]")
-xticks(0.:0.2:1.0, ["0%", "20%", "40%", "60%", "80%", "100%"])
-ylabel("Net present cost of controls [trillion USD]")
-plot([], [], "o", color="grey", label="lowest cost", markersize=10.)
-legend(loc="upper left")
+minM1 = Ms[ind1];
+minM2 = Ms[ind2];
+minM3 = Ms[ind3];
+minM4 = Ms[ind4];
+yl = deepcopy(ylims(p1));
+plot!(p1, [minM2,minM1], [yl[1], yl[1]], fillrange=[yl[2],yl[2]], color=col[1], alpha=0.2);
+plot!(p1, [minM3,minM2], [yl[1], yl[1]], fillrange=[yl[2],yl[2]], color=col[2], alpha=0.2);
+plot!(p1, [minM4,minM3], [yl[1], yl[1]], fillrange=[yl[2],yl[2]], color=col[3], alpha=0.2);
+plot!(p1, [0,minM4], [yl[1], yl[1]], fillrange=[yl[2],yl[2]], color=col[4], alpha=0.2);
+plot!(p1, [minM1], seriestype = :vline, color=col[1]);
+plot!(p1, [minM2], seriestype = :vline, color=col[2]);
+plot!(p1, [minM3], seriestype = :vline, color=col[3]);
+plot!(p1, [minM4], seriestype = :vline, color=col[4]);
+plot!(p1, ylim=yl, xlim = (0,1), xticks = (0.:0.2:1.0, ["0%", "20%", "40%", "60%", "80%", "100%"]));
+plot!(p1, xlabel = "Emissions mitigation level [% reduction]", ylabel="Net present cost of controls [trillion USD]");
+plot!(p1, [NaN], [NaN], marker=:circle, color=:grey, label="lowest cost", markersize=10.);
+plot!(p1, legend=:topleft);
 
-ax = subplot(1,2,2)
-plot(Ms, net_benefit[1,:], "k-", lw=2)
-ind = argmax(net_benefit[1,:])
-plot(Ms[ind], net_benefit[1,ind], "ko", markersize=10, label="most benefits")
-ylims = ax.get_ylim()
-axvline(minM1, color=col[1])
-axvline(minM2, color=col[2])
-axvline(minM3, color=col[3])
-axvline(minM4, color=col[4])
-ylim(ylims)
-xlim(0,1)
-xlabel("Emissions mitigation level [% reduction]")
-xticks(0.:0.2:1.0, ["0%", "20%", "40%", "60%", "80%", "100%"])
-ylabel("Net present benefits, relative to baseline [trillion USD]")
-legend(loc="upper left")
-gcf()
+p2 = plot(title="1D cost-benefit optimization");
+plot!(p2, Ms, net_benefit[1,:], color=:black);
+ind = argmax(net_benefit[1,:]);
+plot!(p2, [Ms[ind]], [net_benefit[1,ind]], marker=:circle, color=:black, markersize=10, label="most benefits");
+yl = ylims(p2);
+plot!(p2, [minM1], seriestype=:vline, color=col[1]);
+plot!(p2, [minM2], seriestype=:vline, color=col[2]);
+plot!(p2, [minM3], seriestype=:vline, color=col[3]);
+plot!(p2, [minM4], seriestype=:vline, color=col[4]);
+plot!(p2, ylim = yl, xlim = (0,1), xticks = (0.:0.2:1.0, ["0%", "20%", "40%", "60%", "80%", "100%"]));
+plot!(p2, xlabel = "Emissions mitigation level [% reduction]", ylabel = "Net present benefits, relative to baseline [trillion USD]");
+plot!(p2, legend=:topleft);
 
+p = plot(p1, p2, size=(1200, 500), margin=5Plots.Measures.mm)
 ##
 
 # ### Visualizing the two-dimensional optimization problem
 
-fig = figure(figsize=(14, 5))
-
-o = 1
-subplot(1,2,o)
-pcolor(Ms, Rs, control_cost, cmap="Greys", vmin=0., vmax=150.)
-cbar = colorbar(label="Net present cost of controls [trillion USD]")
-control_cost[(min_temp .<= 0.)] .= NaN
-contour(Ms, Rs, control_cost, levels=[10, 50], colors="k", linewidths=0.5, alpha=0.4)
-
-grid(true, color="k", alpha=0.25)
-temp_mask = ones(size(max_temp))
-temp_mask[max_temp .<= 4.0] .= NaN
-contourf(Ms, Rs, temp_mask, cmap="Reds", alpha=1.0, vmin=0., vmax=2.)
-
-temp_mask = ones(size(min_temp))
-temp_mask[min_temp .> 0.] .= NaN
-contourf(Ms, Rs, temp_mask, cmap="Blues", alpha=1.0, vmin=0., vmax=2.5)
-contour(Ms, Rs, min_temp, colors="darkblue", levels=[0.], linewidths=2.5)
-plot([], [], "o", color="grey", label="lowest cost", markersize=10.)
-plot([], [], "-", color="darkblue", label=latexstring("\$\\min(T)=\$", 0), lw=2.5)
+p1 = plot(title="2D cost-effectiveness optimization");
+plot!(p1, Ms, Rs, control_cost, seriestype=:heatmap, clim=(0, 150), c=cgrad(:greys, rev=true));
+plot!(p1, colorbar_title = "Net present cost of controls [trillion USD]");
+control_cost[(min_temp .<= 0.)] .= NaN;
 
 for (g, temp_goal) = enumerate(temp_goals)
-    contour(Ms, Rs, max_temp, colors=[col[g]], levels=[temp_goal], linewidths=2.5)
-    plot(optimal_controls[1,g,o], optimal_controls[2,g,o], "o", color=col[g], markersize=10.)
-    fill_between([], [], [], facecolor=col[g], label=latexstring("\$\\max(T)>\$", temp_goal), alpha=0.5)
+    plot!(p1, Ms, Rs, max_temp, seriestype=:contour, seriescolor=col[g], levels=[temp_goal], linewidths=2.5);
+    plot!(p1, [optimal_controls[1,g,1]], [optimal_controls[2,g,1]], marker=:o, color=col[g], markersize=10.);
+    plot!(p1, [NaN], [NaN], fillrange=[NaN], color=col[g], label=latexstring("\$\\max(T)>\$", temp_goal), alpha=0.5);
 end
-legend(loc="upper left")
+plot!(p1, Ms, Rs, control_cost, levels=[10, 50], seriestype=:contour, seriescolor=:thermal, linewidths=2., alpha=0.8);
+plot!(p1, [NaN], [NaN], marker=:circle, color=:gray, label="lowest cost", markersize=10.);
+plot!(p1, legend=:topleft, xlabel="Emissions mitigation level [% reduction]", ylabel=L"CO$_{2e}$ removal rate [% of present-day emissions]");
+plot!(p1, xticks=(0.:0.2:1.0, ["0%", "20%", "40%", "60%", "80%", "100%"]), yticks=(0.:0.2:1.0, ["0%", "20%", "40%", "60%", "80%", "100%"]));
+annotate!(p1, 0.1, 0.05, text(L"$\max(T) > 4\degree$C", :darkred, 10));
+annotate!(p1, 0.85, 0.85, text(L"$\min(T) < 0\degree$C", :darkblue, 10));
+plot!(xlim=(0, 1.), ylim=(0., 1.));
 
-xlabel("Emissions mitigation level [% reduction]")
-xticks(0.:0.2:1.0, ["0%", "20%", "40%", "60%", "80%", "100%"])
-ylabel(L"CO$_{2e}$ removal rate [% of present-day emissions]")
-yticks(0.:0.2:1.0, ["0%", "20%", "40%", "60%", "80%", "100%"])
-annotate(L"$\max(T) > 4\degree$C", (0.015, 0.03), xycoords="axes fraction", color="darkred", fontsize=9)
-annotate(L"$\min(T) < 0\degree$C", (0.72, 0.725), xycoords="axes fraction", color="darkblue", fontsize=9)
-title("Cost-effectiveness analysis")
-
-o = 2
-subplot(1,2,o)
-q = pcolor(Ms, Rs, net_benefit, cmap="Greys_r", vmin=0, vmax=250)
-cbar = colorbar(label="Net present benefits, relative to baseline [trillion USD]", extend="both")
-contour(Ms, Rs, net_benefit, levels=[100, 200], colors="k", linewidths=0.5, alpha=0.4)
-
-grid(true, color="k", alpha=0.25)
-temp_mask = ones(size(min_temp))
-temp_mask[(min_temp .> 0.)] .= NaN
-contourf(Ms, Rs, temp_mask, cmap="Blues", alpha=1.0, vmin=0., vmax=2.5)
-contour(Ms, Rs, min_temp, colors="darkblue", levels=[0.], linewidths=2.5)
-plot([], [], "-", color="darkblue")
-
-plot(optimal_controls[1,1,2], optimal_controls[2,1,2], "o", color="k", markersize=10., label="most benefits")
+p2 = plot(title="2D cost-benefit optimization");
+plot!(p2, Ms, Rs, net_benefit, seriestype=:heatmap, clim=(0, 250), c=cgrad(:greys));
+plot!(p2, colorbar_title = "Net present benefits, relative to baseline [trillion USD]");
+plot!(p2, [optimal_controls[1,1,2]], [optimal_controls[2,1,2]], marker=:o, color=:black, markersize=10., label="most benefits");
 for (g, temp_goal) = enumerate(temp_goals)
-    contour(Ms, Rs, max_temp, colors=[col[g]], levels=[temp_goal], linewidths=2.5)
+    plot!(p2, Ms, Rs, max_temp, seriestype=:contour, seriescolor=col[g], levels=[temp_goal], linewidths=2.5);
 end
-legend()
+plot!(p2, Ms, Rs, net_benefit, seriestype=:contour, levels=[100, 200], seriescolor=:black, linewidths=0.5, alpha=0.8);
+plot!(legend=:topright);
+plot!(p2, xlabel="Emissions mitigation level [% reduction]", ylabel=L"CO$_{2e}$ removal rate [% of present-day emissions]");
+plot!(xticks = (0.:0.2:1.0, ["0%", "20%", "40%", "60%", "80%", "100%"]), yticks=(0.:0.2:1.0, ["0%", "20%", "40%", "60%", "80%", "100%"]));
+annotate!(p2, 0.85, 0.85, text(L"$\min(T) < 0\degree$C", :white, 10));
+plot!(xlim=(0, 1.), ylim=(0., 1.));
 
-xlabel("Emissions mitigation level [% reduction]")
-xticks(0.:0.2:1.0, ["0%", "20%", "40%", "60%", "80%", "100%"])
-ylabel(L"CO$_{2e}$ removal rate [% of present-day emissions]")
-yticks(0.:0.2:1.0, ["0%", "20%", "40%", "60%", "80%", "100%"])
-annotate(L"$\min(T) < 0\degree$C", (0.72, 0.725), xycoords="axes fraction", color="darkblue", fontsize=9)
-title("Cost-benefit analysis")
-gcf()
+p = plot(p1, p2, size=(1600, 550), margin=5Plots.Measures.mm)
