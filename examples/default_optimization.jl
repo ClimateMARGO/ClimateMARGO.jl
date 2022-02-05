@@ -18,17 +18,17 @@ m.controls
 
 # ## Real-time climate optimization
 
-# Let's optimize the controls with the default settings, which finds the cheapest combination of the control timeseries that keeps adapted temperatures below 2°C.
-@time optimize_controls!(m, temp_goal=1.5);
+# Let's optimize the controls with the default settings, which finds the cheapest combination of the control timeseries that keeps adapted temperatures below 1.5°C.
+temp_goal = 1.5
+@time optimize_controls!(m, temp_goal=temp_goal);
 
 # The optimization can be slow the first time since it has to compile.
 # Let's re-initialize the model and see how fast it runs now that the the optimization routine has been precompiled.
 m = ClimateModel(params);
-@time optimize_controls!(m, temp_goal=1.5);
+@time optimize_controls!(m, temp_goal=temp_goal);
 
 # ## Visualizing the results
 
 # Finally, let's plot the resulting temperature timeseries
-using PyPlot
-fig, axes = ClimateMARGO.Plotting.plot_state(m, temp_goal=1.5);
-gcf()
+using Plots
+p = ClimateMARGO.Plotting.plot_state(m, temp_goal=temp_goal)
