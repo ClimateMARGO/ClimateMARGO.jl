@@ -1,4 +1,3 @@
-ENV["JULIA_MARGO_LOAD_PYPLOT"] = "no thank you"
 using JuMP
 using ClimateMARGO
 using ClimateMARGO.Models, ClimateMARGO.Optimization, ClimateMARGO.Diagnostics
