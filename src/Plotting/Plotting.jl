@@ -1,6 +1,6 @@
 module Plotting
 
-using PyPlot
+using Plots
 using ClimateMARGO.Models
 using ClimateMARGO.Diagnostics
 
