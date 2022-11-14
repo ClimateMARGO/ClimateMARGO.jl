@@ -1,7 +1,7 @@
 name = "ClimateMARGO"
 uuid = "d3f62095-a717-45bf-aadc-ac9dfc258fa6"
 repo = "https://github.com/ClimateMARGO/ClimateMARGO.jl"
-version = "0.3.2"
+version = "0.3.3"
 
 
 [deps]
