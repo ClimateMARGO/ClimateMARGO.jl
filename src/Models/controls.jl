@@ -20,8 +20,8 @@ C.geoeng
 See also: [`ClimateModel`](@ref)
 """
 mutable struct Controls
-    mitigate::Array{Float64,1}
-    remove::Array{Float64,1}
-    geoeng::Array{Float64,1}
-    adapt::Array{Float64,1}
+    mitigate::Vector{<:Real}
+    remove::Vector{<:Real}
+    geoeng::Vector{<:Real}
+    adapt::Vector{<:Real}
 end
